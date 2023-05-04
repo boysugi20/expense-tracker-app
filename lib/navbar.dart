@@ -34,34 +34,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    // return Scaffold(
-    //   bottomNavigationBar: Container(
-    //     margin: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
-    //     height: 64,
-    //     child: ClipRRect(
-    //       borderRadius: BorderRadius.circular(200),
-    //       child: BottomAppBar(
-    //         color: AppColors.darkest,
-    //         shape: CircularNotchedRectangle(),
-    //         child: Row(
-    //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //           children: [
-    //             IconButton(icon: Icon(Icons.bar_chart), onPressed: () {}),
-    //             IconButton(icon: Icon(Icons.search), onPressed: () {}),
-    //             SizedBox(width: 64,),
-    //             IconButton(icon: Icon(Icons.search), onPressed: () {}),
-    //             IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
-    //           ],
-    //         ),
-    //       ),
-    //     ),
-    //   ),
-    //   floatingActionButton:
-    //     FloatingActionButton(child: Icon(Icons.add), onPressed: () {}),
-    //   floatingActionButtonLocation: 
-    //     FloatingActionButtonLocation.centerDocked,
-    // );
     return Scaffold(
+        extendBody: true,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(top: 25),
@@ -70,21 +44,21 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
             width: 64,
             child: FittedBox(
               child: FloatingActionButton(
-                child: const Icon(Icons.add), 
                 onPressed: () {},
                 backgroundColor: AppColors.accent,
+                child: const Icon(Icons.add),
               ),
             ),
           ),
         ),
         body: _children[_currentIndex],
         bottomNavigationBar: Container(
-          margin: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
+          padding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
           height: 64,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(200),
             child: Container(
-              padding: const EdgeInsets.only(left: 24, right: 24),
+              padding: const EdgeInsets.only(left: 16, right: 16),
               color: AppColors.darkest,
               child: Theme(
                 data: ThemeData(
