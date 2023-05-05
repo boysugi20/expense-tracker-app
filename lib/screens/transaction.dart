@@ -12,12 +12,28 @@ class TransactionPage extends StatelessWidget {
       padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          SectionTitle(text: 'Subscription:', firstChild: true,),
+        children: [
+          const SectionTitle(text: 'Subscription:', firstChild: true,),
 
-          SubscriptionCard(title: 'Netflix', ammount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
+          const SubscriptionCard(title: 'Netflix', ammount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
 
-          SectionTitle(text: 'Transaction:'),
+          const SectionTitle(text: 'Transaction:'),
+
+          Container(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: const [
+                Text('Range: ', style: TextStyle(color: Colors.black),),
+                Text('<dateRangePicker>', style: TextStyle(color: Colors.black),),
+              ]
+            ),
+          ),
+
+          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000,),
+          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000,),
+          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000,),
+          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000,),
+
         ],
       ),
     );
@@ -60,6 +76,69 @@ class SubscriptionCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class Transactions extends StatelessWidget {
+
+  final String text, date;
+  final int ammount;
+
+  const Transactions({required this.text, required this.ammount, required this.date, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 64,
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(left: 18, right: 18),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        color: AppColors.white
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(right: 12),
+                child: CircleAvatar(
+                  backgroundColor: Colors.grey.shade200,
+                  child: const Text('F'),
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text: text,
+                      style: const TextStyle(color: Colors.black)
+                    ),
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      text: date,
+                      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300)
+                    ),
+                  ),
+                ]
+              ),
+            ],
+          ),
+          RichText(
+            text:  TextSpan(
+              text: 'Rp ${NumberFormat('###,###,###,000').format(ammount)}',
+              style: const TextStyle(color: Colors.red)
+            ),
+          ),
+        ],
+      ),
+
     );
   }
 }

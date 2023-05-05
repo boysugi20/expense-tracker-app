@@ -44,7 +44,7 @@ class DashboardPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.cardBorder),
                   borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  color: AppColors.neutralLight
+                  color: AppColors.white
                 ),
                 height: 240,
                 child: LineChart(
@@ -90,7 +90,7 @@ class Expenses extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.cardBorder),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
-        color: AppColors.neutralLight
+        color: AppColors.white
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -115,7 +115,7 @@ class Expenses extends StatelessWidget {
           RichText(
             text:  TextSpan(
               text: 'Rp ${NumberFormat('###,###,###,000').format(ammount)}',
-              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)
+              style: const TextStyle(color: Colors.red)
             ),
           ),
         ],
