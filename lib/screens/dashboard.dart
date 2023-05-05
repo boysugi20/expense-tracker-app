@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:expense_tracker/components/general.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({Key? key}) : super(key: key);
@@ -12,7 +13,7 @@ class DashboardPage extends StatelessWidget {
     return Stack(
       children: [
         CustomPaint(
-          painter: _WaveCustomPaint(backgroundColor: AppColors.dark),
+          painter: _WaveCustomPaint(backgroundColor: AppColors.main),
           size: MediaQuery.of(context).size,
         ),
         Container(
@@ -43,7 +44,7 @@ class DashboardPage extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.cardBorder),
                   borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  color: AppColors.white
+                  color: AppColors.neutralLight
                 ),
                 height: 240,
                 child: LineChart(
@@ -89,7 +90,7 @@ class Expenses extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.cardBorder),
         borderRadius: const BorderRadius.all(Radius.circular(12)),
-        color: AppColors.white
+        color: AppColors.neutralLight
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -124,26 +125,6 @@ class Expenses extends StatelessWidget {
   }
 }
 
-class SectionTitle extends StatelessWidget {
-  
-  final String text;
-
-  const SectionTitle({required this.text, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12, top: 24),
-      child: RichText(
-        text: TextSpan(
-          text: text,
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
-        ),
-      ),
-    );
-  }
-}
-
 class BalanceCard extends StatelessWidget {
   const BalanceCard({
     super.key,
@@ -154,7 +135,7 @@ class BalanceCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 32),
       decoration: BoxDecoration(
-        color: AppColors.darkest,
+        color: AppColors.neutralDark,
         borderRadius: const BorderRadius.all(Radius.circular(20)),
         boxShadow: [
           BoxShadow(
@@ -179,7 +160,7 @@ class BalanceCard extends StatelessWidget {
                 Container(
                   height: 8,
                   margin: const EdgeInsets.only(top: 32, bottom: 32),
-                  color: AppColors.white,
+                  color: AppColors.neutralLight,
                 ),
                 Container(
                   height: 8,

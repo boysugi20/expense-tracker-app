@@ -63,7 +63,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           height: 72,
           child: Container(
             decoration: BoxDecoration(
-            color: AppColors.darkest,
+            color: AppColors.neutralDark,
             borderRadius: const BorderRadius.all(Radius.circular(64)),
             boxShadow: [
               BoxShadow(
@@ -89,8 +89,8 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
                     showSelectedLabels: false,
                     showUnselectedLabels: false,
                     selectedItemColor: AppColors.accent,
-                    unselectedItemColor: AppColors.white,
-                    backgroundColor: AppColors.darkest,
+                    unselectedItemColor: AppColors.neutralLight,
+                    backgroundColor: AppColors.neutralDark,
                     currentIndex: _currentIndex,
                     onTap: onTabTapped,
                     type: BottomNavigationBarType.fixed,
