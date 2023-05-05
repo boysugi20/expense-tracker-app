@@ -1,8 +1,7 @@
-import 'package:expense_tracker/screens/add_transaction.dart';
-import 'package:flutter/material.dart';
-import 'package:circle_nav_bar/circle_nav_bar.dart';
-
+import 'package:expense_tracker/screens/modal_choose_category.dart';
 import 'package:expense_tracker/styles/color.dart';
+import 'package:flutter/material.dart';
+
 import 'package:expense_tracker/screens/dashboard.dart';
 import 'package:expense_tracker/screens/transaction.dart';
 import 'package:expense_tracker/screens/configuration.dart';
@@ -21,7 +20,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   final List<Widget> _children = [
     const DashboardPage(),
     const TransactionPage(),
-    const AddTransactionPage(),
+    const TransactionPage(),
     const ConfigurationPage(),
     const MoreSettingPage()
   ];
@@ -31,6 +30,20 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
       _currentIndex = index;
     });
   }
+  
+  void openBottomModal(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (context) {
+        return FractionallySizedBox(
+          heightFactor: 0.6,
+          child: BottomPopupModal()
+        );
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +51,28 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              _children[_currentIndex],
+              Stack(
+                children: [
+                  Container(
+                    child: _children[_currentIndex]
+                  ),
+
+                  // Gradient on top (at status bar)
+                  // Container(
+                  //   height: 64,
+                  //   decoration: BoxDecoration(
+                  //     color: AppColors.neutralLight,
+                  //     gradient: const LinearGradient(
+                  //       colors: <Color>[Colors.black, Color.fromRGBO(0, 0, 0, 0)],
+                  //       begin: Alignment.topCenter,
+                  //       end: Alignment(0.0, 1.0),
+                  //       tileMode: TileMode.clamp,
+                  //       stops: [0.0, 0.8],
+                  //     ),
+                  //   ),
+                  // ),
+                ]
+              ),
             ],
           ),
         ),
@@ -51,7 +85,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
             width: 64,
             child: FittedBox(
               child: FloatingActionButton(
-                onPressed: () {},
+                onPressed: (){ openBottomModal(context); },
                 backgroundColor: AppColors.accent,
                 child: const Icon(Icons.add),
               ),
