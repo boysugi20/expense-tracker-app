@@ -1,4 +1,7 @@
+import 'package:intl/intl.dart';  
+
 import 'package:expense_tracker/styles/color.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class DashboardPage extends StatelessWidget {
@@ -10,11 +13,9 @@ class DashboardPage extends StatelessWidget {
       children: [
         CustomPaint(
           painter: _WaveCustomPaint(backgroundColor: AppColors.dark),
-          size: Size.infinite,
+          size: MediaQuery.of(context).size,
         ),
         Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24),
           child: Column(
       
@@ -33,46 +34,165 @@ class DashboardPage extends StatelessWidget {
                 ),
               ),
       
-              Container(height: 32,),
-      
-              ClipRRect(
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.only(left: 24, right: 24, top: 32, bottom: 32),
-                  color: AppColors.darkest,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RichText(text: const TextSpan(text: 'Balance\n', style: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.5), fontSize: 12))),
-                      RichText(text: const TextSpan(text: 'Rp 3.000.000', style: TextStyle(color: Colors.white, fontSize: 20))),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 8,
-                              margin: const EdgeInsets.only(top: 32, bottom: 32),
-                              color: AppColors.white,
-                            ),
-                            Container(
-                              height: 8,
-                              width: 90,
-                              margin: const EdgeInsets.only(top: 32, bottom: 32),
-                              color: AppColors.accent,
-                            ),
-                          ]
-                        ),
-                      ),
-                      RichText(text: const TextSpan(text: 'Usage: 1.800.000 / 3.000.000 (75 %)', style: TextStyle(color: Colors.white, fontSize: 12))),
-                    ],
-                  ),
+              const BalanceCard(),
+    
+              const SectionTitle(text: 'Monthly Expense'),
+    
+              Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.cardBorder),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  color: AppColors.white
                 ),
-              )
+                height: 240,
+                child: LineChart(
+                    LineChartData(
+                      // control how the chart looks
+                    ),
+                    swapAnimationDuration: const Duration(milliseconds: 150), // Optional
+                    swapAnimationCurve: Curves.linear, // Optional
+                  ),
+              ),
+    
+              const SectionTitle(text: 'Expenses'),
+    
+              
+              const Expenses(text: 'Home', ammount: 100000,),
+              const Expenses(text: 'Home1', ammount: 100000,),
+              const Expenses(text: 'Home2', ammount: 100000,),
+              const Expenses(text: 'Home2', ammount: 100000,),
+              const Expenses(text: 'Home2', ammount: 100000,),
+              const Expenses(text: 'Home2', ammount: 100000,),
+    
             ],
           ),
         ),
       ]
+    );
+  }
+}
+
+class Expenses extends StatelessWidget {
+
+  final String text;
+  final int ammount;
+
+  const Expenses({required this.text, required this.ammount, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 64,
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(left: 18, right: 18),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.cardBorder),
+        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        color: AppColors.white
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(right: 12),
+                child: CircleAvatar(
+                  backgroundColor: Colors.grey.shade200,
+                  child: const Text('H'),
+                ),
+              ),
+              RichText(
+                text: TextSpan(
+                  text: text,
+                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+                ),
+              ),
+            ],
+          ),
+          RichText(
+            text:  TextSpan(
+              text: 'Rp ${NumberFormat('###,###,###,000').format(ammount)}',
+              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)
+            ),
+          ),
+        ],
+      ),
+
+    );
+  }
+}
+
+class SectionTitle extends StatelessWidget {
+  
+  final String text;
+
+  const SectionTitle({required this.text, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12, top: 24),
+      child: RichText(
+        text: TextSpan(
+          text: text,
+          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+        ),
+      ),
+    );
+  }
+}
+
+class BalanceCard extends StatelessWidget {
+  const BalanceCard({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(top: 32),
+      decoration: BoxDecoration(
+        color: AppColors.darkest,
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(2, 2), // changes position of shadow
+          ),
+        ]
+      ),
+      padding: const EdgeInsets.only(left: 24, right: 24, top: 32, bottom: 32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(text: const TextSpan(text: 'Balance\n', style: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.5), fontSize: 12))),
+          RichText(text: const TextSpan(text: 'Rp 3.000.000', style: TextStyle(color: Colors.white, fontSize: 20))),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Stack(
+              children: [
+                Container(
+                  height: 8,
+                  margin: const EdgeInsets.only(top: 32, bottom: 32),
+                  color: AppColors.white,
+                ),
+                Container(
+                  height: 8,
+                  width: 90,
+                  margin: const EdgeInsets.only(top: 32, bottom: 32),
+                  color: AppColors.accent,
+                ),
+              ]
+            ),
+          ),
+          RichText(text: const TextSpan(text: 'Usage: 1.800.000 / 3.000.000 (75 %)', style: TextStyle(color: Colors.white, fontSize: 12))),
+        ],
+      ),
     );
   }
 }
@@ -88,8 +208,8 @@ class _WaveCustomPaint extends CustomPainter {
     Path path = Path();
     Paint paint = Paint();
 
-    var height = size.height/4;
-    var lowestBottom = size.height/2;
+    var height = size.height/5;
+    var lowestBottom = size.height/3;
 
     path = Path();
     path.lineTo(0, height); //start

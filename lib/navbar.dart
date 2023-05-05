@@ -35,11 +35,18 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              _children[_currentIndex],
+            ],
+          ),
+        ),
         extendBody: true,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(top: 25),
-          child: Container(
+          child: SizedBox(
             height: 64,
             width: 64,
             child: FittedBox(
@@ -51,53 +58,65 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
             ),
           ),
         ),
-        body: _children[_currentIndex],
         bottomNavigationBar: Container(
           padding: const EdgeInsets.only(left: 24, right: 24, bottom: 12),
-          height: 64,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(200),
-            child: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              color: AppColors.darkest,
-              child: Theme(
-                data: ThemeData(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-                child: BottomNavigationBar(
-                  iconSize: 18,
-                  elevation: 1,
-                  showSelectedLabels: false,
-                  showUnselectedLabels: false,
-                  selectedItemColor: AppColors.accent,
-                  unselectedItemColor: AppColors.white,
-                  backgroundColor: AppColors.darkest,
-                  currentIndex: _currentIndex,
-                  onTap: onTabTapped,
-                  type: BottomNavigationBarType.fixed,
-                  items: const [
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.bar_chart),
-                      label: 'Dashboard',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.account_balance_wallet),
-                      label: 'Transaction',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: SizedBox.shrink(),
-                      label: '',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.build),
-                      label: 'Configuration',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.more_horiz),
-                      label: 'More',
-                    ),
-                  ],
+          height: 72,
+          child: Container(
+            decoration: BoxDecoration(
+            color: AppColors.darkest,
+            borderRadius: const BorderRadius.all(Radius.circular(64)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.5),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: const Offset(2, 2), // changes position of shadow
+              ),
+            ]
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(64),
+              child: Container(
+                padding: const EdgeInsets.only(left: 16, right: 16),
+                child: Theme(
+                  data: ThemeData(
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                  ),
+                  child: BottomNavigationBar(
+                    iconSize: 18,
+                    elevation: 1,
+                    showSelectedLabels: false,
+                    showUnselectedLabels: false,
+                    selectedItemColor: AppColors.accent,
+                    unselectedItemColor: AppColors.white,
+                    backgroundColor: AppColors.darkest,
+                    currentIndex: _currentIndex,
+                    onTap: onTabTapped,
+                    type: BottomNavigationBarType.fixed,
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.bar_chart),
+                        label: 'Dashboard',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.account_balance_wallet),
+                        label: 'Transaction',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: SizedBox.shrink(),
+                        label: '',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.build),
+                        label: 'Configuration',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.more_horiz),
+                        label: 'More',
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
