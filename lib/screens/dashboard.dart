@@ -85,7 +85,7 @@ class Expenses extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 64,
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 6),
       padding: const EdgeInsets.only(left: 18, right: 18),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.cardBorder),

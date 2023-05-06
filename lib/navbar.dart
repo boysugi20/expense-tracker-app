@@ -31,15 +31,15 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     });
   }
   
-  void openBottomModal(BuildContext context) {
+  void openBottomModalCategory(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       context: context,
       builder: (context) {
         return FractionallySizedBox(
-          heightFactor: 0.6,
-          child: BottomPopupModal()
+          heightFactor: 0.45,
+          child: BottomModalCategory()
         );
       }
     );
@@ -85,7 +85,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
             width: 64,
             child: FittedBox(
               child: FloatingActionButton(
-                onPressed: (){ openBottomModal(context); },
+                onPressed: (){ openBottomModalCategory(context); },
                 backgroundColor: AppColors.accent,
                 child: const Icon(Icons.add),
               ),
