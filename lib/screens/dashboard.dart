@@ -10,66 +10,69 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        CustomPaint(
-          painter: _WaveCustomPaint(backgroundColor: AppColors.main),
-          size: MediaQuery.of(context).size,
-        ),
-        Container(
-          padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24),
-          child: Column(
-      
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-      
-            children: [
-      
-              RichText(
-                text: const TextSpan(
-                  text: 'Hello,\n',
-                  style: TextStyle(color: Colors.white),
-                  children: <TextSpan>[
-                    TextSpan(text: 'John Doe', style: TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-      
-              const BalanceCard(),
-    
-              const SectionTitle(text: 'Monthly Expense'),
-    
-              Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.cardBorder),
-                  borderRadius: const BorderRadius.all(Radius.circular(12)),
-                  color: AppColors.white
-                ),
-                height: 240,
-                child: LineChart(
-                    LineChartData(
-                      // control how the chart looks
-                    ),
-                    swapAnimationDuration: const Duration(milliseconds: 150), // Optional
-                    swapAnimationCurve: Curves.linear, // Optional
-                  ),
-              ),
-    
-              const SectionTitle(text: 'Expenses'),
-    
-              
-              const Expenses(text: 'Home', ammount: 100000,),
-              const Expenses(text: 'Home1', ammount: 100000,),
-              const Expenses(text: 'Home2', ammount: 100000,),
-              const Expenses(text: 'Home2', ammount: 100000,),
-              const Expenses(text: 'Home2', ammount: 100000,),
-              const Expenses(text: 'Home2', ammount: 100000,),
-    
-            ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 100),
+      child: Stack(
+        children: [
+          CustomPaint(
+            painter: _WaveCustomPaint(backgroundColor: AppColors.main),
+            size: MediaQuery.of(context).size,
           ),
-        ),
-      ]
+          Container(
+            padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24),
+            child: Column(
+        
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+        
+              children: [
+        
+                RichText(
+                  text: const TextSpan(
+                    text: 'Hello,\n',
+                    style: TextStyle(color: Colors.white),
+                    children: <TextSpan>[
+                      TextSpan(text: 'John Doe', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+        
+                const BalanceCard(),
+      
+                const SectionTitle(text: 'Monthly Expense'),
+      
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.cardBorder),
+                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    color: AppColors.white
+                  ),
+                  height: 240,
+                  child: LineChart(
+                      LineChartData(
+                        // control how the chart looks
+                      ),
+                      swapAnimationDuration: const Duration(milliseconds: 150), // Optional
+                      swapAnimationCurve: Curves.linear, // Optional
+                    ),
+                ),
+      
+                const SectionTitle(text: 'Expenses'),
+      
+                
+                const Expenses(text: 'Home', ammount: 100000,),
+                const Expenses(text: 'Home1', ammount: 100000,),
+                const Expenses(text: 'Home2', ammount: 100000,),
+                const Expenses(text: 'Home2', ammount: 100000,),
+                const Expenses(text: 'Home2', ammount: 100000,),
+                const Expenses(text: 'Home2', ammount: 100000,),
+      
+              ],
+            ),
+          ),
+        ]
+      ),
     );
   }
 }

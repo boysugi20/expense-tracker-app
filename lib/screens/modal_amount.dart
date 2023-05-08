@@ -22,17 +22,39 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
   String tempValueTarget = '';
   String tempValueOperator = '';
   int tempOperator = 0;
-
   bool _operatorPressed = false;
+  bool _lastInputIsOperator = false;
 
   DateTime selectedDate = DateTime.now();
 
+  final TextEditingController _notesController = TextEditingController();
+
   Future<void> _selectDate(BuildContext context) async {
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(2000, 1),
-      lastDate: DateTime(2500));
+      lastDate: DateTime(2500),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: AppColors.main, // header background color
+              onPrimary: AppColors.white, // header text color
+              onSurface: AppColors.black, // body text color
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.accent, // button text color
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
     if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
@@ -56,6 +78,9 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
         if (_text.isNotEmpty){
           _text = addThousandSeperatorToString(_text.substring(0, _text.length - 1));
         }
+        if (_text.endsWith('.')) {
+          _text = _text.replaceAll('.', '');
+        }
       }
       // If input is enter
       else if (value == 'enter') {
@@ -73,14 +98,22 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
         } else if (result.isInfinite) {
           _text = "0";
         } else {
-          _text = addThousandSeperatorToString(result.toInt().toString());
+          _text = addThousandSeperatorToString(result.toStringAsFixed(2).replaceAll(".00", ""));
         }
       }
 
       // If input is operator
       else if (value == '+' || value == '-' || value == 'x' || value == '/') {
-        _operatorPressed = true;
-        _text = '$_text $value ';
+        if(_text.isNotEmpty){
+          _operatorPressed = true;
+          if(_lastInputIsOperator){
+            _text = _text.substring(0, _text.length - 3);
+            _text = '$_text $value ';
+          }else{
+            _text = '$_text $value ';
+            _lastInputIsOperator = true;
+          }
+        }
       }
 
       // Append input to _text
@@ -88,9 +121,19 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
         _text = _text.replaceAll(RegExp('^0+'), '');
         _text ='$_text$value';
         _text = addThousandSeperatorToString(_text);
+        _lastInputIsOperator = false;
       }
 
     });
+  }
+
+  void handleCheckButtonPressed(String text, String notes, String category, DateTime date) {
+    // Do something with the parameters
+    print('Text: $text');
+    print('Notes: $notes');
+    print('Category: $category');
+    print('Date: $date');
+    Navigator.pop(context);
   }
 
   @override
@@ -146,16 +189,20 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                 ),
                 child: RichText(
                   text: TextSpan(
-                    text: _text.isNotEmpty ? _text : '0',
                     style: TextStyle(
                       color: AppColors.black
-                    )
+                    ),
+                    children: [
+                      TextSpan(text: 'Rp ', style: TextStyle(color: AppColors.main, fontWeight: FontWeight.bold)),
+                      TextSpan(text: _text.isNotEmpty ? _text : '0', style: TextStyle(color: AppColors.black)),
+                    ]
                   )
                 ),
               ),
               Container(
                 margin: const EdgeInsets.only(bottom: 16, top: 12),
                 child: TextField(
+                  controller: _notesController,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: AppColors.grey),
                   decoration: InputDecoration(
@@ -166,101 +213,89 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                   ),
                 ),
               ),
-               
-              _InputKeypad(onButtonPressed: _updateText, operatorPressed: _operatorPressed, dateSelector: _selectDate),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.70,
+                    child: Table(
+                      children: [
+                        TableRow(
+                          children: [
+                            _buildButton('+', onPressed: () => _updateText('+')),
+                            _buildButton('7', onPressed: () => _updateText('7')),
+                            _buildButton('8', onPressed: () => _updateText('8')),
+                            _buildButton('9', onPressed: () => _updateText('9')),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            _buildButton('-', onPressed: () => _updateText('-')),
+                            _buildButton('4', onPressed: () => _updateText('4')),
+                            _buildButton('5', onPressed: () => _updateText('5')),
+                            _buildButton('6', onPressed: () => _updateText('6')),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            _buildButton('x', onPressed: () => _updateText('x')),
+                            _buildButton('1', onPressed: () => _updateText('1')),
+                            _buildButton('2', onPressed: () => _updateText('2')),
+                            _buildButton('3', onPressed: () => _updateText('3')),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            _buildButton('/', onPressed: () => _updateText('/')),
+                            _buildButton('.', onPressed: () => _updateText('.')),
+                            _buildButton('0', onPressed: () => _updateText('0')),
+                            _buildButton('000', onPressed: () => _updateText('000')),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.18,
+                    child: Table(
+                      children: [
+                        TableRow(
+                          children: [
+                            _buildIconButton(Icons.backspace, onPressed: () => _updateText('backspace'))
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            _buildIconButton(Icons.calendar_today, onPressed: () => _selectDate(context)),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            _operatorPressed ? 
+                              _buildIconButton(
+                                Icons.calculate, 
+                                onPressed: () => _updateText('equals'), 
+                                height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                              )
+                              :
+                              _buildIconButton(
+                                Icons.check, 
+                                onPressed: () => handleCheckButtonPressed(_text, _notesController.text, widget.categoryText, selectedDate),
+                                height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                              ),
+                          ]
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
 
             ],
           ),
         ),
       ]
-    );
-  }
-}
-
-class _InputKeypad extends StatelessWidget {
-
-  final void Function(String value) onButtonPressed;
-  final Function(BuildContext context) dateSelector;
-  final bool operatorPressed;
-
-   const _InputKeypad({required this.onButtonPressed, required this.operatorPressed, required this.dateSelector, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.70,
-          child: Table(
-            children: [
-              TableRow(
-                children: [
-                  _buildButton('+', onPressed: () => onButtonPressed('+')),
-                  _buildButton('7', onPressed: () => onButtonPressed('7')),
-                  _buildButton('8', onPressed: () => onButtonPressed('8')),
-                  _buildButton('9', onPressed: () => onButtonPressed('9')),
-                ],
-              ),
-              TableRow(
-                children: [
-                  _buildButton('-', onPressed: () => onButtonPressed('-')),
-                  _buildButton('4', onPressed: () => onButtonPressed('4')),
-                  _buildButton('5', onPressed: () => onButtonPressed('5')),
-                  _buildButton('6', onPressed: () => onButtonPressed('6')),
-                ],
-              ),
-              TableRow(
-                children: [
-                  _buildButton('x', onPressed: () => onButtonPressed('x')),
-                  _buildButton('1', onPressed: () => onButtonPressed('1')),
-                  _buildButton('2', onPressed: () => onButtonPressed('2')),
-                  _buildButton('3', onPressed: () => onButtonPressed('3')),
-                ],
-              ),
-              TableRow(
-                children: [
-                  _buildButton('/', onPressed: () => onButtonPressed('/')),
-                  _buildButton('0', onPressed: () => onButtonPressed('0')),
-                  _buildButton('00', onPressed: () => onButtonPressed('00')),
-                  _buildButton('000', onPressed: () => onButtonPressed('000')),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.18,
-          child: Table(
-            children: [
-              TableRow(
-                children: [
-                  _buildIconButton(Icons.backspace, onPressed: () => onButtonPressed('backspace'))
-                ]
-              ),
-              TableRow(
-                children: [
-                  _buildIconButton(Icons.calendar_today, onPressed: () => dateSelector(context)),
-                ]
-              ),
-              TableRow(
-                children: [
-                  operatorPressed ? 
-                    _buildIconButton(
-                      Icons.calculate, 
-                      onPressed: () => onButtonPressed('equals'), height: 2, color: AppColors.accent, iconcolor: AppColors.white
-                    )
-                    :
-                    _buildIconButton(
-                      Icons.check, 
-                      onPressed: () => onButtonPressed('enter'), height: 2, color: AppColors.accent, iconcolor: AppColors.white
-                    ),
-                ]
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }
@@ -289,7 +324,7 @@ Widget _buildButton(String text, {required void Function() onPressed}) {
   );
 }
 
-Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black, required void Function() onPressed}) {
+Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black, void Function() onPressed = _defaultOnPressed}) {
   return Container(
     height: 64 * height + ((height-1) * 8),
     width: 64,
@@ -310,3 +345,5 @@ Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Color
     ),
   );
 }
+
+void _defaultOnPressed() {}
