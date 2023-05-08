@@ -1,3 +1,4 @@
+import 'package:expense_tracker/navbar.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
@@ -24,48 +25,70 @@ class LoginPage extends StatelessWidget {
               ),
             ),
             Container(
-              margin: const EdgeInsets.only(bottom: 36),
-              child: RichText(
-                text: TextSpan(
-                  text: 'Login to continue',
-                  style: TextStyle(color: AppColors.white, fontSize: 14),
-                ),
-              ),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                hintStyle: TextStyle(color: AppColors.white, fontSize: 14),
-                hintText: "Email",
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.white),),  
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
-              ),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                hintStyle: TextStyle(color: AppColors.white, fontSize: 14),
-                hintText: "Password",
-                enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.white),),  
-                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 36),
               margin: const EdgeInsets.symmetric(vertical: 36),
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 36),
               decoration: BoxDecoration(
-                color: AppColors.accent,
-                borderRadius: BorderRadius.circular(20)
+                borderRadius: const BorderRadius.all(Radius.circular(20)),
+                color: AppColors.white,
+                boxShadow:  [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: const Offset(2, 2), // changes position of shadow
+                  ),
+                ]
               ),
-              child: Text('Login', style: TextStyle(color: AppColors.white),)
+              child: Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
+                      hintText: "Email",
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.grey),),  
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
+                    ),
+                  ),
+                  TextField(
+                    enableSuggestions: false,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
+                      hintText: "Password",
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.grey),),  
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      // Login logic here
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => const MyBottomNavigationBar()),
+                      );
+                    },
+                    child:Container(
+                      margin: const EdgeInsets.only(top: 32),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 36),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent,
+                        borderRadius: BorderRadius.circular(8)
+                      ),
+                      child: Text('Login', style: TextStyle(color: AppColors.white),)
+                    ),
+                  ),
+                ],
+              ),
             ),
             Container(
               margin: const EdgeInsets.only(bottom: 16),
               child: RichText(
                 text: TextSpan(
-                  text: 'Don\'t have an account?',
+                  text: 'Don\'t have an account? ',
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   children: [
                     TextSpan(
-                      text: ' Register',
+                      text: 'Register',
                       style: TextStyle(color: AppColors.accent, fontSize: 14, decoration: TextDecoration.underline),
                     )
                   ]

@@ -61,7 +61,7 @@ class BottomModalAmmount extends StatelessWidget {
                   color: AppColors.white,
                   borderRadius: const BorderRadius.all(Radius.circular(8))
                 ),
-                child: RichText(text: TextSpan(text: '1.000.000', style: TextStyle(color: AppColors.black))),
+                child: RichText(text: TextSpan(text: '1,000,000', style: TextStyle(color: AppColors.black))),
               ),
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 24),
@@ -70,220 +70,66 @@ class BottomModalAmmount extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.70,
+                    child: Table(
+                      children: [
+                        TableRow(
+                          children: [
+                            _buildButton('+'),
+                            _buildButton('7'),
+                            _buildButton('8'),
+                            _buildButton('9'),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            _buildButton('-'),
+                            _buildButton('4'),
+                            _buildButton('5'),
+                            _buildButton('6'),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            _buildButton('x'),
+                            _buildButton('1'),
+                            _buildButton('2'),
+                            _buildButton('3'),
+                          ],
+                        ),
+                        TableRow(
+                          children: [
+                            _buildButton('/'),
+                            _buildButton('0'),
+                            _buildButton('000'),
+                            _buildButton('.'),
+                          ],
+                        ),
+                      ],
                     ),
-                    child: Center(child: RichText(text: TextSpan(text: '+', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
                   ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.18,
+                    child: Table(
+                      children: [
+                        TableRow(
+                          children: [
+                            _buildIconButton(Icons.backspace),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            _buildIconButton(Icons.calendar_today),
+                          ]
+                        ),
+                        TableRow(
+                          children: [
+                            _buildIconButton(Icons.check, height: 2, color: AppColors.accent, iconcolor: AppColors.white),
+                          ]
+                        ),
+                      ],
                     ),
-                    child: Center(child: RichText(text: TextSpan(text: '7', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '8', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '9', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: const Center(child: Icon(Icons.backspace)),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '-', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '4', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '5', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '6', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: const Center(child: Icon(Icons.calendar_today)),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: 'x', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '1', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '2', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '3', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '=', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '/', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '0', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '000', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '.', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.all(margin),
-                    height: boxSize,
-                    width: boxSize,
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: const BorderRadius.all(Radius.circular(4))
-                    ),
-                    child: Center(child: RichText(text: TextSpan(text: '=', style: TextStyle(color: AppColors.black, fontSize: 24)),)),
                   ),
                 ],
               ),
@@ -293,4 +139,44 @@ class BottomModalAmmount extends StatelessWidget {
       ]
     );
   }
+}
+
+Widget _buildButton(String text) {
+  return Container(
+    height: 64,
+    width: 64,
+    margin: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Center(
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 24,
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black}) {
+  return Container(
+    height: 64 * height + ((height-1) * 8),
+    width: 64,
+    margin: const EdgeInsets.all(4),
+    decoration: BoxDecoration(
+      color: color,
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Center(
+      child: Icon(
+        icon,
+        size: 24,
+        color: iconcolor,
+      ),
+    ),
+  );
 }
