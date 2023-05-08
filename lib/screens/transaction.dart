@@ -3,7 +3,7 @@
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';  
-import 'package:expense_tracker/components/general.dart';
+import 'package:expense_tracker/components/widgets.dart';
 
 class TransactionPage extends StatelessWidget {
   const TransactionPage({Key? key}) : super(key: key);
@@ -158,10 +158,13 @@ class Transactions extends StatelessWidget {
                         style: const TextStyle(color: Colors.black)
                       ),
                     ),
-                    RichText(
-                      text: TextSpan(
-                        text: date,
-                        style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 12)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: RichText(
+                        text: TextSpan(
+                          text: date,
+                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 10)
+                        ),
                       ),
                     ),
                     (notes != null) 
@@ -170,7 +173,7 @@ class Transactions extends StatelessWidget {
                       child: RichText(
                         text: TextSpan(
                           text: notes != null && notes!.length > 22 ? '${notes?.substring(0, 22)}...' : notes,
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 12),
+                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 11),
                         ),
                       ),
                     )

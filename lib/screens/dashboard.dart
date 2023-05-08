@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:expense_tracker/components/general.dart';
+import 'package:expense_tracker/components/widgets.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({Key? key}) : super(key: key);
