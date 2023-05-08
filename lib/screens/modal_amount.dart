@@ -1,15 +1,97 @@
 import 'package:expense_tracker/components/functions.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:math_expressions/math_expressions.dart';
 
-class BottomModalAmmount extends StatelessWidget {
+
+class BottomModalAmmount extends StatefulWidget {
 
   final String categoryText;
 
   const BottomModalAmmount({required this.categoryText, Key? key}) : super(key: key);
 
-  static const double boxSize = 64;
-  static const double margin = 4;
+  @override
+  State<BottomModalAmmount> createState() => _BottomModalAmmountState();
+}
+
+class _BottomModalAmmountState extends State<BottomModalAmmount> {
+
+  String _text = '';
+  String? lastOperation;
+  String tempValueTarget = '';
+  String tempValueOperator = '';
+  int tempOperator = 0;
+
+  bool _operatorPressed = false;
+
+  DateTime selectedDate = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime(2000, 1),
+      lastDate: DateTime(2500));
+    if (picked != null && picked != selectedDate) {
+      setState(() {
+        selectedDate = picked;
+      });
+    }
+  }
+
+  String addThousandSeperatorToString (String string) {
+
+    String result;
+
+    result = string.replaceAll(",", "").replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+
+    return result;
+  }
+
+  void _updateText(String value) {
+    setState(() {
+      // If input is backspace
+      if (value == 'backspace') {
+        if (_text.isNotEmpty){
+          _text = addThousandSeperatorToString(_text.substring(0, _text.length - 1));
+        }
+      }
+      // If input is enter
+      else if (value == 'enter') {
+        // Save to database
+        _text = ''; 
+      }
+
+      // If input is equals
+      else if (value == "equals"){
+        _operatorPressed = false;
+        final result = Parser().parse(_text.replaceAll("x", "*").replaceAll(",", "")).evaluate(EvaluationType.REAL, ContextModel());
+
+        if (result.isNaN) {
+          _text = "0";
+        } else if (result.isInfinite) {
+          _text = "0";
+        } else {
+          _text = addThousandSeperatorToString(result.toInt().toString());
+        }
+      }
+
+      // If input is operator
+      else if (value == '+' || value == '-' || value == 'x' || value == '/') {
+        _operatorPressed = true;
+        _text = '$_text $value ';
+      }
+
+      // Append input to _text
+      else {
+        _text = _text.replaceAll(RegExp('^0+'), '');
+        _text ='$_text$value';
+        _text = addThousandSeperatorToString(_text);
+      }
+
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +120,10 @@ class BottomModalAmmount extends StatelessWidget {
                       child: CircleAvatar(
                         backgroundColor: Colors.grey.shade200,
                         radius: 16,
-                        child: Text(categoryText.isNotEmpty ? categoryText.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+                        child: Text(widget.categoryText.isNotEmpty ? widget.categoryText.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
                       ),
                     ),
-                    RichText(text: TextSpan(text: categoryText, style: TextStyle(color: AppColors.white))),
+                    RichText(text: TextSpan(text: widget.categoryText, style: TextStyle(color: AppColors.white))),
                   ],
                 ),
               ),
@@ -53,86 +135,40 @@ class BottomModalAmmount extends StatelessWidget {
               ),
               Container(
                 margin: const EdgeInsets.only(bottom: 16),
-                child: RichText(text: TextSpan(text: '17 April 2023', style: TextStyle(color: AppColors.white))),
+                child: RichText(text: TextSpan(text: DateFormat('dd MMM yyyy').format(selectedDate), style: TextStyle(color: AppColors.white))),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 36),
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                margin: const EdgeInsets.symmetric(horizontal: 24),
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: const BorderRadius.all(Radius.circular(8))
                 ),
-                child: RichText(text: TextSpan(text: '1,000,000', style: TextStyle(color: AppColors.black))),
+                child: RichText(
+                  text: TextSpan(
+                    text: _text.isNotEmpty ? _text : '0',
+                    style: TextStyle(
+                      color: AppColors.black
+                    )
+                  )
+                ),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 24),
-                child: RichText(text: TextSpan(text: 'Notes..', style: TextStyle(color: AppColors.white))),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.70,
-                    child: Table(
-                      children: [
-                        TableRow(
-                          children: [
-                            _buildButton('+'),
-                            _buildButton('7'),
-                            _buildButton('8'),
-                            _buildButton('9'),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            _buildButton('-'),
-                            _buildButton('4'),
-                            _buildButton('5'),
-                            _buildButton('6'),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            _buildButton('x'),
-                            _buildButton('1'),
-                            _buildButton('2'),
-                            _buildButton('3'),
-                          ],
-                        ),
-                        TableRow(
-                          children: [
-                            _buildButton('/'),
-                            _buildButton('0'),
-                            _buildButton('000'),
-                            _buildButton('.'),
-                          ],
-                        ),
-                      ],
-                    ),
+                margin: const EdgeInsets.only(bottom: 16, top: 12),
+                child: TextField(
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.grey),
+                  decoration: InputDecoration(
+                    border: InputBorder.none,
+                    isDense: true,
+                    hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
+                    hintText: "Notes...",
                   ),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.18,
-                    child: Table(
-                      children: [
-                        TableRow(
-                          children: [
-                            _buildIconButton(Icons.backspace),
-                          ]
-                        ),
-                        TableRow(
-                          children: [
-                            _buildIconButton(Icons.calendar_today),
-                          ]
-                        ),
-                        TableRow(
-                          children: [
-                            _buildIconButton(Icons.check, height: 2, color: AppColors.accent, iconcolor: AppColors.white),
-                          ]
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                ),
               ),
+               
+              _InputKeypad(onButtonPressed: _updateText, operatorPressed: _operatorPressed, dateSelector: _selectDate),
+
             ],
           ),
         ),
@@ -141,7 +177,95 @@ class BottomModalAmmount extends StatelessWidget {
   }
 }
 
-Widget _buildButton(String text) {
+class _InputKeypad extends StatelessWidget {
+
+  final void Function(String value) onButtonPressed;
+  final Function(BuildContext context) dateSelector;
+  final bool operatorPressed;
+
+   const _InputKeypad({required this.onButtonPressed, required this.operatorPressed, required this.dateSelector, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.70,
+          child: Table(
+            children: [
+              TableRow(
+                children: [
+                  _buildButton('+', onPressed: () => onButtonPressed('+')),
+                  _buildButton('7', onPressed: () => onButtonPressed('7')),
+                  _buildButton('8', onPressed: () => onButtonPressed('8')),
+                  _buildButton('9', onPressed: () => onButtonPressed('9')),
+                ],
+              ),
+              TableRow(
+                children: [
+                  _buildButton('-', onPressed: () => onButtonPressed('-')),
+                  _buildButton('4', onPressed: () => onButtonPressed('4')),
+                  _buildButton('5', onPressed: () => onButtonPressed('5')),
+                  _buildButton('6', onPressed: () => onButtonPressed('6')),
+                ],
+              ),
+              TableRow(
+                children: [
+                  _buildButton('x', onPressed: () => onButtonPressed('x')),
+                  _buildButton('1', onPressed: () => onButtonPressed('1')),
+                  _buildButton('2', onPressed: () => onButtonPressed('2')),
+                  _buildButton('3', onPressed: () => onButtonPressed('3')),
+                ],
+              ),
+              TableRow(
+                children: [
+                  _buildButton('/', onPressed: () => onButtonPressed('/')),
+                  _buildButton('0', onPressed: () => onButtonPressed('0')),
+                  _buildButton('00', onPressed: () => onButtonPressed('00')),
+                  _buildButton('000', onPressed: () => onButtonPressed('000')),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.18,
+          child: Table(
+            children: [
+              TableRow(
+                children: [
+                  _buildIconButton(Icons.backspace, onPressed: () => onButtonPressed('backspace'))
+                ]
+              ),
+              TableRow(
+                children: [
+                  _buildIconButton(Icons.calendar_today, onPressed: () => dateSelector(context)),
+                ]
+              ),
+              TableRow(
+                children: [
+                  operatorPressed ? 
+                    _buildIconButton(
+                      Icons.calculate, 
+                      onPressed: () => onButtonPressed('equals'), height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                    )
+                    :
+                    _buildIconButton(
+                      Icons.check, 
+                      onPressed: () => onButtonPressed('enter'), height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                    ),
+                ]
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Widget _buildButton(String text, {required void Function() onPressed}) {
   return Container(
     height: 64,
     width: 64,
@@ -150,19 +274,22 @@ Widget _buildButton(String text) {
       color: Colors.white,
       borderRadius: BorderRadius.circular(4),
     ),
-    child: Center(
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 24,
+    child: InkWell(
+      onTap: onPressed,
+      child: Center(
+        child: Text(
+          text,
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+          ),
         ),
       ),
     ),
   );
 }
 
-Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black}) {
+Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black, required void Function() onPressed}) {
   return Container(
     height: 64 * height + ((height-1) * 8),
     width: 64,
@@ -171,11 +298,14 @@ Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Color
       color: color,
       borderRadius: BorderRadius.circular(4),
     ),
-    child: Center(
-      child: Icon(
-        icon,
-        size: 24,
-        color: iconcolor,
+    child: InkWell(
+      onTap: onPressed,
+      child: Center(
+        child: Icon(
+          icon,
+          size: 24,
+          color: iconcolor,
+        ),
       ),
     ),
   );

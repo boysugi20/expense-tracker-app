@@ -38,6 +38,7 @@ dependencies:
   circle_nav_bar: ^2.0.1+1
   fl_chart: ^0.62.0
   intl: ^0.18.1
+  math_expressions: ^2.4.0
 
 dev_dependencies:
   flutter_test:

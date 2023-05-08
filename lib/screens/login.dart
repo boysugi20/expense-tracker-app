@@ -24,62 +24,7 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 36),
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 36),
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.all(Radius.circular(20)),
-                color: AppColors.white,
-                boxShadow:  [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: const Offset(2, 2), // changes position of shadow
-                  ),
-                ]
-              ),
-              child: Column(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
-                      hintText: "Email",
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.grey),),  
-                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
-                    ),
-                  ),
-                  TextField(
-                    enableSuggestions: false,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
-                      hintText: "Password",
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.grey),),  
-                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // Login logic here
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const MyBottomNavigationBar()),
-                      );
-                    },
-                    child:Container(
-                      margin: const EdgeInsets.only(top: 32),
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 36),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent,
-                        borderRadius: BorderRadius.circular(8)
-                      ),
-                      child: Text('Login', style: TextStyle(color: AppColors.white),)
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            const _LoginForm(),
             Container(
               margin: const EdgeInsets.only(bottom: 16),
               child: RichText(
@@ -105,5 +50,105 @@ class LoginPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _LoginForm extends StatefulWidget {
+  const _LoginForm();
+
+  @override
+  State<_LoginForm> createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<_LoginForm> {
+  
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscureText = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 36),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 36),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        color: AppColors.white,
+        boxShadow:  [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: const Offset(2, 2), // changes position of shadow
+          ),
+        ]
+      ),
+      child: Column(
+        children: [
+          TextField(
+            controller: _emailController,
+            decoration: InputDecoration(
+              hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
+              hintText: "Email",
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.grey),),  
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
+            ),
+          ),
+          TextField(
+            controller: _passwordController,
+            enableSuggestions: false,
+            obscureText: _obscureText,
+            decoration: InputDecoration(
+              hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
+              hintText: "Password",
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.grey),),  
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),  
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _obscureText = !_obscureText;
+                  });
+                },
+                icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off, size: 16, color: Colors.grey,),
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              
+              final String email = _emailController.text;
+              final String password = _passwordController.text;
+
+              print(email);
+              print(password);
+
+              // Login API logic here
+
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const MyBottomNavigationBar()),
+              );
+            },
+            child:Container(
+              margin: const EdgeInsets.only(top: 32),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 36),
+              decoration: BoxDecoration(
+                color: AppColors.accent,
+                borderRadius: BorderRadius.circular(8)
+              ),
+              child: Text('Login', style: TextStyle(color: AppColors.white),)
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
