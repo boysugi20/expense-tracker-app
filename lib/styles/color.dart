@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   static Color main = const Color.fromRGBO(23, 77, 108, 1);
   static Color mainDark = const Color.fromRGBO(17, 40, 46, 1);
-  static Color accent = const Color.fromARGB(255, 76, 64, 146);
+  static Color accent = const Color.fromRGBO(132, 94, 194, 1);
 
   static Color cardBorder = const Color.fromRGBO(220, 220, 220, 0.5);
   static Color neutralLight = const Color.fromRGBO(246, 245, 245, 1);

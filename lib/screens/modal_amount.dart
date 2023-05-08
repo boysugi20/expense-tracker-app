@@ -25,6 +25,7 @@ class BottomModalAmmount extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               GestureDetector(
+                behavior: HitTestBehavior.opaque,
                 onTap: (){
                   Navigator.pop(context);
                   openBottomModalCategory(context);
