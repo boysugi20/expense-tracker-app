@@ -1,4 +1,4 @@
-import 'package:expense_tracker/navbar.dart';
+import 'package:expense_tracker/components/functions.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
