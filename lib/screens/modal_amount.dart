@@ -1,73 +1,12 @@
+import 'package:expense_tracker/navbar.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
-class BottomModalCategory extends StatelessWidget {
-
-  final List<String> categories = ['Home','Food','Utility','Entertainment','Utility','Others','Food','Utility','Transportation','Entertainment','Utility','Others'];
-
-  BottomModalCategory({super.key,});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 12,
-            color: AppColors.neutralDark,
-          ),
-          Stack(
-            children: [
-              Container(
-                height: 10,
-                color: AppColors.neutralDark,
-              ),
-              Center(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.all(Radius.circular(6)),
-                    color: Colors.white.withOpacity(0.7),
-                  ),
-                  height: 4,
-                  width: 64,
-                ),
-              ),
-            ]
-          ),
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 24),
-              decoration: BoxDecoration(
-                color: AppColors.neutralDark,
-                border: Border.all(color: AppColors.neutralDark)
-              ),
-              child: NotificationListener<OverscrollIndicatorNotification>(
-                onNotification: (overscroll) {
-                  overscroll.disallowIndicator();
-                  return true;
-                },
-                child: GridView.count(
-                  mainAxisSpacing: 16,
-                  crossAxisCount: 4,
-                  children: [
-                    for (var i in categories) 
-                      CategoryButton(text: i, iconText: 'H'),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class BottomModalAmmount extends StatelessWidget {
 
-  const BottomModalAmmount({Key? key}) : super(key: key);
+  final String categoryText;
+
+  const BottomModalAmmount({required this.categoryText, Key? key}) : super(key: key);
 
   static const double boxSize = 64;
   static const double margin = 4;
@@ -81,12 +20,38 @@ class BottomModalAmmount extends StatelessWidget {
             borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
             color: AppColors.neutralDark,
           ),
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.symmetric(vertical: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              GestureDetector(
+                onTap: (){
+                  Navigator.pop(context);
+                  openBottomModalCategory(context);
+              },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      child: CircleAvatar(
+                        backgroundColor: Colors.grey.shade200,
+                        radius: 16,
+                        child: Text(categoryText.isNotEmpty ? categoryText.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+                      ),
+                    ),
+                    RichText(text: TextSpan(text: categoryText, style: TextStyle(color: AppColors.white))),
+                  ],
+                ),
+              ),
+              Divider(
+                color: AppColors.white,
+                indent: 20,
+                endIndent: 20,
+                height: 36,
+              ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 24),
+                margin: const EdgeInsets.only(bottom: 16),
                 child: RichText(text: TextSpan(text: '17 April 2023', style: TextStyle(color: AppColors.white))),
               ),
               Container(
@@ -328,55 +293,3 @@ class BottomModalAmmount extends StatelessWidget {
     );
   }
 }
-
-class CategoryButton extends StatelessWidget {
-
-  final String text, iconText;
-
-  const CategoryButton({required this.text, required this.iconText, Key? key}) : super(key: key);
-  
-  void openBottomModalAmmount(BuildContext context) {
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      context: context,
-      builder: (context) {
-        return const BottomModalAmmount();
-      }
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return 
-    GestureDetector(
-      onTap: (){
-        print("Clicked category $text");
-        Navigator.pop(context);
-        openBottomModalAmmount(context);
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: RichText(
-              overflow: TextOverflow.ellipsis,
-              text: TextSpan(
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-                text: text
-              ),
-            ),
-          ),
-          CircleAvatar(
-              backgroundColor: Colors.grey.shade200,
-              radius: 24,
-              child: Text(iconText),
-          ),
-        ],
-      ),
-    );
-  }
-
-}
-

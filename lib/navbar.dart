@@ -1,4 +1,3 @@
-import 'package:expense_tracker/screens/modal_choose_category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
@@ -7,13 +6,14 @@ import 'package:expense_tracker/screens/transaction.dart';
 import 'package:expense_tracker/screens/configuration.dart';
 import 'package:expense_tracker/screens/more_setting.dart';
 
+import 'components/functions.dart';
+
 class MyBottomNavigationBar extends StatefulWidget {
   const MyBottomNavigationBar({Key? key}) : super(key: key);
 
   @override
   _MyBottomNavigationBarState createState() => _MyBottomNavigationBarState();
 }
-
 class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   int _currentIndex = 0;
 
@@ -29,20 +29,6 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     setState(() {
       _currentIndex = index;
     });
-  }
-  
-  void openBottomModalCategory(BuildContext context) {
-    showModalBottomSheet(
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      context: context,
-      builder: (context) {
-        return FractionallySizedBox(
-          heightFactor: 0.45,
-          child: BottomModalCategory()
-        );
-      }
-    );
   }
 
   @override
