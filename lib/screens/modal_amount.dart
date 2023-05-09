@@ -262,12 +262,12 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                       children: [
                         TableRow(
                           children: [
-                            buildIconButton(Icons.backspace, onPressed: () => _updateText('backspace'))
+                            buildIconButton(Icons.backspace_outlined, onPressed: () => _updateText('backspace'))
                           ]
                         ),
                         TableRow(
                           children: [
-                            buildIconButton(Icons.calendar_today, onPressed: () => _selectDate(context)),
+                            buildIconButton(Icons.calendar_month_outlined, onPressed: () => _selectDate(context)),
                           ]
                         ),
                         TableRow(

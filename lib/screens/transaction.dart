@@ -2,7 +2,6 @@
 
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';  
 import 'package:expense_tracker/components/widgets.dart';
 
@@ -92,7 +91,7 @@ class SubscriptionCard extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Icon(FeatherIcons.edit2, color: AppColors.white, size: 16,),
+                  child: Icon(Icons.edit, color: AppColors.white, size: 14,),
                 ),
               )
             ],
@@ -181,7 +180,7 @@ class Transactions extends StatelessWidget {
                 ),
                 Container(
                   margin: const EdgeInsets.only(left: 12),
-                  child: const Icon(FeatherIcons.edit2, size: 14,)
+                  child: Icon(Icons.edit, color: AppColors.black, size: 14,)
                 ),
               ],
             ),

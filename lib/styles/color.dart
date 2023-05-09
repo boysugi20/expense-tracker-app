@@ -10,7 +10,7 @@ class AppColors {
   static Color neutralLight = const Color.fromRGBO(246, 245, 245, 1);
   static Color neutralDark = const Color.fromRGBO(29, 29, 29, 1);
 
-  static Color green = const Color.fromRGBO(99, 230, 104, 1);
+  static Color green = const Color.fromRGBO(0, 135, 0, 1);
   static Color red = const Color.fromRGBO(230, 99, 113, 1);
   static Color white = const Color.fromARGB(255, 255, 255, 255);
   static Color black = const Color.fromARGB(255, 0, 0, 0);

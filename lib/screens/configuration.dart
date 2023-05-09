@@ -1,7 +1,6 @@
 import 'package:expense_tracker/components/widgets.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 class ConfigurationPage extends StatelessWidget {
   const ConfigurationPage({Key? key}) : super(key: key);
@@ -72,7 +71,7 @@ class CategoriesCard extends StatelessWidget {
               ),
             ],
           ),
-          Icon(FeatherIcons.x, color: AppColors.black, size: 16,)
+          Icon(Icons.edit, color: AppColors.black, size: 16,)
         ],
       ),
     );
@@ -107,7 +106,7 @@ class GoalsCard extends StatelessWidget {
               Text('Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 16),),
             ],
           ),
-          Icon(FeatherIcons.edit2, color: AppColors.white, size: 16,)
+          Icon(Icons.edit, color: AppColors.white, size: 16,)
         ],
       ),
     );
@@ -133,7 +132,7 @@ class BudgetCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text('Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 18),),
-          Icon(FeatherIcons.edit2, color: AppColors.white, size: 16,)
+          Icon(Icons.edit, color: AppColors.white, size: 16,)
         ],
       )
     );
