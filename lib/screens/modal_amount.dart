@@ -193,7 +193,7 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                       color: AppColors.black
                     ),
                     children: [
-                      TextSpan(text: 'Rp ', style: TextStyle(color: AppColors.main, fontWeight: FontWeight.bold)),
+                      TextSpan(text: 'Rp ', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
                       TextSpan(text: _text.isNotEmpty ? _text : '0', style: TextStyle(color: AppColors.black)),
                     ]
                   )
@@ -223,34 +223,34 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                       children: [
                         TableRow(
                           children: [
-                            _buildButton('+', onPressed: () => _updateText('+')),
-                            _buildButton('7', onPressed: () => _updateText('7')),
-                            _buildButton('8', onPressed: () => _updateText('8')),
-                            _buildButton('9', onPressed: () => _updateText('9')),
+                            buildTextButton('+', onPressed: () => _updateText('+')),
+                            buildTextButton('7', onPressed: () => _updateText('7')),
+                            buildTextButton('8', onPressed: () => _updateText('8')),
+                            buildTextButton('9', onPressed: () => _updateText('9')),
                           ],
                         ),
                         TableRow(
                           children: [
-                            _buildButton('-', onPressed: () => _updateText('-')),
-                            _buildButton('4', onPressed: () => _updateText('4')),
-                            _buildButton('5', onPressed: () => _updateText('5')),
-                            _buildButton('6', onPressed: () => _updateText('6')),
+                            buildTextButton('-', onPressed: () => _updateText('-')),
+                            buildTextButton('4', onPressed: () => _updateText('4')),
+                            buildTextButton('5', onPressed: () => _updateText('5')),
+                            buildTextButton('6', onPressed: () => _updateText('6')),
                           ],
                         ),
                         TableRow(
                           children: [
-                            _buildButton('x', onPressed: () => _updateText('x')),
-                            _buildButton('1', onPressed: () => _updateText('1')),
-                            _buildButton('2', onPressed: () => _updateText('2')),
-                            _buildButton('3', onPressed: () => _updateText('3')),
+                            buildTextButton('x', onPressed: () => _updateText('x')),
+                            buildTextButton('1', onPressed: () => _updateText('1')),
+                            buildTextButton('2', onPressed: () => _updateText('2')),
+                            buildTextButton('3', onPressed: () => _updateText('3')),
                           ],
                         ),
                         TableRow(
                           children: [
-                            _buildButton('/', onPressed: () => _updateText('/')),
-                            _buildButton('.', onPressed: () => _updateText('.')),
-                            _buildButton('0', onPressed: () => _updateText('0')),
-                            _buildButton('000', onPressed: () => _updateText('000')),
+                            buildTextButton('/', onPressed: () => _updateText('/')),
+                            buildTextButton('.', onPressed: () => _updateText('.')),
+                            buildTextButton('0', onPressed: () => _updateText('0')),
+                            buildTextButton('000', onPressed: () => _updateText('000')),
                           ],
                         ),
                       ],
@@ -262,24 +262,24 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                       children: [
                         TableRow(
                           children: [
-                            _buildIconButton(Icons.backspace, onPressed: () => _updateText('backspace'))
+                            buildIconButton(Icons.backspace, onPressed: () => _updateText('backspace'))
                           ]
                         ),
                         TableRow(
                           children: [
-                            _buildIconButton(Icons.calendar_today, onPressed: () => _selectDate(context)),
+                            buildIconButton(Icons.calendar_today, onPressed: () => _selectDate(context)),
                           ]
                         ),
                         TableRow(
                           children: [
                             _operatorPressed ? 
-                              _buildIconButton(
+                              buildIconButton(
                                 Icons.calculate, 
                                 onPressed: () => _updateText('equals'), 
                                 height: 2, color: AppColors.accent, iconcolor: AppColors.white
                               )
                               :
-                              _buildIconButton(
+                              buildIconButton(
                                 Icons.check, 
                                 onPressed: () => handleCheckButtonPressed(_text, _notesController.text, widget.categoryText, selectedDate),
                                 height: 2, color: AppColors.accent, iconcolor: AppColors.white
@@ -300,7 +300,7 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
   }
 }
 
-Widget _buildButton(String text, {required void Function() onPressed}) {
+Widget buildTextButton(String text, {required VoidCallback onPressed}) {
   return Container(
     height: 64,
     width: 64,
@@ -324,7 +324,7 @@ Widget _buildButton(String text, {required void Function() onPressed}) {
   );
 }
 
-Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black, void Function() onPressed = _defaultOnPressed}) {
+Widget buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black, required VoidCallback onPressed,}) {
   return Container(
     height: 64 * height + ((height-1) * 8),
     width: 64,
@@ -345,5 +345,3 @@ Widget _buildIconButton(IconData icon, {double height = 1.0, Color color = Color
     ),
   );
 }
-
-void _defaultOnPressed() {}

@@ -11,17 +11,14 @@ class LoginPage extends StatelessWidget {
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 48),
         height: MediaQuery.of(context).size.height,
-        color: AppColors.mainDark,
+        color: AppColors.neutralDark,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              child: RichText(
-                text: TextSpan(
-                  text: 'Welcome Back!',
-                  style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 24),
-                ),
+            RichText(
+              text: TextSpan(
+                text: 'Welcome Back!',
+                style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 24),
               ),
             ),
             const _LoginForm(),
@@ -109,7 +106,7 @@ class _LoginFormState extends State<_LoginForm> {
                     _obscureText = !_obscureText;
                   });
                 },
-                icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off, size: 16, color: Colors.grey,),
+                icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility, size: 16, color: Colors.grey,),
               ),
             ),
           ),

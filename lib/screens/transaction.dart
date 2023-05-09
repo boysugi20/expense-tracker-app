@@ -2,6 +2,7 @@
 
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:intl/intl.dart';  
 import 'package:expense_tracker/components/widgets.dart';
 
@@ -20,19 +21,7 @@ class TransactionPage extends StatelessWidget {
           const SubscriptionCard(title: 'Netflix', ammount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
           const SubscriptionCard(title: 'Netflix', ammount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
 
-          GestureDetector(
-            onTap: (){
-              print("Add Subscription");
-            },
-            child: Center(
-              child: RichText(
-                text: TextSpan(
-                  text: 'Add +',
-                  style: TextStyle(color: AppColors.accent)
-                ),
-              ),
-            ),
-          ),
+          const AddButton(text: 'Add +'),
 
           const SectionTitle(text: 'Transaction:'),
 
@@ -103,7 +92,7 @@ class SubscriptionCard extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Icon(Icons.edit, color: AppColors.white, size: 16,),
+                  child: Icon(FeatherIcons.edit2, color: AppColors.white, size: 16,),
                 ),
               )
             ],
@@ -133,7 +122,7 @@ class Transactions extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.cardBorder),
-          borderRadius: const BorderRadius.all(Radius.circular(12)),
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
           color: AppColors.white
         ),
         child: Row(
@@ -145,7 +134,7 @@ class Transactions extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 12),
                   child: CircleAvatar(
                     backgroundColor: Colors.grey.shade200,
-                    child: const Text('F'),
+                    child: Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
                   ),
                 ),
                 Column(
@@ -186,13 +175,13 @@ class Transactions extends StatelessWidget {
               children: [
                 RichText(
                   text:  TextSpan(
-                    text: 'Rp ${NumberFormat('###,###,###,000').format(ammount)}',
+                    text: 'Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
                     style: const TextStyle(color: Colors.red)
                   ),
                 ),
                 Container(
                   margin: const EdgeInsets.only(left: 12),
-                  child: const Icon(Icons.edit, size: 14,)
+                  child: const Icon(FeatherIcons.edit2, size: 14,)
                 ),
               ],
             ),

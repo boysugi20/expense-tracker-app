@@ -5,6 +5,7 @@ import 'package:expense_tracker/screens/dashboard.dart';
 import 'package:expense_tracker/screens/transaction.dart';
 import 'package:expense_tracker/screens/configuration.dart';
 import 'package:expense_tracker/screens/more_setting.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 import 'components/functions.dart';
 
@@ -73,7 +74,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
               child: FloatingActionButton(
                 onPressed: (){ openBottomModalCategory(context); },
                 backgroundColor: AppColors.accent,
-                child: const Icon(Icons.add),
+                child: const Icon(FeatherIcons.plus),
               ),
             ),
           ),
@@ -109,18 +110,18 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
                     showSelectedLabels: false,
                     showUnselectedLabels: false,
                     selectedItemColor: AppColors.accent,
-                    unselectedItemColor: AppColors.neutralLight,
+                    unselectedItemColor: AppColors.grey,
                     backgroundColor: AppColors.neutralDark,
                     currentIndex: _currentIndex,
                     onTap: onTabTapped,
                     type: BottomNavigationBarType.fixed,
                     items: const [
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.bar_chart),
+                        icon: Icon(FeatherIcons.barChart),
                         label: 'Dashboard',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.account_balance_wallet),
+                        icon: Icon(FeatherIcons.book),
                         label: 'Transaction',
                       ),
                       BottomNavigationBarItem(
@@ -128,11 +129,11 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
                         label: '',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.build),
+                        icon: Icon(FeatherIcons.sliders),
                         label: 'Configuration',
                       ),
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.more_horiz),
+                        icon: Icon(FeatherIcons.moreHorizontal),
                         label: 'More',
                       ),
                     ],
