@@ -29,6 +29,8 @@ class ConfigurationPage extends StatelessWidget {
           CategoriesCard(title: 'Home',),
           CategoriesCard(title: 'Food',),
           CategoriesCard(title: 'Transportation',),
+          
+          AddButton(text: 'Add +'),
         ],
       ),
     );
@@ -89,7 +91,7 @@ class GoalsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 6),
       decoration: BoxDecoration(
         color: AppColors.main,
         borderRadius: BorderRadius.circular(8)
@@ -123,7 +125,7 @@ class BudgetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      margin: const EdgeInsets.only(bottom: 14),
+      margin: const EdgeInsets.only(bottom: 6),
       decoration: BoxDecoration(
         color: AppColors.main,
         borderRadius: BorderRadius.circular(8)

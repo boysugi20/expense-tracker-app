@@ -1,5 +1,6 @@
 
 
+import 'package:expense_tracker/forms/subscription.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';  
@@ -20,7 +21,15 @@ class TransactionPage extends StatelessWidget {
           const SubscriptionCard(title: 'Netflix', ammount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
           const SubscriptionCard(title: 'Netflix', ammount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
 
-          const AddButton(text: 'Add +'),
+          AddButton(
+            text: 'Add +',
+            onPressed: (context) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SubscriptionForm()),
+              );
+            },
+          ),
 
           const SectionTitle(text: 'Transaction:'),
 
@@ -87,7 +96,7 @@ class SubscriptionCard extends StatelessWidget {
               Text('End: $endDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
               GestureDetector(
                 onTap: (){
-                  print("Edit Subscription");
+                  print("edit subscription");
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -170,19 +179,11 @@ class Transactions extends StatelessWidget {
                 ),
               ],
             ),
-            Row(
-              children: [
-                RichText(
-                  text:  TextSpan(
-                    text: 'Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
-                    style: const TextStyle(color: Colors.red)
-                  ),
-                ),
-                Container(
-                  margin: const EdgeInsets.only(left: 12),
-                  child: Icon(Icons.edit, color: AppColors.black, size: 14,)
-                ),
-              ],
+            RichText(
+              text:  TextSpan(
+                text: 'Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                style: const TextStyle(color: Colors.red)
+              ),
             ),
           ],
         ),
