@@ -45,7 +45,7 @@ class DashboardPage extends StatelessWidget {
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
                     border: Border.all(color: AppColors.cardBorder),
-                    borderRadius: const BorderRadius.all(Radius.circular(12)),
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
                     color: AppColors.white
                   ),
                   height: 240,
@@ -57,6 +57,11 @@ class DashboardPage extends StatelessWidget {
                       swapAnimationCurve: Curves.linear, // Optional
                     ),
                 ),
+
+                const SectionTitle(text: 'Goals'),
+
+                const GoalsCard(title: 'Iphone XX', progress: 75, completed: false,),
+                const GoalsCard(title: 'Ipad XX', progress: 100, completed: true,),
       
                 const SectionTitle(text: 'Expenses'),
       
@@ -77,6 +82,56 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
+class GoalsCard extends StatelessWidget {
+
+  final double progress;
+  final bool completed;
+  final String title;
+
+  const GoalsCard({required this.title, required this.completed, required this.progress, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      decoration: BoxDecoration(
+        border: Border.all(width: 0, color: AppColors.cardBorder),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        color: AppColors.white
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title, style: TextStyle(color: AppColors.black)),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Stack(
+              children: [
+                Container(
+                  height: 8,
+                  width: 100,
+                  decoration: BoxDecoration(
+                    border: completed ? Border.all(color: AppColors.green) : Border.all(color: AppColors.accent),
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
+                    color: AppColors.white
+                  ),
+                ),
+                Container(
+                  height: 8,
+                  width: progress,
+                  color: completed ? AppColors.green : AppColors.accent,
+                ),
+              ]
+            ),
+          ),
+          Text('${progress.toInt()} %', style: TextStyle(color: AppColors.black))
+        ],
+      ),
+    );
+  }
+}
+
 class Expenses extends StatelessWidget {
 
   final String text;
@@ -87,12 +142,11 @@ class Expenses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64,
       margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.only(left: 18, right: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.cardBorder),
-        borderRadius: const BorderRadius.all(Radius.circular(12)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
         color: AppColors.white
       ),
       child: Row(
@@ -110,7 +164,7 @@ class Expenses extends StatelessWidget {
               RichText(
                 text: TextSpan(
                   text: text,
-                  style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+                  style: const TextStyle(color: Colors.black)
                 ),
               ),
             ],
@@ -154,8 +208,8 @@ class BalanceCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          RichText(text: const TextSpan(text: 'Balance\n', style: TextStyle(color: Color.fromRGBO(255, 255, 255, 0.5), fontSize: 12))),
-          RichText(text: const TextSpan(text: 'Rp 3.000.000', style: TextStyle(color: Colors.white, fontSize: 20))),
+          RichText(text: TextSpan(text: 'Balance\n', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+          RichText(text: TextSpan(text: 'Rp 3.000.000', style: TextStyle(color: AppColors.white, fontSize: 20))),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Stack(
