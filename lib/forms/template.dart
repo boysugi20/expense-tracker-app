@@ -6,8 +6,10 @@ class FormTemplate extends StatelessWidget {
   final String header1, header2;
   final Widget formInputs;
   final GlobalKey<FormState> formKey;
+  final String? buttonText;
+  final Function? onSave;
 
-  const FormTemplate({required this.header1, this.header2 = '', required this.formInputs, required this.formKey, Key? key}) : super(key: key);
+  const FormTemplate({required this.header1, this.header2 = '', required this.formInputs, required this.formKey, this.buttonText, this.onSave, Key? key}) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
@@ -43,10 +45,11 @@ class FormTemplate extends StatelessWidget {
                   onTap: (){
                     if (formKey.currentState!.validate()) {
                       formKey.currentState!.save();
+                      onSave!();
                       Navigator.pop(context);
                     }
                   },
-                  child: const FormSubmitButton(),
+                  child: FormSubmitButton(buttonText: buttonText!),
                 ),
               ],
             ),
@@ -90,9 +93,10 @@ class FormTitle extends StatelessWidget {
 }
 
 class FormSubmitButton extends StatelessWidget {
-  const FormSubmitButton({
-    super.key,
-  });
+
+  String buttonText;
+
+  FormSubmitButton({this.buttonText = '', super.key,});
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +110,7 @@ class FormSubmitButton extends StatelessWidget {
       width: double.infinity,
       child: Center(
         child: RichText(
-          text: const TextSpan(text: 'Save', style: TextStyle(color: Colors.white, fontSize: 16)),
+          text: TextSpan(text: buttonText.isNotEmpty ? buttonText : 'Save', style: const TextStyle(color: Colors.white, fontSize: 16)),
         ),
       ),
     );

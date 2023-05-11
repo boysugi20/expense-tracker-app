@@ -1,21 +1,20 @@
 class TransactionCategory{
-  String id;
+  int? id;
   String name;
 
   TransactionCategory({
-    required this.id,
+    this.id,
     required this.name,
   });
 
-  static List<TransactionCategory> categoryList() {
-    return [
-      TransactionCategory(id: '1', name: 'Home'),
-      TransactionCategory(id: '2', name: 'Transportation'),
-      TransactionCategory(id: '3', name: 'Food'),
-      TransactionCategory(id: '4', name: 'Utility'),
-      TransactionCategory(id: '5', name: 'Entertainment'),
-      TransactionCategory(id: '6', name: 'Self Care'),
-      TransactionCategory(id: '7', name: 'Others'),
-    ];
+  Map<String, Object> toMap(){
+    return {'name': name};
+  }
+
+  static TransactionCategory fromMap(Map<String, dynamic> map) {
+    return TransactionCategory(
+      id: map['id'],
+      name: map['name'],
+    );
   }
 }

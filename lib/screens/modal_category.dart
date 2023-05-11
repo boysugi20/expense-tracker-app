@@ -1,14 +1,34 @@
+import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
 import '../components/functions.dart';
 
-class BottomModalCategory extends StatelessWidget {
+class BottomModalCategory extends StatefulWidget {
 
-  final categoryList = TransactionCategory.categoryList();
+  const BottomModalCategory({super.key,});
 
-  BottomModalCategory({super.key,});
+  @override
+  State<BottomModalCategory> createState() => _BottomModalCategoryState();
+}
+
+class _BottomModalCategoryState extends State<BottomModalCategory> {
+
+  List<TransactionCategory> categoryList = [];
+
+  void _refreshData() async {
+    final data = await DatabaseHelper.getCategories();
+    setState(() {
+      categoryList = data;
+    });
+  }
+  
+  @override
+  void initState() {
+    super.initState();
+    _refreshData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +73,7 @@ class CategoryButton extends StatelessWidget {
     GestureDetector(
       onTap: (){
         Navigator.pop(context);
-        openBottomModalAmmount(context, category);
+        openBottomModalamount(context, category);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -71,7 +91,7 @@ class CategoryButton extends StatelessWidget {
           CircleAvatar(
               backgroundColor: Colors.grey.shade200,
               radius: 24,
-              child: Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+              child: Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
           ),
         ],
       ),

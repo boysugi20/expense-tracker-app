@@ -2,32 +2,36 @@ import 'package:expense_tracker/models/category.dart';
 
 class Transaction{
 
-  String id;
-  double ammount;
+  int? id;
+  double amount;
   DateTime date;
-  String? categoryText, note;
+  String? note;
   TransactionCategory category;
 
   Transaction({
-    required this.id,
+    this.id,
     required this.category,
     required this.date,
-    required this.ammount,
+    required this.amount,
     this.note
   });
 
-  static List<Transaction> transactionList() {
-    return [
-      Transaction(id: '01', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '02', category: TransactionCategory(name: 'Others', id: '2'), date: DateTime(2023,1,1), ammount: 120000, note: 'testing notes'),
-      Transaction(id: '03', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '04', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '02', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '03', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '04', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '02', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '03', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-      Transaction(id: '04', category: TransactionCategory(name: 'Home', id: '1'), date: DateTime(2023,1,1), ammount: 100000, note: 'testing notes'),
-    ];
+  Map<String, Object?> toMap(){
+    return {
+      'categoryId': category.id,
+      'amount': amount,
+      'date': date.toIso8601String(),
+      'note': note
+    };
+  }
+
+  factory Transaction.fromMap(Map<String, dynamic> map) {
+    return Transaction(
+      id: map['id'],
+      amount: map["amount"],
+      date: DateTime.parse(map["date"]),
+      note: map["note"],
+      category: TransactionCategory(name: map['categoryName']),
+    );
   }
 }

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 // usage: Container(color: AppColors.dark)
 class AppColors {
   static Color main = const Color.fromRGBO(23, 77, 108, 1);
+  static Color mainLight = const Color.fromRGBO(106, 170, 215, 1);
+  static Color mainDark = const Color.fromRGBO(0, 43, 79, 1);
   static Color accent = const Color.fromRGBO(132, 94, 194, 1);
 
   static Color cardBorder = const Color.fromRGBO(220, 220, 220, 0.5);

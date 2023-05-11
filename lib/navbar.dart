@@ -21,7 +21,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     const DashboardPage(),
     const TransactionPage(),
     const TransactionPage(),
-    ConfigurationPage(),
+    const ConfigurationPage(),
     const MoreSettingPage()
   ];
 

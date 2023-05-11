@@ -59,12 +59,12 @@ class DashboardPage extends StatelessWidget {
                 const SectionTitle(text: 'Expenses'),
       
                 
-                const Expenses(text: 'Home', ammount: 100000,),
-                const Expenses(text: 'Home1', ammount: 100000,),
-                const Expenses(text: 'Home2', ammount: 100000,),
-                const Expenses(text: 'Home2', ammount: 100000,),
-                const Expenses(text: 'Home2', ammount: 100000,),
-                const Expenses(text: 'Home2', ammount: 100000,),
+                const Expenses(text: 'Home', amount: 100000,),
+                const Expenses(text: 'Home1', amount: 100000,),
+                const Expenses(text: 'Home2', amount: 100000,),
+                const Expenses(text: 'Home2', amount: 100000,),
+                const Expenses(text: 'Home2', amount: 100000,),
+                const Expenses(text: 'Home2', amount: 100000,),
       
               ],
             ),
@@ -255,9 +255,9 @@ class GoalsCard extends StatelessWidget {
 class Expenses extends StatelessWidget {
 
   final String text;
-  final int ammount;
+  final int amount;
 
-  const Expenses({required this.text, required this.ammount, Key? key}) : super(key: key);
+  const Expenses({required this.text, required this.amount, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -271,7 +271,7 @@ class Expenses extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 12),
                 child: CircleAvatar(
                   backgroundColor: Colors.grey.shade200,
-                  child: const Text('H'),
+                  child: Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
                 ),
               ),
               RichText(
@@ -284,8 +284,8 @@ class Expenses extends StatelessWidget {
           ),
           RichText(
             text:  TextSpan(
-              text: 'Rp ${addThousandSeperatorToString(ammount.toString())}',
-              style: const TextStyle(color: Colors.red)
+              text: 'Rp ${addThousandSeperatorToString(amount.toString())}',
+              style: const TextStyle(color: Colors.red, fontSize: 12)
             ),
           ),
         ],

@@ -10,19 +10,21 @@ void openBottomModalCategory(BuildContext context) {
     isScrollControlled: true,
     context: context,
     builder: (context) {
-      return BottomModalCategory();
+      return const BottomModalCategory();
     }
   );
 }
 
-void openBottomModalAmmount(BuildContext context, TransactionCategory category) {
+void openBottomModalamount(BuildContext context, TransactionCategory category) {
   showModalBottomSheet(
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     context: context,
     builder: (context) {
-      return BottomModalAmmount(category: category);
-    }
+      return BottomModalamount(
+        category: category,
+      );
+    },
   );
 }
 
@@ -66,14 +68,14 @@ String monthIntToString (int value){
   return monthText;
 }
 
-String ammountDoubleToString(double value){
+String amountDoubleToString(double value){
 
   final finalString = addThousandSeperatorToString(value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1));
 
   return finalString;
 }
 
-double ammountStringToDouble(String value) {
+double amountStringToDouble(String value) {
 
   final double finalDouble;
 

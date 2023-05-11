@@ -1,6 +1,8 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/components/functions.dart';
+import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,17 +10,17 @@ import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/services.dart'; 
 
 
-class BottomModalAmmount extends StatefulWidget {
+class BottomModalamount extends StatefulWidget {
 
   final TransactionCategory category;
 
-  const BottomModalAmmount({required this.category, Key? key}) : super(key: key);
+  const BottomModalamount({required this.category, Key? key}) : super(key: key);
 
   @override
-  State<BottomModalAmmount> createState() => _BottomModalAmmountState();
+  State<BottomModalamount> createState() => _BottomModalamountState();
 }
 
-class _BottomModalAmmountState extends State<BottomModalAmmount> {
+class _BottomModalamountState extends State<BottomModalamount> {
 
   String _text = '';
   String? lastOperation;
@@ -52,17 +54,17 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
     }
   }
 
+  Future<void> _addTransactionToDB(category, date, amount, note) async {
+    await DatabaseHelper.createTransaction(Transaction(category: category, date: date, amount: amount, note: note));
+  }
+
   void _addTransaction({
-    required String id,
     required TransactionCategory category,
     required DateTime date,
-    required double ammount,
+    required double amount,
     required String note,
   }){
-    print('Ammount: $ammount');
-    print('Category: ${category.name}');
-    print('Date: $date');
-    print('Notes: $note');
+    _addTransactionToDB(category, date, amount, note);
     Navigator.pop(context);
   }
 
@@ -153,7 +155,7 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                       child: CircleAvatar(
                         backgroundColor: Colors.grey.shade200,
                         radius: 16,
-                        child: Text(widget.category.name.isNotEmpty ? widget.category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+                        child: Text(widget.category.name.isNotEmpty ? widget.category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
                       ),
                     ),
                     RichText(text: TextSpan(text: widget.category.name, style: TextStyle(color: AppColors.white))),
@@ -276,10 +278,9 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                                 Icons.check, 
                                 onPressed: () =>
                                   _addTransaction(
-                                    id:'1', 
                                     category: widget.category, 
                                     date: selectedDate[0]!, 
-                                    ammount: ammountStringToDouble(_text), 
+                                    amount: amountStringToDouble(_text), 
                                     note: _notesController.text
                                   ),
                                 height: 2, color: AppColors.accent, iconcolor: AppColors.white

@@ -1,15 +1,35 @@
 import 'package:expense_tracker/components/widgets.dart';
 import 'package:expense_tracker/forms/categories.dart';
 import 'package:expense_tracker/forms/goals.dart';
+import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
-class ConfigurationPage extends StatelessWidget {
+class ConfigurationPage extends StatefulWidget {
   
-  final categoryList = TransactionCategory.categoryList();
+  const ConfigurationPage({Key? key}) : super(key: key);
 
-  ConfigurationPage({Key? key}) : super(key: key);
+  @override
+  State<ConfigurationPage> createState() => _ConfigurationPageState();
+}
+
+class _ConfigurationPageState extends State<ConfigurationPage> {
+
+  List<TransactionCategory> categoryList = [];
+
+  void _refreshData() async {
+    final data = await DatabaseHelper.getCategories();
+    setState(() {
+      categoryList = data;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,13 +40,13 @@ class ConfigurationPage extends StatelessWidget {
         children: [
           const SectionTitle(text: 'Budget:', firstChild: true,),
 
-          const BudgetCard(ammount: 3000000),
+          const BudgetCard(amount: 3000000),
 
           const AddButton(text: 'Add +'),
           
           const SectionTitle(text: 'Goals:'),
 
-          const GoalsCard(title: 'Iphone XX', ammount: 16000000,),
+          const GoalsCard(title: 'Iphone XX', amount: 16000000,),
 
           AddButton(
             text: 'Add +',
@@ -41,54 +61,63 @@ class ConfigurationPage extends StatelessWidget {
           const SectionTitle(text: 'Categories:'),
 
           for (TransactionCategory categoryItem in categoryList)
-            CategoriesCard(title: categoryItem.name,),
+            CategoriesCard(category: categoryItem,),
           
           AddButton(
             text: 'Add +',
-            onPressed: (context) {
-              Navigator.push(
+            onPressed: (context) async {
+              await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const CategoriesForm(header1: 'Add Category', header2: 'Add a new category',)),
-              );
+              ).then((value) => _refreshData());
             },
           ),
         ],
       ),
     );
   }
+
 }
 
 class CategoriesCard extends StatelessWidget {
 
-  final String title;
+  final TransactionCategory category;
 
-  const CategoriesCard({required this.title, Key? key}) : super(key: key);
+  const CategoriesCard({required this.category, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return CardContainer(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              Container(
-                margin: const EdgeInsets.only(right: 12),
-                child: CircleAvatar(
-                  backgroundColor: Colors.grey.shade200,
-                  child: Text(title.isNotEmpty ? title.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => CategoriesForm(header1: 'Edit Category', header2: 'Edit existing category', initialValues: category,)),
+        );
+      },
+      child: CardContainer(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey.shade200,
+                    child: Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                  ),
                 ),
-              ),
-              RichText(
-                text: TextSpan(
-                  text: title,
-                  style: const TextStyle(color: Colors.black)
+                RichText(
+                  text: TextSpan(
+                    text: category.name,
+                    style: const TextStyle(color: Colors.black)
+                  ),
                 ),
-              ),
-            ],
-          ),
-          Icon(Icons.edit, color: AppColors.black, size: 16,)
-        ],
+              ],
+            ),
+            Icon(Icons.edit, color: AppColors.black, size: 16,)
+          ],
+        ),
       ),
     );
   }
@@ -97,9 +126,9 @@ class CategoriesCard extends StatelessWidget {
 class GoalsCard extends StatelessWidget {
 
   final String title;
-  final int ammount;
+  final int amount;
 
-  const GoalsCard({required this.ammount, required this.title, Key? key}) : super(key: key);
+  const GoalsCard({required this.amount, required this.title, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +146,7 @@ class GoalsCard extends StatelessWidget {
             children: [
               Text(title, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),),
               Container(height: 8,),
-              Text('Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 16),),
+              Text('Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 16),),
             ],
           ),
           Icon(Icons.edit, color: AppColors.white, size: 16,)
@@ -129,9 +158,9 @@ class GoalsCard extends StatelessWidget {
 
 class BudgetCard extends StatelessWidget {
 
-  final int ammount;
+  final int amount;
 
-  const BudgetCard({required this.ammount, Key? key}) : super(key: key);
+  const BudgetCard({required this.amount, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +172,7 @@ class BudgetCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 18),),
+          Text('Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 18),),
           Icon(Icons.edit, color: AppColors.white, size: 16,)
         ],
       )
