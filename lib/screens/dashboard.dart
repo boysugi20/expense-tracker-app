@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';  
+import 'package:expense_tracker/components/functions.dart';
 
 import 'package:expense_tracker/styles/color.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -89,17 +89,29 @@ class ExpenseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.only(left: 8, bottom: 8, right: 24, top: 24),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.cardBorder),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        color: AppColors.white
-      ),
+    return CardContainer(
       height: 240,
+      paddingTop: 24,
+      paddingRight: 24,
+      paddingLeft: 8,
+      paddingBottom: 8,
       child: LineChart(
           LineChartData(
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                tooltipBgColor: AppColors.white, 
+                tooltipBorder: BorderSide(color: AppColors.accent, width: 2),
+                getTooltipItems: (List<LineBarSpot> touchedSpots) {
+                  TextStyle tooltipStyle = TextStyle(color: AppColors.accent);
+                  return touchedSpots.map((LineBarSpot touchedSpot) {
+                    return LineTooltipItem(
+                      '${monthIntToString((touchedSpot.x).toInt())}\nRp ${addThousandSeperatorToString((touchedSpot.y).toInt().toString())}',
+                      tooltipStyle,
+                    );
+                  }).toList();
+                },
+              ),
+            ),
             titlesData: FlTitlesData(
               show: true,
               rightTitles: AxisTitles(
@@ -191,14 +203,9 @@ class GoalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      decoration: BoxDecoration(
-        border: Border.all(width: 0, color: AppColors.cardBorder),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        color: AppColors.white
-      ),
+    return CardContainer(
+      paddingTop: 16,
+      paddingBottom: 16,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -254,14 +261,7 @@ class Expenses extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.cardBorder),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        color: AppColors.white
-      ),
+    return CardContainer(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -284,13 +284,12 @@ class Expenses extends StatelessWidget {
           ),
           RichText(
             text:  TextSpan(
-              text: 'Rp ${NumberFormat('###,###,###,000').format(ammount)}',
+              text: 'Rp ${addThousandSeperatorToString(ammount.toString())}',
               style: const TextStyle(color: Colors.red)
             ),
           ),
         ],
       ),
-
     );
   }
 }
@@ -322,7 +321,7 @@ class BalanceCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           RichText(text: TextSpan(text: 'Balance\n', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-          RichText(text: TextSpan(text: 'Rp 3.000.000', style: TextStyle(color: AppColors.white, fontSize: 20))),
+          RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 20))),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Stack(
@@ -341,7 +340,7 @@ class BalanceCard extends StatelessWidget {
               ]
             ),
           ),
-          RichText(text: const TextSpan(text: 'Usage: 1.800.000 / 3.000.000 (75 %)', style: TextStyle(color: Colors.white, fontSize: 12))),
+          RichText(text: TextSpan(text: 'Usage: ${addThousandSeperatorToString(1800000.toString())} / ${addThousandSeperatorToString(3000000.toString())} (75%)', style: const TextStyle(color: Colors.white, fontSize: 12))),
         ],
       ),
     );
@@ -386,20 +385,9 @@ class _WaveCustomPaint extends CustomPainter {
 
 Widget bottomTitleWidgets(double value, TitleMeta meta) {
 
-  List<Map<String, dynamic>> months = [  {'index': 0, 'label': 'JAN'},  {'index': 1, 'label': 'FEB'},  {'index': 2, 'label': 'MAR'},  {'index': 3, 'label': 'APR'},  {'index': 4, 'label': 'MAY'},  {'index': 5, 'label': 'JUN'},  {'index': 6, 'label': 'JUL'},  {'index': 7, 'label': 'AUG'},  {'index': 8, 'label': 'SEP'},  {'index': 9, 'label': 'OCT'},  {'index': 10, 'label': 'NOV'},  {'index': 11, 'label': 'DEC'},];
-
-  const style = TextStyle(fontSize: 12,);
-
-  Widget text = const Text('', style: style);
-
-  for (var i = 0; i < months.length; i++) {
-    if (value.toInt() == months[i]['index']) {
-      text = Text(months[i]['label'], style: style);
-      break;
-    } else {
-      text = const Text('', style: style);
-    }
-  }
+  String monthText = monthIntToString(value.toInt());
+  
+  Widget text = Text(monthText, style: const TextStyle(fontSize: 12,));
 
   return SideTitleWidget(
     axisSide: meta.axisSide,

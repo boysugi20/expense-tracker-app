@@ -18,10 +18,10 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   int _currentIndex = 0;
 
   final List<Widget> _children = [
-    DashboardPage(),
+    const DashboardPage(),
     const TransactionPage(),
     const TransactionPage(),
-    const ConfigurationPage(),
+    ConfigurationPage(),
     const MoreSettingPage()
   ];
 
@@ -35,34 +35,12 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Stack(
-                children: [
-                  Container(
-                    child: _children[_currentIndex]
-                  ),
-
-                  // Gradient on top (at status bar)
-                  // Container(
-                  //   height: 64,
-                  //   decoration: BoxDecoration(
-                  //     color: AppColors.neutralLight,
-                  //     gradient: const LinearGradient(
-                  //       colors: <Color>[Colors.black, Color.fromRGBO(0, 0, 0, 0)],
-                  //       begin: Alignment.topCenter,
-                  //       end: Alignment(0.0, 1.0),
-                  //       tileMode: TileMode.clamp,
-                  //       stops: [0.0, 0.8],
-                  //     ),
-                  //   ),
-                  // ),
-                ]
-              ),
-            ],
+          child: Container(
+            child: _children[_currentIndex]
           ),
         ),
         extendBody: true,
+        floatingActionButtonAnimator: null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Padding(
           padding: const EdgeInsets.only(top: 25),

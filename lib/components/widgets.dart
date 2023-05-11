@@ -7,13 +7,14 @@ class SectionTitle extends StatelessWidget {
   
   final String text;
   final bool firstChild;
+  final bool useBottomMargin;
 
-  const SectionTitle({required this.text, this.firstChild = false, Key? key}) : super(key: key);
+  const SectionTitle({required this.text, this.firstChild = false, this.useBottomMargin = true, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: firstChild?const EdgeInsets.only(bottom: 12):const EdgeInsets.only(bottom: 12, top: 16),
+      margin: EdgeInsets.only(bottom: useBottomMargin ? 12 : 0, top: firstChild ? 0 : 16,),
       child: RichText(
         text: TextSpan(
           text: text,
@@ -61,47 +62,14 @@ class AddButton extends StatelessWidget {
 }
 
 
-class FormTitle extends StatelessWidget {
-  
-  final String header1;
-  final String? header2;
-
-  const FormTitle({required this.header1, this.header2, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(top: 32, bottom: 52),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          RichText(
-            text: TextSpan(text: header1, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24)),
-          ),
-          header2 != null ?
-          Container(
-            margin: const EdgeInsets.only(top: 8),
-            child: RichText(
-              text: TextSpan(text: header2, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 14)),
-            ),
-          )
-          :
-          Container(),
-        ],
-      ),
-    );
-  }
-}
-
-
 class FormTextInput extends StatefulWidget {
 
-  final String title;
+  final String title, initalText;
   final String? helperText, labelText;
   final bool isKeypad, useThousandSeparator;
   void Function(String?)? onSave;
 
-  FormTextInput({required this.title, this.helperText, this.labelText, this.isKeypad = false, this.useThousandSeparator = false, this.onSave, Key? key}) : super(key: key);
+  FormTextInput({required this.title, this.helperText, this.labelText, this.isKeypad = false, this.useThousandSeparator = false, this.onSave, this.initalText = '', Key? key}) : super(key: key);
 
   @override
   State<FormTextInput> createState() => _FormTextInputState();
@@ -110,6 +78,12 @@ class FormTextInput extends StatefulWidget {
 class _FormTextInputState extends State<FormTextInput> {
 
   final _textController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _textController.text = widget.initalText;
+  }
 
   @override
   void dispose() {
@@ -168,26 +142,45 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
 }
 
 
-class FormSubmitButton extends StatelessWidget {
-  const FormSubmitButton({
-    super.key,
-  });
+class CardContainer extends StatelessWidget {
+
+  final Widget child;
+  final Color? color;
+  final bool useBorder;
+  final double marginLeft, marginRight, marginTop, marginBottom;
+  final double paddingLeft, paddingRight, paddingTop, paddingBottom;
+  final double? height;
+
+  const CardContainer(
+    {
+      Key? key, 
+      required this.child, 
+      this.useBorder = true,
+      this.marginLeft = 0, 
+      this.marginRight = 0,
+      this.marginTop = 0,
+      this.marginBottom = 8,
+      this.paddingLeft = 16, 
+      this.paddingRight = 16,
+      this.paddingTop = 8,
+      this.paddingBottom = 8,
+      this.height,
+      this.color,
+    }
+  ) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      margin: const EdgeInsets.only(top: 52, bottom: 100),
+      height: height,
+      margin: EdgeInsets.only(left: marginLeft, right: marginRight, top: marginTop, bottom: marginBottom),
+      padding: EdgeInsets.only(left: paddingLeft, right: paddingRight, top: paddingTop, bottom: paddingBottom),
       decoration: BoxDecoration(
-        color: AppColors.main,
-        borderRadius: BorderRadius.circular(8)
+        border: useBorder ? Border.all(color: AppColors.cardBorder) : null,
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        color: color ?? AppColors.white
       ),
-      width: double.infinity,
-      child: Center(
-        child: RichText(
-          text: const TextSpan(text: 'Save', style: TextStyle(color: Colors.white, fontSize: 16)),
-        ),
-      ),
+      child: child,
     );
   }
 }

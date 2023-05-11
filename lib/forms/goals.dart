@@ -4,18 +4,18 @@ import 'package:expense_tracker/components/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
 import 'package:flutter/material.dart';
 
-class SubscriptionForm extends StatefulWidget {
+class GoalsForm extends StatefulWidget {
   
   final Map<String, dynamic>? initialValues;
   final String header1, header2;
 
-  const SubscriptionForm({required this.header1, this.header2 = '', this.initialValues, Key? key}) : super(key: key);
+  const GoalsForm({required this.header1, this.header2 = '', this.initialValues, Key? key}) : super(key: key);
 
   @override
-  State<SubscriptionForm> createState() => _SubscriptionFormState();
+  State<GoalsForm> createState() => _GoalsFormState();
 }
 
-class _SubscriptionFormState extends State<SubscriptionForm> {
+class _GoalsFormState extends State<GoalsForm> {
 
   final _formKey = GlobalKey<FormState>();
   String name = '';
@@ -41,8 +41,8 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
         key: _formKey,
         child: Column(
           children: [
-            FormTextInput(title: 'Name', labelText: 'Subscription name', initalText: name, onSave: (value) {print(value);}),
-            FormTextInput(title: 'Price', labelText: 'Subscription price', initalText: price, isKeypad: true, useThousandSeparator: true, onSave: (value) {print(value);}),
+            FormTextInput(title: 'Name', labelText: 'Goal name', initalText: name, onSave: (value) {print(value);}),
+            FormTextInput(title: 'Price', labelText: 'Goal price', initalText: price, onSave: (value) {print(value);}),
           ],
         ),
       ),

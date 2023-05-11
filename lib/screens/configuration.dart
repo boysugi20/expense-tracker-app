@@ -1,36 +1,57 @@
 import 'package:expense_tracker/components/widgets.dart';
+import 'package:expense_tracker/forms/categories.dart';
+import 'package:expense_tracker/forms/goals.dart';
+import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
 class ConfigurationPage extends StatelessWidget {
-  const ConfigurationPage({Key? key}) : super(key: key);
+  
+  final categoryList = TransactionCategory.categoryList();
+
+  ConfigurationPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24, bottom: 100),
+      padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24, bottom: 140),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          SectionTitle(text: 'Budget:', firstChild: true,),
+        children: [
+          const SectionTitle(text: 'Budget:', firstChild: true,),
 
-          BudgetCard(ammount: 3000000),
+          const BudgetCard(ammount: 3000000),
 
-          AddButton(text: 'Add +'),
+          const AddButton(text: 'Add +'),
           
-          SectionTitle(text: 'Goals:'),
+          const SectionTitle(text: 'Goals:'),
 
-          GoalsCard(title: 'Iphone XX', ammount: 16000000,),
+          const GoalsCard(title: 'Iphone XX', ammount: 16000000,),
 
-          AddButton(text: 'Add +'),
+          AddButton(
+            text: 'Add +',
+            onPressed: (context) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const GoalsForm(header1: 'Add Goal', header2: 'Add a new goal',)),
+              );
+            },
+          ),
 
-          SectionTitle(text: 'Categories:'),
+          const SectionTitle(text: 'Categories:'),
 
-          CategoriesCard(title: 'Home',),
-          CategoriesCard(title: 'Food',),
-          CategoriesCard(title: 'Transportation',),
+          for (TransactionCategory categoryItem in categoryList)
+            CategoriesCard(title: categoryItem.name,),
           
-          AddButton(text: 'Add +'),
+          AddButton(
+            text: 'Add +',
+            onPressed: (context) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CategoriesForm(header1: 'Add Category', header2: 'Add a new category',)),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -45,14 +66,7 @@ class CategoriesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      margin: const EdgeInsets.only(bottom: 6),
-      decoration: BoxDecoration(
-        color: AppColors.white,
-        border: Border.all(color: AppColors.cardBorder),
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-      ),
+    return CardContainer(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -89,13 +103,11 @@ class GoalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      margin: const EdgeInsets.only(bottom: 6),
-      decoration: BoxDecoration(
-        color: AppColors.main,
-        borderRadius: BorderRadius.circular(8)
-      ),
+    return CardContainer(
+      color: AppColors.main,
+      paddingBottom: 16,
+      paddingTop: 16,
+      marginBottom: 6,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -123,13 +135,11 @@ class BudgetCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      margin: const EdgeInsets.only(bottom: 6),
-      decoration: BoxDecoration(
-        color: AppColors.main,
-        borderRadius: BorderRadius.circular(8)
-      ),
+    return CardContainer(
+      color: AppColors.main,
+      paddingBottom: 16,
+      paddingTop: 16,
+      marginBottom: 6,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -1,15 +1,18 @@
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/components/functions.dart';
+import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'package:flutter/services.dart'; 
 
 
 class BottomModalAmmount extends StatefulWidget {
 
-  final String categoryText;
+  final TransactionCategory category;
 
-  const BottomModalAmmount({required this.categoryText, Key? key}) : super(key: key);
+  const BottomModalAmmount({required this.category, Key? key}) : super(key: key);
 
   @override
   State<BottomModalAmmount> createState() => _BottomModalAmmountState();
@@ -25,56 +28,53 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
   bool _operatorPressed = false;
   bool _lastInputIsOperator = false;
 
-  DateTime selectedDate = DateTime.now();
+  List<DateTime?> selectedDate = [DateTime.now()];
 
   final TextEditingController _notesController = TextEditingController();
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _showDatePicker(BuildContext context) async {
 
-    final DateTime? picked = await showDatePicker(
+    var results  = await showCalendarDatePicker2Dialog(
       context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000, 1),
-      lastDate: DateTime(2500),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.main, // header background color
-              onPrimary: AppColors.white, // header text color
-              onSurface: AppColors.black, // body text color
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.accent, // button text color
-              ),
-            ),
-          ),
-          child: child!,
-        );
-      },
+      config: CalendarDatePicker2WithActionButtonsConfig(
+        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayHighlightColor: AppColors.accent,
+      ),
+      dialogSize: const Size(325, 400),
+      value: selectedDate,
+      borderRadius: BorderRadius.circular(15),
     );
 
-    if (picked != null && picked != selectedDate) {
+    if (results != null && results != selectedDate) {
       setState(() {
-        selectedDate = picked;
+        selectedDate = results;
       });
     }
   }
 
-  String addThousandSeperatorToString (String string) {
-
-    String result;
-
-    result = string.replaceAll(",", "").replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
-
-    return result;
+  void _addTransaction({
+    required String id,
+    required TransactionCategory category,
+    required DateTime date,
+    required double ammount,
+    required String note,
+  }){
+    print('Ammount: $ammount');
+    print('Category: ${category.name}');
+    print('Date: $date');
+    print('Notes: $note');
+    Navigator.pop(context);
   }
 
   void _updateText(String value) {
     setState(() {
+      // If input is clear
+      if (value == 'clear') {
+        _text = '';
+      }
+
       // If input is backspace
-      if (value == 'backspace') {
+      else if (value == 'backspace') {
         if (_text.isNotEmpty){
           _text = addThousandSeperatorToString(_text.substring(0, _text.length - 1));
         }
@@ -84,7 +84,6 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
       }
       // If input is enter
       else if (value == 'enter') {
-        // Save to database
         _text = ''; 
       }
 
@@ -127,15 +126,6 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
     });
   }
 
-  void handleCheckButtonPressed(String text, String notes, String category, DateTime date) {
-    // Do something with the parameters
-    print('Text: $text');
-    print('Notes: $notes');
-    print('Category: $category');
-    print('Date: $date');
-    Navigator.pop(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -163,10 +153,10 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                       child: CircleAvatar(
                         backgroundColor: Colors.grey.shade200,
                         radius: 16,
-                        child: Text(widget.categoryText.isNotEmpty ? widget.categoryText.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+                        child: Text(widget.category.name.isNotEmpty ? widget.category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
                       ),
                     ),
-                    RichText(text: TextSpan(text: widget.categoryText, style: TextStyle(color: AppColors.white))),
+                    RichText(text: TextSpan(text: widget.category.name, style: TextStyle(color: AppColors.white))),
                   ],
                 ),
               ),
@@ -178,7 +168,7 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
               ),
               Container(
                 margin: const EdgeInsets.only(bottom: 16),
-                child: RichText(text: TextSpan(text: DateFormat('dd MMM yyyy').format(selectedDate), style: TextStyle(color: AppColors.white))),
+                child: RichText(text: TextSpan(text: DateFormat('dd MMM yyyy').format(selectedDate[0]!), style: TextStyle(color: AppColors.white))),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
@@ -213,7 +203,6 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                   ),
                 ),
               ),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -262,12 +251,16 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                       children: [
                         TableRow(
                           children: [
-                            buildIconButton(Icons.backspace_outlined, onPressed: () => _updateText('backspace'))
+                            buildIconButton(
+                              Icons.backspace_outlined, 
+                              onLongPressed: () => _updateText('clear'),
+                              onPressed: () => _updateText('backspace')
+                            )
                           ]
                         ),
                         TableRow(
                           children: [
-                            buildIconButton(Icons.calendar_month_outlined, onPressed: () => _selectDate(context)),
+                            buildIconButton(Icons.calendar_month_outlined, onPressed: () => _showDatePicker(context)),
                           ]
                         ),
                         TableRow(
@@ -281,7 +274,14 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
                               :
                               buildIconButton(
                                 Icons.check, 
-                                onPressed: () => handleCheckButtonPressed(_text, _notesController.text, widget.categoryText, selectedDate),
+                                onPressed: () =>
+                                  _addTransaction(
+                                    id:'1', 
+                                    category: widget.category, 
+                                    date: selectedDate[0]!, 
+                                    ammount: ammountStringToDouble(_text), 
+                                    note: _notesController.text
+                                  ),
                                 height: 2, color: AppColors.accent, iconcolor: AppColors.white
                               ),
                           ]
@@ -302,21 +302,28 @@ class _BottomModalAmmountState extends State<BottomModalAmmount> {
 
 Widget buildTextButton(String text, {required VoidCallback onPressed}) {
   return Container(
-    height: 64,
-    width: 64,
     margin: const EdgeInsets.all(4),
-    decoration: BoxDecoration(
-      color: Colors.white,
+    child: Material(
+      color: AppColors.white,
       borderRadius: BorderRadius.circular(4),
-    ),
-    child: InkWell(
-      onTap: onPressed,
-      child: Center(
-        child: Text(
-          text,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 24,
+      child: InkWell(
+        onTap: () {
+          onPressed();
+          HapticFeedback.lightImpact();
+        },
+        splashColor: AppColors.main.withOpacity(0.3),
+        highlightColor: AppColors.main.withOpacity(0.3),
+        child: SizedBox(
+          height: 64,
+          width: 64,
+          child: Center(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+              ),
+            ),
           ),
         ),
       ),
@@ -324,22 +331,30 @@ Widget buildTextButton(String text, {required VoidCallback onPressed}) {
   );
 }
 
-Widget buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black, required VoidCallback onPressed,}) {
+Widget buildIconButton(IconData icon, {double height = 1.0, Color color = Colors.white, Color iconcolor = Colors.black, required VoidCallback onPressed, VoidCallback? onLongPressed,}) {
   return Container(
-    height: 64 * height + ((height-1) * 8),
-    width: 64,
     margin: const EdgeInsets.all(4),
-    decoration: BoxDecoration(
+    child: Material(
       color: color,
       borderRadius: BorderRadius.circular(4),
-    ),
-    child: InkWell(
-      onTap: onPressed,
-      child: Center(
-        child: Icon(
-          icon,
-          size: 24,
-          color: iconcolor,
+      child: InkWell(
+        onLongPress: onLongPressed,
+        onTap: () {
+          onPressed();
+          HapticFeedback.mediumImpact();
+        },
+        splashColor: AppColors.main.withOpacity(0.3),
+        highlightColor: AppColors.main.withOpacity(0.3),
+        child: SizedBox(
+          height: 64 * height + ((height-1) * 8),
+          width: 64,
+          child: Center(
+            child: Icon(
+              icon,
+              size: 24,
+              color: iconcolor,
+            ),
+          ),
         ),
       ),
     ),

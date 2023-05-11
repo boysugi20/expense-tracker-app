@@ -1,12 +1,15 @@
-
-
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:expense_tracker/components/functions.dart';
 import 'package:expense_tracker/forms/subscription.dart';
+import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';  
 import 'package:expense_tracker/components/widgets.dart';
+import 'package:intl/intl.dart';
 
 class TransactionPage extends StatelessWidget {
+
   const TransactionPage({Key? key}) : super(key: key);
 
   @override
@@ -26,37 +29,128 @@ class TransactionPage extends StatelessWidget {
             onPressed: (context) {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SubscriptionForm()),
+                MaterialPageRoute(builder: (context) => const SubscriptionForm(header1: 'Add Subcription', header2: 'Add a new subscription',)),
               );
             },
           ),
 
-          const SectionTitle(text: 'Transaction:'),
-
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Row(
-              children: const [
-                Text('Range: ', style: TextStyle(color: Colors.black),),
-                Text('<dateRangePicker>', style: TextStyle(color: Colors.black),),
-              ]
-            ),
-          ),
-
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000,),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000,),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000,),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes',),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes notes notes notes notes notes',),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes notes',),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes notes',),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes notes',),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes notes',),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes notes',),
-          const Transactions(text: 'Food', date: '04 Apr 2023', ammount: 10000, notes: 'Testing notes notes',),
-
+          const TransactionsContainer()
         ],
       ),
+    );
+  }
+}
+
+class TransactionsContainer extends StatefulWidget {
+  const TransactionsContainer({
+    super.key,
+  });
+
+  @override
+  State<TransactionsContainer> createState() => _TransactionsContainerState();
+}
+
+class _TransactionsContainerState extends State<TransactionsContainer> {
+
+  final transactionList = Transaction.transactionList();
+  bool datePicked = false;
+
+  List<DateTime?> selectedDateRange = [
+    DateTime.now().add(const Duration(days: -7)),DateTime.now()
+  ];
+
+  Future<void> _selectDateRange(BuildContext context) async {
+
+    var results  = await showCalendarDatePicker2Dialog(
+      context: context,
+      config: CalendarDatePicker2WithActionButtonsConfig(
+        calendarType: CalendarDatePicker2Type.range,
+        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayHighlightColor: AppColors.accent,
+      ),
+      dialogSize: const Size(325, 400),
+      borderRadius: BorderRadius.circular(15),
+      value: selectedDateRange,
+    );
+
+    if (results != null && results != selectedDateRange) {
+      setState(() {
+        selectedDateRange = results;
+        datePicked = true;
+      });
+    }
+  }
+
+  // Future<void> _selectDateRange(BuildContext context) async {
+
+  //   final picked = await showDateRangePicker(
+  //     context: context,
+  //     firstDate: DateTime(2021),
+  //     lastDate: DateTime(2025),
+  //     builder: (context, child) {
+  //       return Theme(
+  //         data: Theme.of(context).copyWith(
+  //           colorScheme: ColorScheme.light(
+  //             primary: AppColors.main, // header background color
+  //             onPrimary: AppColors.white, // header text color
+  //             onSurface: AppColors.black, // body text color
+  //           ),
+  //           textButtonTheme: TextButtonThemeData(
+  //             style: TextButton.styleFrom(
+  //               foregroundColor: AppColors.accent, // button text color
+  //             ),
+  //           ),
+  //         ),
+  //         child: child!,
+  //       );
+  //     },
+  //   );
+
+  //   if (picked != null) {
+  //     setState(() {
+  //       _startDate = picked.start;
+  //       _endDate = picked.end;
+  //       datePicked = true;
+  //     });
+  //   }
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SectionTitle(text: 'Transaction:', useBottomMargin: false,),
+
+        Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              GestureDetector(
+                onTap: () => _selectDateRange(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: AppColors.white,
+                  ),
+                  child: Row(
+                    children: [
+                      Text(datePicked? '${DateFormat('dd MMM yyyy').format(selectedDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(selectedDateRange[1]!)}': 'Pick date range', style: TextStyle(color: AppColors.main, fontSize: 12),),
+                      Container(width: 8,),
+                      Icon(Icons.calendar_today, color: AppColors.main, size: 12,),
+                    ],
+                  ),
+                ),
+              )
+            ]
+          ),
+        ),
+
+        for (Transaction transactionItem in transactionList)
+          Transactions(category: transactionItem.category, date: transactionItem.date, ammount: transactionItem.ammount,),
+      ],
     );
   }
 }
@@ -70,13 +164,14 @@ class SubscriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      margin: const EdgeInsets.only(bottom: 6),
-      decoration: BoxDecoration(
-        color: AppColors.main,
-        borderRadius: BorderRadius.circular(8)
-      ),
+    return CardContainer(
+      color: AppColors.main,
+      paddingBottom: 18,
+      paddingTop: 18,
+      paddingLeft: 16,
+      paddingRight: 16,
+      marginBottom: 6,
+      useBorder: false,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +181,7 @@ class SubscriptionCard extends StatelessWidget {
             children: [
               Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
               Container(height: 8,),
-              Text('Rp ${NumberFormat('###,###,###,000').format(ammount)}', style: const TextStyle(color: Colors.white, fontSize: 18),),
+              Text('Rp ${addThousandSeperatorToString(ammount.toString())}', style: const TextStyle(color: Colors.white, fontSize: 18),),
             ],
           ),
           Column(
@@ -96,7 +191,14 @@ class SubscriptionCard extends StatelessWidget {
               Text('End: $endDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
               GestureDetector(
                 onTap: (){
-                  print("edit subscription");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => SubscriptionForm(
+                      header1: 'Edit Subsciprtion', 
+                      header2: 'Edit existing subscription', 
+                      initialValues: {'name': title,'price': ammount.toString(),}
+                    )),
+                  );
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -113,26 +215,20 @@ class SubscriptionCard extends StatelessWidget {
 
 class Transactions extends StatelessWidget {
 
-  final String text, date;
+  final DateTime date;
   final String? notes;
-  final int ammount;
+  final double ammount;
+  final TransactionCategory category;
 
-  const Transactions({required this.text, required this.ammount, required this.date, this.notes, Key? key}) : super(key: key);
-
+  const Transactions({required this.category, required this.ammount, required this.date, this.notes, Key? key}) : super(key: key);
+  
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
-        print("Edit Transaction $text");
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.cardBorder),
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          color: AppColors.white
-        ),
+      child: CardContainer(
+        marginBottom: 6,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -142,7 +238,7 @@ class Transactions extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 12),
                   child: CircleAvatar(
                     backgroundColor: Colors.grey.shade200,
-                    child: Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+                    child: Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
                   ),
                 ),
                 Column(
@@ -151,7 +247,7 @@ class Transactions extends StatelessWidget {
                   children: [
                     RichText(
                       text: TextSpan(
-                        text: text,
+                        text: category.name,
                         style: const TextStyle(color: Colors.black)
                       ),
                     ),
@@ -159,7 +255,7 @@ class Transactions extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 2),
                       child: RichText(
                         text: TextSpan(
-                          text: date,
+                          text: DateFormat('dd MMM yyyy').format(date),
                           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 10)
                         ),
                       ),
@@ -181,7 +277,7 @@ class Transactions extends StatelessWidget {
             ),
             RichText(
               text:  TextSpan(
-                text: 'Rp ${ammount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}',
+                text: 'Rp ${ammountDoubleToString(ammount)}',
                 style: const TextStyle(color: Colors.red)
               ),
             ),

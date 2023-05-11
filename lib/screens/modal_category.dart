@@ -1,3 +1,4 @@
+import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 
@@ -5,7 +6,7 @@ import '../components/functions.dart';
 
 class BottomModalCategory extends StatelessWidget {
 
-  final List<String> categories = ['Home','Food','Utility','Entertainment','Utility','Others','Food','Utility','Transportation','Entertainment','Utility','Others'];
+  final categoryList = TransactionCategory.categoryList();
 
   BottomModalCategory({super.key,});
 
@@ -28,7 +29,7 @@ class BottomModalCategory extends StatelessWidget {
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 1,
                 children: [
-                  for (var i in categories) CategoryButton(text: i),
+                  for (var i in categoryList) CategoryButton(category: i,),
                 ],
               ),
             ],
@@ -42,18 +43,17 @@ class BottomModalCategory extends StatelessWidget {
 
 class CategoryButton extends StatelessWidget {
 
-  final String text;
+  final TransactionCategory category;
 
-  const CategoryButton({required this.text, Key? key}) : super(key: key);
+  const CategoryButton({required this.category, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return 
     GestureDetector(
       onTap: (){
-        print("Clicked category $text");
         Navigator.pop(context);
-        openBottomModalAmmount(context, text);
+        openBottomModalAmmount(context, category);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -64,14 +64,14 @@ class CategoryButton extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               text: TextSpan(
                 style: const TextStyle(color: Colors.white, fontSize: 12),
-                text: text
+                text: category.name
               ),
             ),
           ),
           CircleAvatar(
               backgroundColor: Colors.grey.shade200,
               radius: 24,
-              child: Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
+              child: Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : ""),
           ),
         ],
       ),
