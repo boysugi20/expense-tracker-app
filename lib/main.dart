@@ -1,8 +1,24 @@
+import 'package:expense_tracker/bloc/category/category_bloc.dart';
+import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/screens/login.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+
+// void main() {
+//   runApp(const MyApp());
+// }
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<CategoryBloc>(create: (_) => CategoryBloc()),
+        Provider<TransactionBloc>(create: (_) => TransactionBloc()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

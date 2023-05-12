@@ -9,28 +9,36 @@ import 'package:expense_tracker/screens/more_setting.dart';
 import 'components/functions.dart';
 
 class MyBottomNavigationBar extends StatefulWidget {
+
   const MyBottomNavigationBar({Key? key}) : super(key: key);
 
   @override
-  _MyBottomNavigationBarState createState() => _MyBottomNavigationBarState();
+  MyBottomNavigationBarState createState() => MyBottomNavigationBarState();
 }
-class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
+class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
+
   int _currentIndex = 0;
 
-  final List<Widget> _children = [
-    const DashboardPage(),
-    const TransactionPage(),
-    const TransactionPage(),
-    const ConfigurationPage(),
-    const MoreSettingPage()
-  ];
+  List<Widget> _children = [];
 
-  void onTabTapped(int index) {
+  @override
+  void initState() {
+    _children = [
+      const DashboardPage(),
+      const TransactionPage(),
+      const TransactionPage(),
+      const ConfigurationPage(),
+      const MoreSettingPage()
+    ];
+    super.initState();
+  }
+
+  void changeScreen(int index) {
     setState(() {
       _currentIndex = index;
     });
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,6 +48,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
           ),
         ),
         extendBody: true,
+        resizeToAvoidBottomInset: false,
         floatingActionButtonAnimator: null,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         floatingActionButton: Padding(
@@ -49,7 +58,9 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
             width: 64,
             child: FittedBox(
               child: FloatingActionButton(
-                onPressed: (){ openBottomModalCategory(context); },
+                onPressed: () { 
+                  openBottomModalCategory(context, changeScreen); 
+                },
                 backgroundColor: AppColors.accent,
                 child: const Icon(Icons.add),
               ),
@@ -90,7 +101,7 @@ class _MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
                     unselectedItemColor: AppColors.grey,
                     backgroundColor: AppColors.neutralDark,
                     currentIndex: _currentIndex,
-                    onTap: onTabTapped,
+                    onTap: changeScreen,
                     type: BottomNavigationBarType.fixed,
                     items: const [
                       BottomNavigationBarItem(

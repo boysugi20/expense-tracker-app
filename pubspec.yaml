@@ -37,6 +37,7 @@ dependencies:
   intl: ^0.18.1
   math_expressions: ^2.4.0
   calendar_date_picker2: ^0.5.2
+  flutter_bloc: ^8.1.2
 
 dev_dependencies:
   flutter_test:

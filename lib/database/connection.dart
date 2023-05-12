@@ -1,5 +1,3 @@
-import 'package:expense_tracker/models/category.dart';
-import 'package:expense_tracker/models/transaction.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 
 class DatabaseHelper {
@@ -53,69 +51,6 @@ class DatabaseHelper {
       },
     );
   }
-
-  // CATEGORIES
-  static Future<int> createCategory(TransactionCategory category) async {
-    final db = await DatabaseHelper.initializeDB();
-
-    final data = category.toMap();
-    final id = await db.insert('TransactionCategories', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
-
-    return id;
-  }
-
-  static Future<List<TransactionCategory>> getCategories() async {
-    final db = await DatabaseHelper.initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.query('TransactionCategories');
-    return queryResult.map((e) => TransactionCategory.fromMap(e)).toList();
-  }
-
-  static Future<int> updateCategory(TransactionCategory category) async {
-    final db = await DatabaseHelper.initializeDB();
-
-    final data = {
-      'name': category.name,
-      'createdAt': DateTime.now().toString()
-    };
-
-    final result = await db.update('TransactionCategories', data, where: "id = ?", whereArgs: [category.id]);
-    return result;
-  }
-
-
-  // TRANSACTIONS
-  static Future<int> createTransaction(Transaction transaction) async {
-    final db = await DatabaseHelper.initializeDB();
-    final data = transaction.toMap();
-    final id = await db.insert('Transactions', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
-    return id;
-  }
-
-  static Future<List<Transaction>> getTransactions() async {
-    final db = await DatabaseHelper.initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.rawQuery("""
-        SELECT A.*, B.name as categoryName 
-        FROM Transactions AS A JOIN TransactionCategories AS B ON A.categoryId = B.id
-        ORDER BY A.date DESC
-      """);
-    return queryResult.map((e) => Transaction.fromMap(e)).toList();
-  }
-
-  static Future<int> updateTransaction(Transaction transaction, TransactionCategory category) async {
-    final db = await DatabaseHelper.initializeDB();
-
-    final data = {
-      'categoryId': category.id,
-      'date': transaction.date,
-      'amount': transaction.amount,
-      'note': transaction.note,
-      'createdAt': DateTime.now().toString()
-    };
-
-    final result = await db.update('Transactions', data, where: "id = ?", whereArgs: [transaction.id]);
-    return result;
-  }
-
 
   // // Get a single item by id
   // //We dont use this method, it is for you if you want it.

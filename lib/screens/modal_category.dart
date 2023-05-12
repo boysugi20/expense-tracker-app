@@ -1,4 +1,4 @@
-import 'package:expense_tracker/database/connection.dart';
+import 'package:expense_tracker/database/category_dao.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,9 @@ import '../components/functions.dart';
 
 class BottomModalCategory extends StatefulWidget {
 
-  const BottomModalCategory({super.key,});
+  final Function(int)? changeScreen;
+  
+  const BottomModalCategory({this.changeScreen, Key? key}) : super(key: key);
 
   @override
   State<BottomModalCategory> createState() => _BottomModalCategoryState();
@@ -18,7 +20,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> {
   List<TransactionCategory> categoryList = [];
 
   void _refreshData() async {
-    final data = await DatabaseHelper.getCategories();
+    final data = await CategoryDAO.getCategories();
     setState(() {
       categoryList = data;
     });
@@ -49,7 +51,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> {
                 mainAxisSpacing: 8,
                 crossAxisSpacing: 1,
                 children: [
-                  for (var i in categoryList) CategoryButton(category: i,),
+                  for (var i in categoryList) CategoryButton(category: i, changeScreen: widget.changeScreen),
                 ],
               ),
             ],
@@ -60,12 +62,12 @@ class _BottomModalCategoryState extends State<BottomModalCategory> {
   }
 }
 
-
 class CategoryButton extends StatelessWidget {
 
   final TransactionCategory category;
+  final Function(int)? changeScreen;
 
-  const CategoryButton({required this.category, Key? key}) : super(key: key);
+  const CategoryButton({required this.category, this.changeScreen, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,7 @@ class CategoryButton extends StatelessWidget {
     GestureDetector(
       onTap: (){
         Navigator.pop(context);
-        openBottomModalamount(context, category);
+        openBottomModalamount(context, category, changeScreen!);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

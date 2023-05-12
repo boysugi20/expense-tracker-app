@@ -1,10 +1,11 @@
+import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/components/widgets.dart';
 import 'package:expense_tracker/forms/categories.dart';
 import 'package:expense_tracker/forms/goals.dart';
-import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ConfigurationPage extends StatefulWidget {
   
@@ -15,21 +16,6 @@ class ConfigurationPage extends StatefulWidget {
 }
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
-
-  List<TransactionCategory> categoryList = [];
-
-  void _refreshData() async {
-    final data = await DatabaseHelper.getCategories();
-    setState(() {
-      categoryList = data;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _refreshData();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,8 +46,21 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
 
           const SectionTitle(text: 'Categories:'),
 
-          for (TransactionCategory categoryItem in categoryList)
-            CategoriesCard(category: categoryItem,),
+          BlocBuilder<CategoryBloc, CategoryState>(
+            builder: (context, state) {
+              if (state is CategoryInitial) {
+                context.read<CategoryBloc>().add(const GetCategories());
+              }
+              if (state is CategoryLoaded) {
+                if(state.category.isNotEmpty){
+                  return Column(
+                    children: state.category.map((categoryItem) => CategoriesCard(category: categoryItem)).toList(),
+                  );
+                }
+              }
+              return const NoDataWidget();
+            },
+          ),
           
           AddButton(
             text: 'Add +',
@@ -69,7 +68,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               await Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const CategoriesForm(header1: 'Add Category', header2: 'Add a new category',)),
-              ).then((value) => _refreshData());
+              );
             },
           ),
         ],

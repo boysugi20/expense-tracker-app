@@ -8,8 +8,9 @@ class FormTemplate extends StatelessWidget {
   final GlobalKey<FormState> formKey;
   final String? buttonText;
   final Function? onSave;
+  final Function? onDelete;
 
-  const FormTemplate({required this.header1, this.header2 = '', required this.formInputs, required this.formKey, this.buttonText, this.onSave, Key? key}) : super(key: key);
+  const FormTemplate({required this.header1, this.header2 = '', required this.formInputs, required this.formKey, this.buttonText, this.onSave, this.onDelete, Key? key}) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
@@ -41,15 +42,42 @@ class FormTemplate extends StatelessWidget {
               children: [
                 FormTitle(header1: header1, header2: header2,),
                 formInputs,
-                GestureDetector(
-                  onTap: (){
-                    if (formKey.currentState!.validate()) {
-                      formKey.currentState!.save();
-                      onSave!();
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: FormSubmitButton(buttonText: buttonText!),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: (){
+                          if (formKey.currentState!.validate()) {
+                            formKey.currentState!.save();
+                            onDelete!();
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: buttonText != null? 
+                          FormSubmitButton(buttonText: 'Delete', buttonColor: Colors.red)
+                          :
+                          FormSubmitButton(buttonText: 'Cancel', buttonColor: AppColors.grey)
+                          ,
+                      ),
+                    ),
+                    Container(width: 24,),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: (){
+                          if (formKey.currentState!.validate()) {
+                            formKey.currentState!.save();
+                            onSave!();
+                            Navigator.pop(context);
+                          }
+                        },
+                        child: buttonText != null? 
+                          FormSubmitButton(buttonText: 'Update', buttonColor: AppColors.main)
+                          :
+                          FormSubmitButton(buttonText: 'Save', buttonColor: AppColors.main)
+                          ,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -95,8 +123,9 @@ class FormTitle extends StatelessWidget {
 class FormSubmitButton extends StatelessWidget {
 
   String buttonText;
+  Color buttonColor;
 
-  FormSubmitButton({this.buttonText = '', super.key,});
+  FormSubmitButton({required this.buttonText, required this.buttonColor, super.key,});
 
   @override
   Widget build(BuildContext context) {
@@ -104,13 +133,13 @@ class FormSubmitButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       margin: const EdgeInsets.only(top: 52, bottom: 100),
       decoration: BoxDecoration(
-        color: AppColors.main,
+        color: buttonColor,
         borderRadius: BorderRadius.circular(8)
       ),
       width: double.infinity,
       child: Center(
         child: RichText(
-          text: TextSpan(text: buttonText.isNotEmpty ? buttonText : 'Save', style: const TextStyle(color: Colors.white, fontSize: 16)),
+          text: TextSpan(text: buttonText, style: const TextStyle(color: Colors.white, fontSize: 16)),
         ),
       ),
     );

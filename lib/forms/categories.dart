@@ -1,9 +1,10 @@
 
+import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/components/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
-import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesForm extends StatefulWidget {
   
@@ -17,16 +18,22 @@ class CategoriesForm extends StatefulWidget {
 }
 
 class _CategoriesFormState extends State<CategoriesForm> {
+  
+  final CategoryBloc categoryBloc = CategoryBloc();
 
   final _formKey = GlobalKey<FormState>();
   TransactionCategory category = TransactionCategory(name: '');
 
-  Future<void> addItem() async {
-    await DatabaseHelper.createCategory(TransactionCategory(name: category.name));
+  Future<void> addCategory() async {
+    context.read<CategoryBloc>().add(AddCategory(category: category));
   }
 
   Future<void> updateCategory() async {
-    await DatabaseHelper.updateCategory(category);
+    context.read<CategoryBloc>().add(UpdateCategory(category: category));
+  }
+
+  Future<void> deleteCategory() async {
+    context.read<CategoryBloc>().add(DeleteCategory(category: category));
   }
 
   @override
@@ -43,10 +50,11 @@ class _CategoriesFormState extends State<CategoriesForm> {
       formKey: _formKey,
       header1: widget.header1, 
       header2: widget.header2,
-      buttonText: widget.initialValues == null ? 'Save' : 'Update',
+      buttonText: widget.initialValues == null ? null : '',
       onSave: (){
-        widget.initialValues == null ? addItem() : updateCategory();
+        widget.initialValues == null ? addCategory() : updateCategory();
       },
+      onDelete: (){ deleteCategory(); },
       formInputs: Form(
         key: _formKey,
         child: Column(

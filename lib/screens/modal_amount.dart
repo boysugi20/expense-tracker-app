@@ -1,10 +1,11 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/components/functions.dart';
-import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/services.dart'; 
@@ -13,8 +14,9 @@ import 'package:flutter/services.dart';
 class BottomModalamount extends StatefulWidget {
 
   final TransactionCategory category;
+  final Function(int)? changeScreen;
 
-  const BottomModalamount({required this.category, Key? key}) : super(key: key);
+  const BottomModalamount({required this.category, this.changeScreen, Key? key}) : super(key: key);
 
   @override
   State<BottomModalamount> createState() => _BottomModalamountState();
@@ -55,7 +57,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
   }
 
   Future<void> _addTransactionToDB(category, date, amount, note) async {
-    await DatabaseHelper.createTransaction(Transaction(category: category, date: date, amount: amount, note: note));
+    context.read<TransactionBloc>().add(AddTransaction(transaction: Transaction(category: category, date: date, amount: amount, note: note)));
   }
 
   void _addTransaction({
@@ -64,7 +66,10 @@ class _BottomModalamountState extends State<BottomModalamount> {
     required double amount,
     required String note,
   }){
-    _addTransactionToDB(category, date, amount, note);
+    if(_text != ''){
+      _addTransactionToDB(category, date, amount, note);
+      widget.changeScreen!(1);
+    }
     Navigator.pop(context);
   }
 
@@ -145,8 +150,8 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 behavior: HitTestBehavior.opaque,
                 onTap: (){
                   Navigator.pop(context);
-                  openBottomModalCategory(context);
-              },
+                  openBottomModalCategory(context, widget.changeScreen!);
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

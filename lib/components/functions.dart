@@ -4,18 +4,18 @@ import 'package:flutter/material.dart';
 
 import '../screens/modal_amount.dart';
 
-void openBottomModalCategory(BuildContext context) {
+void openBottomModalCategory(BuildContext context, Function(int index) changeScreen) {
   showModalBottomSheet(
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     context: context,
     builder: (context) {
-      return const BottomModalCategory();
+      return BottomModalCategory(changeScreen: changeScreen);
     }
   );
 }
 
-void openBottomModalamount(BuildContext context, TransactionCategory category) {
+void openBottomModalamount(BuildContext context, TransactionCategory category, Function(int index) changeScreen) {
   showModalBottomSheet(
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
@@ -23,9 +23,12 @@ void openBottomModalamount(BuildContext context, TransactionCategory category) {
     builder: (context) {
       return BottomModalamount(
         category: category,
+        changeScreen: changeScreen,
       );
     },
-  );
+  ).whenComplete(() {
+    print('Hey there, I\'m calling after hide bottomSheet');
+  });
 }
 
 String addThousandSeperatorToString (String string) {
@@ -77,9 +80,13 @@ String amountDoubleToString(double value){
 
 double amountStringToDouble(String value) {
 
-  final double finalDouble;
+  double finalDouble;
 
-  finalDouble = double.parse(value.replaceAll(',', ''));
+  try{
+    finalDouble = double.parse(value.replaceAll(',', ''));
+  }catch (e){
+    finalDouble = double.parse('0');
+  }
 
   return finalDouble;
 }

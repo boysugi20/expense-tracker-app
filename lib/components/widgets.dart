@@ -141,6 +141,20 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
   }
 }
 
+class NoDataWidget extends StatelessWidget {
+  
+  const NoDataWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 16),
+        child: Text('No Data', style: TextStyle(color: AppColors.grey),),
+      ),
+    );
+  }
+}
 
 class CardContainer extends StatelessWidget {
 

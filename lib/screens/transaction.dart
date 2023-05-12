@@ -1,17 +1,20 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/components/functions.dart';
+import 'package:expense_tracker/database/transaction_dao.dart';
 import 'package:expense_tracker/forms/subscription.dart';
-import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/components/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class TransactionPage extends StatelessWidget {
 
-  const TransactionPage({Key? key}) : super(key: key);
+
+  const TransactionPage({Key? key,}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -43,37 +46,34 @@ class TransactionPage extends StatelessWidget {
 }
 
 class TransactionsContainer extends StatefulWidget {
-  const TransactionsContainer({
-    super.key,
-  });
 
+  const TransactionsContainer({super.key,});
+
+  // @override
+  // State<TransactionsContainer> createState() => _TransactionsContainerState();
   @override
-  State<TransactionsContainer> createState() => _TransactionsContainerState();
+  TransactionsContainerState createState() => TransactionsContainerState();
 }
 
-class _TransactionsContainerState extends State<TransactionsContainer> {
+class TransactionsContainerState extends State<TransactionsContainer> {
 
   List<Transaction> transactionList = [];
   bool datePicked = false;
   List<DateTime?> selectedDateRange = [DateTime.now().add(const Duration(days: -7)), DateTime.now()];
 
-  void _refreshData() async {
-    transactionList = await DatabaseHelper.getTransactions();
+  void refreshData() async {
+    transactionList = await TransactionDAO.getTransactions();
     setState(() {
       transactionList = transactionList;
     });
   }
   
-  void refreshTransactions() {
-    _refreshData();
-  }
-
   @override
   void initState() {
     super.initState();
-    _refreshData();
+    refreshData();
   }
-
+  
   Future<void> _selectDateRange(BuildContext context) async {
 
     var results  = await showCalendarDatePicker2Dialog(
@@ -98,13 +98,22 @@ class _TransactionsContainerState extends State<TransactionsContainer> {
   }
 
   void _filterTransactions() async {
-    transactionList = await DatabaseHelper.getTransactions();
+    transactionList = await TransactionDAO.getTransactions();
     List<Transaction> results = [];
-    results = transactionList.where((t) => (t.date.isAfter(selectedDateRange[0]!) || t.date.isAtSameMomentAs(selectedDateRange[0]!)) && (t.date.isBefore(selectedDateRange[1]!) || t.date.isAtSameMomentAs(selectedDateRange[1]!))).toList();
+
+    results = transactionList.where((t) {
+      final tDate = DateTime(t.date.year, t.date.month, t.date.day);
+      final startDate = DateTime(selectedDateRange[0]!.year, selectedDateRange[0]!.month, selectedDateRange[0]!.day);
+      final endDate = DateTime(selectedDateRange[1]!.year, selectedDateRange[1]!.month, selectedDateRange[1]!.day);
+      return tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate) && (tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate));
+    }).toList();
+
     setState(() {
       transactionList = results;
     });
   }
+
+  methodInChild() => {print('child')};
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +128,9 @@ class _TransactionsContainerState extends State<TransactionsContainer> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               GestureDetector(
-                onTap: () => _selectDateRange(context),
+                onTap: () {
+                  _selectDateRange(context);
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                   decoration: BoxDecoration(
@@ -140,8 +151,22 @@ class _TransactionsContainerState extends State<TransactionsContainer> {
           ),
         ),
 
-        for (Transaction transactionItem in transactionList)
-          Transactions(category: transactionItem.category, date: transactionItem.date, amount: transactionItem.amount,),
+        BlocBuilder<TransactionBloc, TransactionState>(
+          builder: (context, state) {
+            if (state is TransactionInitial) {
+              context.read<TransactionBloc>().add(const GetCategories());
+            }
+            if (state is TransactionLoaded) {
+              if(state.transaction.isNotEmpty){
+                state.transaction.sort((a, b) => b.date.compareTo(a.date));
+                return Column(
+                  children: state.transaction.map((transactionItem) => Transactions(category: transactionItem.category, date: transactionItem.date, amount: transactionItem.amount,)).toList(),
+                );
+              }
+            }
+            return const NoDataWidget();
+          },
+        ),
       ],
     );
   }
