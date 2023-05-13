@@ -11,8 +11,13 @@ class GoalInitial extends GoalState {
 
 class GoalLoaded extends GoalState {
   final List<Goal> goal;
+  final DateTime lastUpdated;
 
-  const GoalLoaded({required this.goal});
+  const GoalLoaded({required this.goal, required this.lastUpdated});
+
   @override
-  List<Object> get props => [goal];
+  List<Object> get props => [goal, lastUpdated];
+
+  @override
+  bool get stringify => true;
 }

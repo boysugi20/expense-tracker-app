@@ -15,14 +15,14 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
 
     on<GetCategories>((event, emit) async {
       categories = await CategoryDAO.getCategories();
-      emit(CategoryLoaded(category: categories));
+      emit(CategoryLoaded(category: categories, lastUpdated: DateTime.now()));
     });
 
     on<AddCategory>((event, emit) async {
       await CategoryDAO.insertCategory(event.category);
       if(state is CategoryLoaded){
         final state = this.state as CategoryLoaded;
-        emit(CategoryLoaded(category: List.from(state.category)..add(event.category)));
+        emit(CategoryLoaded(category: List.from(state.category)..add(event.category), lastUpdated: DateTime.now()));
       }
     });
 
@@ -30,7 +30,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       await CategoryDAO.updateCategory(event.category);
       if(state is CategoryLoaded){
         final state = this.state as CategoryLoaded;
-        emit(CategoryLoaded(category: List.from(state.category)));
+        emit(CategoryLoaded(category: List.from(state.category), lastUpdated: DateTime.now()));
       }
     });
 
@@ -38,7 +38,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
       await CategoryDAO.deleteCategory(event.category);
       if(state is CategoryLoaded){
         final state = this.state as CategoryLoaded;
-        emit(CategoryLoaded(category: List.from(state.category)..remove(event.category)));
+        emit(CategoryLoaded(category: List.from(state.category)..remove(event.category), lastUpdated: DateTime.now()));
       }
     });
   }

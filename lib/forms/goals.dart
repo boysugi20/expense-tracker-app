@@ -10,7 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GoalsForm extends StatefulWidget {
   
-  final Map<String, dynamic>? initialValues;
+  final Goal? initialValues;
   final String header1, header2;
 
   const GoalsForm({required this.header1, this.header2 = '', this.initialValues, Key? key}) : super(key: key);
@@ -22,19 +22,15 @@ class GoalsForm extends StatefulWidget {
 class _GoalsFormState extends State<GoalsForm> {
 
   final _formKey = GlobalKey<FormState>();
-  String name = '';
-  double amount = 0;
 
-  final GoalBloc goalBloc = GoalBloc();
+  final GoalBloc categoryBloc = GoalBloc();
   Goal goal = Goal(name: '', totalAmount: 0);
 
   @override
   void initState() {
     super.initState();
     if (widget.initialValues != null) {
-      name = widget.initialValues!['name'] ?? '';
-      amount = widget.initialValues!['amount'] ?? '';
-      amount = amountStringToDouble(amountDoubleToString(amount));
+      goal = widget.initialValues!;
     }
   }
 
@@ -59,6 +55,7 @@ class _GoalsFormState extends State<GoalsForm> {
       formKey: _formKey,
       header1: widget.header1, 
       header2: widget.header2,
+      buttonText: widget.initialValues == null ? null : '',
       onSave: (){
         widget.initialValues == null ? insertGoal() : updateGoal();
       },
@@ -70,7 +67,7 @@ class _GoalsFormState extends State<GoalsForm> {
             FormTextInput(
               title: 'Name', 
               labelText: 'Goal name', 
-              initalText: name, 
+              initalText: goal.name, 
               onSave: (value) {goal.name = value!;}
             ),
             FormTextInput(
@@ -78,7 +75,7 @@ class _GoalsFormState extends State<GoalsForm> {
               labelText: 'Goal amount', 
               isKeypad: true, 
               useThousandSeparator: true, 
-              initalText: amount != 0 ? amountDoubleToString(amount) : '', 
+              initalText: goal.totalAmount != 0 ? amountDoubleToString(goal.totalAmount) : '', 
               onSave: (value) {goal.totalAmount = amountStringToDouble(value!);}
             ),
           ],

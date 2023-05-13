@@ -15,14 +15,14 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
 
     on<GetGoals>((event, emit) async {
       goals = await GoalDAO.getGoals();
-      emit(GoalLoaded(goal: goals));
+      emit(GoalLoaded(goal: goals, lastUpdated: DateTime.now()));
     });
 
     on<AddGoal>((event, emit) async {
       await GoalDAO.insertGoal(event.goal);
       if(state is GoalLoaded){
         final state = this.state as GoalLoaded;
-        emit(GoalLoaded(goal: List.from(state.goal)..add(event.goal)));
+        emit(GoalLoaded(goal: List.from(state.goal)..add(event.goal), lastUpdated: DateTime.now()));
       }
     });
 
@@ -30,7 +30,7 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       await GoalDAO.updateGoal(event.goal);
       if(state is GoalLoaded){
         final state = this.state as GoalLoaded;
-        emit(GoalLoaded(goal: List.from(state.goal)));
+        emit(GoalLoaded(goal: List.from(state.goal), lastUpdated: DateTime.now()));
       }
     });
 
@@ -38,7 +38,7 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       await GoalDAO.deleteGoal(event.goal);
       if(state is GoalLoaded){
         final state = this.state as GoalLoaded;
-        emit(GoalLoaded(goal: List.from(state.goal)..remove(event.goal)));
+        emit(GoalLoaded(goal: List.from(state.goal)..remove(event.goal), lastUpdated: DateTime.now()));
       }
     });
   }

@@ -34,8 +34,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           const AddButton(text: 'Add +'),
           
           const SectionTitle(text: 'Goals:'),
-
-          // const GoalsCard(title: 'Iphone XX', amount: 16000000,),
           
           BlocBuilder<GoalBloc, GoalState>(
             builder: (context, state) {
@@ -44,7 +42,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               }
               if (state is GoalLoaded) {
                 if(state.goal.isNotEmpty){
-                  print(state.goal);
                   return Column(
                     children: state.goal.map((goalItem) => GoalsCard(goal: goalItem)).toList(),
                   );
@@ -134,7 +131,7 @@ class CategoriesCard extends StatelessWidget {
                 ),
               ],
             ),
-            Icon(Icons.edit, color: AppColors.black, size: 16,)
+            // Icon(Icons.edit, color: AppColors.black, size: 16,)
           ],
         ),
       ),
@@ -144,31 +141,39 @@ class CategoriesCard extends StatelessWidget {
 
 class GoalsCard extends StatelessWidget {
 
-  Goal goal;
+  final Goal goal;
 
-  GoalsCard({required this.goal, Key? key}) : super(key: key);
+  const GoalsCard({required this.goal, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return CardContainer(
-      color: AppColors.main,
-      paddingBottom: 16,
-      paddingTop: 16,
-      marginBottom: 6,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(goal.name, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),),
-              Container(height: 8,),
-              Text('Rp ${amountDoubleToString(goal.totalAmount)}', style: const TextStyle(color: Colors.white, fontSize: 16),),
-            ],
-          ),
-          Icon(Icons.edit, color: AppColors.white, size: 16,)
-        ],
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => GoalsForm(header1: 'Edit Goal', header2: 'Edit existing goal', initialValues: goal,)),
+        );
+      },
+      child: CardContainer(
+        color: AppColors.main,
+        paddingBottom: 16,
+        paddingTop: 16,
+        marginBottom: 6,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(goal.name, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),),
+                Container(height: 8,),
+                Text('Rp ${amountDoubleToString(goal.totalAmount)}', style: const TextStyle(color: Colors.white, fontSize: 16),),
+              ],
+            ),
+            // Icon(Icons.edit, color: AppColors.white, size: 16,)
+          ],
+        ),
       ),
     );
   }
@@ -176,7 +181,7 @@ class GoalsCard extends StatelessWidget {
 
 class BudgetCard extends StatelessWidget {
 
-  final int amount;
+  final double amount;
 
   const BudgetCard({required this.amount, Key? key}) : super(key: key);
 
@@ -190,8 +195,8 @@ class BudgetCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 18),),
-          Icon(Icons.edit, color: AppColors.white, size: 16,)
+          Text('Rp ${amountDoubleToString(amount)}', style: const TextStyle(color: Colors.white, fontSize: 18),),
+          // Icon(Icons.edit, color: AppColors.white, size: 16,)
         ],
       )
     );

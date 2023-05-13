@@ -16,14 +16,14 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
 
     on<GetCategories>((event, emit) async {
       transactions = await TransactionDAO.getTransactions();
-      emit(TransactionLoaded(transaction: transactions));
+      emit(TransactionLoaded(transaction: transactions, lastUpdated: DateTime.now()));
     });
 
     on<AddTransaction>((event, emit) async {
       await TransactionDAO.insertTransaction(event.transaction);
       if(state is TransactionLoaded){
         final state = this.state as TransactionLoaded;
-        emit(TransactionLoaded(transaction: List.from(state.transaction)..add(event.transaction)));
+        emit(TransactionLoaded(transaction: List.from(state.transaction)..add(event.transaction), lastUpdated: DateTime.now()));
       }
     });
 
@@ -31,7 +31,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       await TransactionDAO.updateTransaction(event.transaction, event.category);
       if(state is TransactionLoaded){
         final state = this.state as TransactionLoaded;
-        emit(TransactionLoaded(transaction: List.from(state.transaction)));
+        emit(TransactionLoaded(transaction: List.from(state.transaction), lastUpdated: DateTime.now()));
       }
     });
 
@@ -39,7 +39,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       await TransactionDAO.deleteTransaction(event.transaction);
       if(state is TransactionLoaded){
         final state = this.state as TransactionLoaded;
-        emit(TransactionLoaded(transaction: List.from(state.transaction)..remove(event.transaction)));
+        emit(TransactionLoaded(transaction: List.from(state.transaction)..remove(event.transaction), lastUpdated: DateTime.now()));
       }
     });
   }

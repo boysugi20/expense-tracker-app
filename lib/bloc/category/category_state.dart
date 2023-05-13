@@ -11,8 +11,12 @@ class CategoryInitial extends CategoryState {
 
 class CategoryLoaded extends CategoryState {
   final List<TransactionCategory> category;
+  final DateTime lastUpdated;
 
-  const CategoryLoaded({required this.category});
+  const CategoryLoaded({required this.category, required this.lastUpdated});
   @override
-  List<Object> get props => [category];
+  List<Object> get props => [category, lastUpdated];
+
+  @override
+  bool get stringify => true;
 }

@@ -24,6 +24,14 @@ class _CategoriesFormState extends State<CategoriesForm> {
   final _formKey = GlobalKey<FormState>();
   TransactionCategory category = TransactionCategory(name: '');
 
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialValues != null) {
+      category = widget.initialValues!;
+    }
+  }
+
   Future<void> insertCategory() async {
     if(category.name.isNotEmpty){
       context.read<CategoryBloc>().add(AddCategory(category: category));
@@ -37,15 +45,7 @@ class _CategoriesFormState extends State<CategoriesForm> {
   Future<void> deleteCategory() async {
     context.read<CategoryBloc>().add(DeleteCategory(category: category));
   }
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.initialValues != null) {
-      category = widget.initialValues!;
-    }
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     return FormTemplate(

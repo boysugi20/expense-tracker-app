@@ -70,9 +70,7 @@ class DashboardPage extends StatelessWidget {
                             title: goalItem.name,
                             progressAmount: goalItem.progressAmount,
                             totalAmount: goalItem.totalAmount,
-                            progress: goalItem.progressAmount != null 
-                                ? (goalItem.progressAmount! / goalItem.totalAmount) * 100 
-                                : 0,
+                            progress: goalItem.progressAmount != null ? (goalItem.progressAmount! / goalItem.totalAmount) * 100 : 0,
                           )).toList(),
                         );
                       }
@@ -261,7 +259,7 @@ class GoalsCard extends StatelessWidget {
                           ),
                           Container(
                             height: 8,
-                            width: progress,
+                            width: progress >= 100 ? 100 : progress,
                             color: progress >= 100 ? AppColors.green : AppColors.accent,
                           ),
                         ]
@@ -278,7 +276,8 @@ class GoalsCard extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Text('Rp ${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.grey, fontSize: 12),),
+                      progressAmount != null ?
+                      Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.grey, fontSize: 12),) : Text('0 / ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.grey, fontSize: 12),),
                     ]
                   ),
                 )
