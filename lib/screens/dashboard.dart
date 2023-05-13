@@ -1,9 +1,11 @@
+import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/components/functions.dart';
 
 import 'package:expense_tracker/styles/color.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/components/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
 
@@ -53,8 +55,31 @@ class DashboardPage extends StatelessWidget {
 
                 const SectionTitle(text: 'Goals'),
 
-                const GoalsCard(title: 'Iphone XX', progress: 75, completed: false,),
-                const GoalsCard(title: 'Ipad XX', progress: 100, completed: true,),
+                // const GoalsCard(title: 'Iphone XX', progress: 75),
+                // const GoalsCard(title: 'Ipad XX', progress: 100),
+                
+                BlocBuilder<GoalBloc, GoalState>(
+                  builder: (context, state) {
+                    if (state is GoalInitial) {
+                      context.read<GoalBloc>().add(const GetGoals());
+                    }
+                    if (state is GoalLoaded) {
+                      if(state.goal.isNotEmpty){
+                        return Column(
+                          children: state.goal.map((goalItem) => GoalsCard(
+                            title: goalItem.name,
+                            progressAmount: goalItem.progressAmount,
+                            totalAmount: goalItem.totalAmount,
+                            progress: goalItem.progressAmount != null 
+                                ? (goalItem.progressAmount! / goalItem.totalAmount) * 100 
+                                : 0,
+                          )).toList(),
+                        );
+                      }
+                    }
+                    return const NoDataWidget();
+                  },
+                ),
       
                 const SectionTitle(text: 'Expenses'),
       
@@ -196,10 +221,11 @@ class ExpenseChart extends StatelessWidget {
 class GoalsCard extends StatelessWidget {
 
   final double progress;
-  final bool completed;
+  final double? progressAmount;
+  final double totalAmount;
   final String title;
 
-  const GoalsCard({required this.title, required this.completed, required this.progress, Key? key}) : super(key: key);
+  const GoalsCard({required this.title, required this.progress, this.progressAmount, required this.totalAmount, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -215,34 +241,47 @@ class GoalsCard extends StatelessWidget {
           ),
           Expanded(
             flex: 6,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+            child: Column(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Stack(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 8,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              border: progress >= 100 ? Border.all(color: AppColors.green) : Border.all(color: AppColors.accent),
+                              borderRadius: const BorderRadius.all(Radius.circular(8)),
+                              color: AppColors.white
+                            ),
+                          ),
+                          Container(
+                            height: 8,
+                            width: progress,
+                            color: progress >= 100 ? AppColors.green : AppColors.accent,
+                          ),
+                        ]
+                      ),
+                    ),
+                    SizedBox(
+                      width: 50,
+                      child: Text('${progress.toInt()} %', style: TextStyle(color: AppColors.black), textAlign: TextAlign.right,)
+                    ),
+                  ],
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Container(
-                        height: 8,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          border: completed ? Border.all(color: AppColors.green) : Border.all(color: AppColors.accent),
-                          borderRadius: const BorderRadius.all(Radius.circular(8)),
-                          color: AppColors.white
-                        ),
-                      ),
-                      Container(
-                        height: 8,
-                        width: progress,
-                        color: completed ? AppColors.green : AppColors.accent,
-                      ),
+                      Text('Rp ${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.grey, fontSize: 12),),
                     ]
                   ),
-                ),
-                SizedBox(
-                  width: 50,
-                  child: Text('${progress.toInt()} %', style: TextStyle(color: AppColors.black), textAlign: TextAlign.right,)
-                ),
+                )
               ],
             ),
           ),

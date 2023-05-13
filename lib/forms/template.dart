@@ -16,7 +16,7 @@ class FormTemplate extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: AppColors.neutralLight,
-      padding: EdgeInsets.only(left: 16, right: 16, top: MediaQuery.of(context).viewPadding.top + 24, bottom: 100),
+      padding: EdgeInsets.only(left: 16, right: 16, top: MediaQuery.of(context).viewPadding.top + 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,10 +26,10 @@ class FormTemplate extends StatelessWidget {
               Navigator.pop(context);
             },
             child: Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.main,
-                borderRadius: BorderRadius.circular(8)
+                borderRadius: BorderRadius.circular(32)
               ),
               child: Icon(Icons.arrow_back, color: AppColors.white,),
             ),
@@ -88,6 +88,7 @@ class FormTemplate extends StatelessWidget {
   }
 }
 
+
 class FormTitle extends StatelessWidget {
   
   final String header1;
@@ -98,7 +99,7 @@ class FormTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 32, bottom: 52),
+      margin: const EdgeInsets.symmetric(vertical: 52),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -131,7 +132,7 @@ class FormSubmitButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      margin: const EdgeInsets.only(top: 52, bottom: 100),
+      margin: const EdgeInsets.only(top: 64, bottom: 100),
       decoration: BoxDecoration(
         color: buttonColor,
         borderRadius: BorderRadius.circular(8)

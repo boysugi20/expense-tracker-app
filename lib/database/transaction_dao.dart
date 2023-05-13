@@ -6,7 +6,7 @@ import 'package:sqflite/sqflite.dart' as sql;
 // Data Access Object
 class TransactionDAO {
   
-  static Future<int> createTransaction(Transaction transaction) async {
+  static Future<int> insertTransaction(Transaction transaction) async {
     final db = await DatabaseHelper.initializeDB();
     final data = transaction.toMap();
     final id = await db.insert('Transactions', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);

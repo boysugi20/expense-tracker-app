@@ -8,7 +8,7 @@ class CategoryDAO {
 
 
   // Insert
-  static Future<int> createCategory(TransactionCategory category) async {
+  static Future<int> insertCategory(TransactionCategory category) async {
     final db = await DatabaseHelper.initializeDB();
 
     final data = category.toMap();

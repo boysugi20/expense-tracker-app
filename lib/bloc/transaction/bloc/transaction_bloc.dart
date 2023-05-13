@@ -20,7 +20,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     });
 
     on<AddTransaction>((event, emit) async {
-      await TransactionDAO.createTransaction(event.transaction);
+      await TransactionDAO.insertTransaction(event.transaction);
       if(state is TransactionLoaded){
         final state = this.state as TransactionLoaded;
         emit(TransactionLoaded(transaction: List.from(state.transaction)..add(event.transaction)));

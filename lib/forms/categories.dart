@@ -24,8 +24,10 @@ class _CategoriesFormState extends State<CategoriesForm> {
   final _formKey = GlobalKey<FormState>();
   TransactionCategory category = TransactionCategory(name: '');
 
-  Future<void> addCategory() async {
-    context.read<CategoryBloc>().add(AddCategory(category: category));
+  Future<void> insertCategory() async {
+    if(category.name.isNotEmpty){
+      context.read<CategoryBloc>().add(AddCategory(category: category));
+    }
   }
 
   Future<void> updateCategory() async {
@@ -52,7 +54,7 @@ class _CategoriesFormState extends State<CategoriesForm> {
       header2: widget.header2,
       buttonText: widget.initialValues == null ? null : '',
       onSave: (){
-        widget.initialValues == null ? addCategory() : updateCategory();
+        widget.initialValues == null ? insertCategory() : updateCategory();
       },
       onDelete: (){ deleteCategory(); },
       formInputs: Form(

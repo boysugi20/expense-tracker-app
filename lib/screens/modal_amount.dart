@@ -1,7 +1,9 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/components/functions.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/goal.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +15,10 @@ import 'package:flutter/services.dart';
 
 class BottomModalamount extends StatefulWidget {
 
-  final TransactionCategory category;
+  final Object categoryOrGoal;
   final Function(int)? changeScreen;
 
-  const BottomModalamount({required this.category, this.changeScreen, Key? key}) : super(key: key);
+  const BottomModalamount({required this.categoryOrGoal, this.changeScreen, Key? key}) : super(key: key);
 
   @override
   State<BottomModalamount> createState() => _BottomModalamountState();
@@ -35,6 +37,27 @@ class _BottomModalamountState extends State<BottomModalamount> {
   List<DateTime?> selectedDate = [DateTime.now()];
 
   final TextEditingController _notesController = TextEditingController();
+
+  String _title = '';
+  String _objectType = '';
+  TransactionCategory category = TransactionCategory(name: '');
+  Goal goal = Goal(name: '', totalAmount: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.categoryOrGoal is TransactionCategory) {
+      category = widget.categoryOrGoal as TransactionCategory;
+      _title = category.name;
+      _objectType = 'Category';
+    } else if (widget.categoryOrGoal is Goal) {
+      goal = widget.categoryOrGoal as Goal;
+      _title = goal.name;
+      _objectType = 'Goal';
+    } else {
+      throw Exception('categoryOrGoal must be either a TransactionCategory or a Goal');
+    }
+  }
 
   Future<void> _showDatePicker(BuildContext context) async {
 
@@ -56,8 +79,12 @@ class _BottomModalamountState extends State<BottomModalamount> {
     }
   }
 
-  Future<void> _addTransactionToDB(category, date, amount, note) async {
+  Future<void> _addTransactionDB(category, date, amount, note) async {
     context.read<TransactionBloc>().add(AddTransaction(transaction: Transaction(category: category, date: date, amount: amount, note: note)));
+  }
+
+  Future<void> _updateGoalDB(goal) async {
+    context.read<GoalBloc>().add(UpdateGoal(goal: goal));
   }
 
   void _addTransaction({
@@ -67,8 +94,25 @@ class _BottomModalamountState extends State<BottomModalamount> {
     required String note,
   }){
     if(_text != ''){
-      _addTransactionToDB(category, date, amount, note);
+      _addTransactionDB(category, date, amount, note);
       widget.changeScreen!(1);
+    }
+    Navigator.pop(context);
+  }
+
+  void _addGoal({
+    required Goal goal,
+    required double amount,
+  }){
+    if(_text != ''){
+      if(goal.progressAmount != null){
+        goal.progressAmount = (goal.progressAmount! + amount);
+      }
+      else{
+        goal.progressAmount = amount;
+      }
+      _updateGoalDB(goal);
+      widget.changeScreen!(0);
     }
     Navigator.pop(context);
   }
@@ -160,10 +204,18 @@ class _BottomModalamountState extends State<BottomModalamount> {
                       child: CircleAvatar(
                         backgroundColor: Colors.grey.shade200,
                         radius: 16,
-                        child: Text(widget.category.name.isNotEmpty ? widget.category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                        child: Text(
+                          _title.isNotEmpty ? _title.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", 
+                          style: TextStyle(color: AppColors.main),
+                        ),
                       ),
                     ),
-                    RichText(text: TextSpan(text: widget.category.name, style: TextStyle(color: AppColors.white))),
+                    RichText(
+                      text: TextSpan(
+                        text: _title, 
+                        style: TextStyle(color: AppColors.white)
+                      )
+                    ),
                   ],
                 ),
               ),
@@ -173,10 +225,25 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 endIndent: 20,
                 height: 36,
               ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                child: RichText(text: TextSpan(text: DateFormat('dd MMM yyyy').format(selectedDate[0]!), style: TextStyle(color: AppColors.white))),
+
+              
+              
+              Builder(
+                builder: (BuildContext context) {
+                  if(_objectType == 'Category'){
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: RichText(text: TextSpan(text: DateFormat('dd MMM yyyy').format(selectedDate[0]!), style: TextStyle(color: AppColors.white))),
+                    );
+                  }
+                  else{
+                    return Container(
+                      height: 18,
+                    );
+                  }
+                }
               ),
+
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -196,20 +263,33 @@ class _BottomModalamountState extends State<BottomModalamount> {
                   )
                 ),
               ),
-              Container(
-                margin: const EdgeInsets.only(bottom: 16, top: 12),
-                child: TextField(
-                  controller: _notesController,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.grey),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    isDense: true,
-                    hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
-                    hintText: "Notes...",
-                  ),
-                ),
+
+              Builder(
+                builder: (BuildContext context) {
+                  if(_objectType == 'Category'){
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16, top: 12),
+                      child: TextField(
+                        controller: _notesController,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.grey),
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          isDense: true,
+                          hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
+                          hintText: "Notes...",
+                        ),
+                      ),
+                    );
+                  }
+                  else{
+                    return Container(
+                      height: 36,
+                    );
+                  }
+                }
               ),
+              
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -254,46 +334,132 @@ class _BottomModalamountState extends State<BottomModalamount> {
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.18,
-                    child: Table(
-                      children: [
-                        TableRow(
-                          children: [
-                            buildIconButton(
-                              Icons.backspace_outlined, 
-                              onLongPressed: () => _updateText('clear'),
-                              onPressed: () => _updateText('backspace')
-                            )
-                          ]
-                        ),
-                        TableRow(
-                          children: [
-                            buildIconButton(Icons.calendar_month_outlined, onPressed: () => _showDatePicker(context)),
-                          ]
-                        ),
-                        TableRow(
-                          children: [
-                            _operatorPressed ? 
-                              buildIconButton(
-                                Icons.calculate, 
-                                onPressed: () => _updateText('equals'), 
-                                height: 2, color: AppColors.accent, iconcolor: AppColors.white
-                              )
-                              :
-                              buildIconButton(
-                                Icons.check, 
-                                onPressed: () =>
-                                  _addTransaction(
-                                    category: widget.category, 
-                                    date: selectedDate[0]!, 
-                                    amount: amountStringToDouble(_text), 
-                                    note: _notesController.text
-                                  ),
-                                height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                    child: Builder(
+                      builder: (BuildContext context) {
+                        if(_objectType == 'Category'){
+                          return Table(
+                            children: [
+                              TableRow(
+                                children: [
+                                  buildIconButton(
+                                    Icons.backspace_outlined, 
+                                    onLongPressed: () => _updateText('clear'),
+                                    onPressed: () => _updateText('backspace')
+                                  )
+                                ]
                               ),
-                          ]
-                        ),
-                      ],
-                    ),
+                              TableRow(
+                                children: [
+                                  buildIconButton(Icons.calendar_month_outlined, onPressed: () => _showDatePicker(context)),
+                                ]
+                              ),
+                              TableRow(
+                                children: [
+                                  _operatorPressed ? 
+                                    buildIconButton(
+                                      Icons.calculate, 
+                                      onPressed: () => _updateText('equals'), 
+                                      height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                                    )
+                                    :
+                                    buildIconButton(
+                                      Icons.check, 
+                                      onPressed: () => {
+                                        _addTransaction(
+                                          category: category, 
+                                          date: selectedDate[0]!, 
+                                          amount: amountStringToDouble(_text), 
+                                          note: _notesController.text
+                                        ),
+                                      },
+                                      height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                                    ),
+                                ]
+                              ),
+                            ],
+                          );
+                        }
+                        else{
+                          return Table(
+                            children: [
+                              TableRow(
+                                children: [
+                                  buildIconButton(
+                                    Icons.backspace_outlined, 
+                                    onLongPressed: () => _updateText('clear'),
+                                    onPressed: () => _updateText('backspace')
+                                  )
+                                ]
+                              ),
+                              TableRow(
+                                children: [
+                                  _operatorPressed ? 
+                                    buildIconButton(
+                                      Icons.calculate, 
+                                      onPressed: () => _updateText('equals'), 
+                                      height: 3, color: AppColors.accent, iconcolor: AppColors.white
+                                    )
+                                    :
+                                    buildIconButton(
+                                      Icons.check, 
+                                      onPressed: () => {
+                                        _addGoal(goal: goal, amount: amountStringToDouble(_text))
+                                      },
+                                      height: 3, color: AppColors.accent, iconcolor: AppColors.white
+                                    ),
+                                ]
+                              ),
+                            ],
+                          );
+                        }
+                      },
+                    )
+                    // child: Table(
+                    //   children: [
+                    //     TableRow(
+                    //       children: [
+                    //         buildIconButton(
+                    //           Icons.backspace_outlined, 
+                    //           onLongPressed: () => _updateText('clear'),
+                    //           onPressed: () => _updateText('backspace')
+                    //         )
+                    //       ]
+                    //     ),
+                    //     TableRow(
+                    //       children: [
+                    //         buildIconButton(Icons.calendar_month_outlined, onPressed: () => _showDatePicker(context)),
+                    //       ]
+                    //     ),
+                    //     TableRow(
+                    //       children: [
+                    //         _operatorPressed ? 
+                    //           buildIconButton(
+                    //             Icons.calculate, 
+                    //             onPressed: () => _updateText('equals'), 
+                    //             height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                    //           )
+                    //           :
+                    //           buildIconButton(
+                    //             Icons.check, 
+                    //             onPressed: () => {
+                    //               if(_objectType == 'Category'){
+                    //                 _addTransaction(
+                    //                   category: category, 
+                    //                   date: selectedDate[0]!, 
+                    //                   amount: amountStringToDouble(_text), 
+                    //                   note: _notesController.text
+                    //                 ),
+                    //               }
+                    //               else if (_objectType == 'Goal'){
+                    //                 _addGoal(goal: goal, amount: amountStringToDouble(_text))
+                    //               }
+                    //             },
+                    //             height: 2, color: AppColors.accent, iconcolor: AppColors.white
+                    //           ),
+                    //       ]
+                    //     ),
+                    //   ],
+                    // ),
                   ),
                 ],
               ),

@@ -1,4 +1,3 @@
-import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
 
@@ -15,20 +14,18 @@ void openBottomModalCategory(BuildContext context, Function(int index) changeScr
   );
 }
 
-void openBottomModalamount(BuildContext context, TransactionCategory category, Function(int index) changeScreen) {
+void openBottomModalAmount(BuildContext context, Object categoryOrGoal, Function(int index) changeScreen) {
   showModalBottomSheet(
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
     context: context,
     builder: (context) {
       return BottomModalamount(
-        category: category,
+        categoryOrGoal: categoryOrGoal,
         changeScreen: changeScreen,
       );
     },
-  ).whenComplete(() {
-    print('Hey there, I\'m calling after hide bottomSheet');
-  });
+  );
 }
 
 String addThousandSeperatorToString (String string) {

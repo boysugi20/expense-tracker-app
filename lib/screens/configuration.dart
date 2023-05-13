@@ -1,8 +1,11 @@
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
+import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
+import 'package:expense_tracker/components/functions.dart';
 import 'package:expense_tracker/components/widgets.dart';
 import 'package:expense_tracker/forms/categories.dart';
 import 'package:expense_tracker/forms/goals.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/goal.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,7 +35,24 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           
           const SectionTitle(text: 'Goals:'),
 
-          const GoalsCard(title: 'Iphone XX', amount: 16000000,),
+          // const GoalsCard(title: 'Iphone XX', amount: 16000000,),
+          
+          BlocBuilder<GoalBloc, GoalState>(
+            builder: (context, state) {
+              if (state is GoalInitial) {
+                context.read<GoalBloc>().add(const GetGoals());
+              }
+              if (state is GoalLoaded) {
+                if(state.goal.isNotEmpty){
+                  print(state.goal);
+                  return Column(
+                    children: state.goal.map((goalItem) => GoalsCard(goal: goalItem)).toList(),
+                  );
+                }
+              }
+              return const NoDataWidget();
+            },
+          ),
 
           AddButton(
             text: 'Add +',
@@ -124,10 +144,9 @@ class CategoriesCard extends StatelessWidget {
 
 class GoalsCard extends StatelessWidget {
 
-  final String title;
-  final int amount;
+  Goal goal;
 
-  const GoalsCard({required this.amount, required this.title, Key? key}) : super(key: key);
+  GoalsCard({required this.goal, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -143,9 +162,9 @@ class GoalsCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),),
+              Text(goal.name, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),),
               Container(height: 8,),
-              Text('Rp ${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}', style: const TextStyle(color: Colors.white, fontSize: 16),),
+              Text('Rp ${amountDoubleToString(goal.totalAmount)}', style: const TextStyle(color: Colors.white, fontSize: 16),),
             ],
           ),
           Icon(Icons.edit, color: AppColors.white, size: 16,)

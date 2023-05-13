@@ -1,4 +1,5 @@
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
+import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/screens/login.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ void main() {
       providers: [
         Provider<CategoryBloc>(create: (_) => CategoryBloc()),
         Provider<TransactionBloc>(create: (_) => TransactionBloc()),
+        Provider<GoalBloc>(create: (_) => GoalBloc()),
       ],
       child: const MyApp(),
     ),

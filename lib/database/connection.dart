@@ -1,8 +1,8 @@
 import 'package:sqflite/sqflite.dart' as sql;
 
 class DatabaseHelper {
-  static Future<void> createTables(sql.Database database) async {
-    await database.execute("""
+  static Future<void> createTables(sql.Database db) async {
+    await db.execute("""
 
       CREATE TABLE TransactionCategories(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -12,7 +12,7 @@ class DatabaseHelper {
 
       """);
 
-    await database.execute("""
+    await db.execute("""
 
       CREATE TABLE Transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -20,7 +20,20 @@ class DatabaseHelper {
         amount REAL,
         date DATETIME,
         note TEXT,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (categoryId) REFERENCES TransactionCategories(id)
+      );
+
+      """);
+
+    await db.execute("""
+
+      CREATE TABLE Goals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        name TEXT,
+        totalAmount REAL,
+        progressAmount REAL,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
 
       """);
@@ -39,6 +52,9 @@ class DatabaseHelper {
     batch.insert('TransactionCategories', {'name': 'Investment'},);
     batch.insert('TransactionCategories', {'name': 'Other'},);
     await batch.commit();
+    
+    final tables = await db.rawQuery('SELECT * FROM sqlite_master ORDER BY name;');
+    print(tables);
   }
 
   static Future<sql.Database> initializeDB() async {
@@ -51,6 +67,8 @@ class DatabaseHelper {
       },
     );
   }
+
+}
 
   // // Get a single item by id
   // //We dont use this method, it is for you if you want it.
@@ -84,4 +102,3 @@ class DatabaseHelper {
   //     debugPrint("Something went wrong when deleting an item: $err");
   //   }
   // }
-}

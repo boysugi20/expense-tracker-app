@@ -19,7 +19,7 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     });
 
     on<AddCategory>((event, emit) async {
-      await CategoryDAO.createCategory(event.category);
+      await CategoryDAO.insertCategory(event.category);
       if(state is CategoryLoaded){
         final state = this.state as CategoryLoaded;
         emit(CategoryLoaded(category: List.from(state.category)..add(event.category)));
