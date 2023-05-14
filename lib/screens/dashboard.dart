@@ -70,7 +70,9 @@ class DashboardPage extends StatelessWidget {
                             title: goalItem.name,
                             progressAmount: goalItem.progressAmount,
                             totalAmount: goalItem.totalAmount,
-                            progress: goalItem.progressAmount != null ? (goalItem.progressAmount! / goalItem.totalAmount) * 100 : 0,
+                            progress: goalItem.totalAmount != 0 
+                                      ? (goalItem.progressAmount != null ? (goalItem.progressAmount! / goalItem.totalAmount) * 100 : 0)
+                                      : 0,
                           )).toList(),
                         );
                       }

@@ -66,6 +66,9 @@ class FormTemplate extends StatelessWidget {
                         onTap: (){
                           if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
+                            // ScaffoldMessenger.of(context).showSnackBar(
+                            //   const SnackBar(content: Text('Saving Data')),
+                            // );
                             onSave!();
                             Navigator.pop(context);
                           }

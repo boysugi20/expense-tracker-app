@@ -67,7 +67,13 @@ class _CategoriesFormState extends State<CategoriesForm> {
               initalText: category.name, 
               onSave: (value) {
                 category.name = value!; 
-              }
+              },
+              validateText: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter some value';
+                }
+                return null;
+              },
             ),
           ],
         ),

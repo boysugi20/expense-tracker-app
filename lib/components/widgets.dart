@@ -68,8 +68,9 @@ class FormTextInput extends StatefulWidget {
   final String? helperText, labelText;
   final bool isKeypad, useThousandSeparator;
   void Function(String?)? onSave;
+  String? Function(String?)? validateText;
 
-  FormTextInput({required this.title, this.helperText, this.labelText, this.isKeypad = false, this.useThousandSeparator = false, this.onSave, this.initalText = '', Key? key}) : super(key: key);
+  FormTextInput({required this.title, this.helperText, this.labelText, this.isKeypad = false, this.useThousandSeparator = false, this.onSave, this.initalText = '', this.validateText, Key? key}) : super(key: key);
 
   @override
   State<FormTextInput> createState() => _FormTextInputState();
@@ -118,6 +119,7 @@ class _FormTextInputState extends State<FormTextInput> {
                 focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),
                 contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16)
               ),
+              validator: widget.validateText,
           )),
         ],
       ),

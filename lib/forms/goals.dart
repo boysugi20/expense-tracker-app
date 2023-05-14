@@ -71,12 +71,27 @@ class _GoalsFormState extends State<GoalsForm> {
               onSave: (value) {goal.name = value!;}
             ),
             FormTextInput(
-              title: 'Price', 
-              labelText: 'Goal amount', 
+              title: 'Progress', 
+              labelText: 'Current goal progress amount', 
+              helperText: 'If there is no progress yet, fill with 0',
+              isKeypad: true, 
+              useThousandSeparator: true, 
+              initalText: goal.progressAmount != null ? amountDoubleToString(goal.progressAmount!) : '', 
+              onSave: (value) {goal.totalAmount = amountStringToDouble(value!);},
+            ),
+            FormTextInput(
+              title: 'Target', 
+              labelText: 'Goal target amount', 
               isKeypad: true, 
               useThousandSeparator: true, 
               initalText: goal.totalAmount != 0 ? amountDoubleToString(goal.totalAmount) : '', 
-              onSave: (value) {goal.totalAmount = amountStringToDouble(value!);}
+              onSave: (value) {goal.totalAmount = amountStringToDouble(value!);},
+              validateText: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter some value';
+                }
+                return null;
+              },
             ),
           ],
         ),
