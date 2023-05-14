@@ -46,16 +46,27 @@ class AddButton extends StatelessWidget {
           : () {
               print("Add$text");
             },
-      child: Container(
-        margin: const EdgeInsets.only(top: 8),
-        child: Center(
-          child: RichText(
-            text: TextSpan(
-              text: text,
-              style: TextStyle(color: AppColors.accent)
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(width: 1, color: AppColors.cardBorder),
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(2)
+            ),
+            margin: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            child: Center(
+              child: RichText(
+                text: TextSpan(
+                  text: text,
+                  style: TextStyle(color: AppColors.accent, fontSize: 12)
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
