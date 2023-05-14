@@ -229,49 +229,18 @@ class GoalsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CardContainer(
-      paddingTop: 16,
-      paddingBottom: 16,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 4, 
-            child: Text(title, style: TextStyle(color: AppColors.black)),
-          ),
-          Expanded(
-            flex: 6,
-            child: Column(
+    return FractionallySizedBox(
+      widthFactor: 1,
+      child: CardContainer(
+        paddingTop: 16,
+        paddingBottom: 16,
+        child: Column(
+          children: [
+            Row(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Stack(
-                        children: [
-                          Container(
-                            height: 8,
-                            width: 100,
-                            decoration: BoxDecoration(
-                              border: progress >= 100 ? Border.all(color: AppColors.green) : Border.all(color: AppColors.accent),
-                              borderRadius: const BorderRadius.all(Radius.circular(8)),
-                              color: AppColors.white
-                            ),
-                          ),
-                          Container(
-                            height: 8,
-                            width: progress >= 100 ? 100 : progress,
-                            color: progress >= 100 ? AppColors.green : AppColors.accent,
-                          ),
-                        ]
-                      ),
-                    ),
-                    SizedBox(
-                      width: 50,
-                      child: Text('${progress.toInt()} %', style: TextStyle(color: AppColors.black), textAlign: TextAlign.right,)
-                    ),
-                  ],
+                Expanded(
+                  flex: 4, 
+                  child: Text(title, style: TextStyle(color: AppColors.black)),
                 ),
                 Container(
                   margin: const EdgeInsets.only(top: 8),
@@ -279,14 +248,32 @@ class GoalsCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       progressAmount != null ?
-                      Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.grey, fontSize: 12),) : Text('0 / ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.grey, fontSize: 12),),
+                      Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toInt()}% )', style: TextStyle(color: AppColors.grey, fontSize: 12),) 
+                      : 
+                      Text('0 / ${amountDoubleToString(totalAmount)} ( 0% )', style: TextStyle(color: AppColors.grey, fontSize: 12),),
                     ]
+                  ),
+                ),
+              ],
+            ),
+            const Divider(),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      minHeight: 8,
+                      value: progress/100,
+                      color: progress >= 100 ? AppColors.green : AppColors.accent,
+                      backgroundColor: AppColors.accent.withOpacity(0.2),
+                    ),
                   ),
                 )
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
