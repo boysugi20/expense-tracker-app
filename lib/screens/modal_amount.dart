@@ -17,8 +17,9 @@ class BottomModalamount extends StatefulWidget {
 
   final Object categoryOrGoal;
   final Function(int)? changeScreen;
+  final Transaction? initialTransaction;
 
-  const BottomModalamount({required this.categoryOrGoal, this.changeScreen, Key? key}) : super(key: key);
+  const BottomModalamount({required this.categoryOrGoal, this.changeScreen, this.initialTransaction, Key? key}) : super(key: key);
 
   @override
   State<BottomModalamount> createState() => _BottomModalamountState();
@@ -46,6 +47,14 @@ class _BottomModalamountState extends State<BottomModalamount> {
   @override
   void initState() {
     super.initState();
+    // If edit transaction
+    if (widget.initialTransaction != null) {
+      category = widget.initialTransaction!.category;
+      _text = amountDoubleToString(widget.initialTransaction!.amount);
+      _notesController.text = widget.initialTransaction!.note ?? '';
+      selectedDate[0] = widget.initialTransaction!.date;
+    }
+    // Choose between expense or goal
     if (widget.categoryOrGoal is TransactionCategory) {
       category = widget.categoryOrGoal as TransactionCategory;
       _title = category.name;
@@ -225,8 +234,6 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 endIndent: 20,
                 height: 36,
               ),
-
-              
               
               Builder(
                 builder: (BuildContext context) {

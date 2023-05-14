@@ -1,3 +1,4 @@
+import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ void openBottomModalCategory(BuildContext context, Function(int index) changeScr
   );
 }
 
-void openBottomModalAmount(BuildContext context, Object categoryOrGoal, Function(int index) changeScreen) {
+void openBottomModalAmount(BuildContext context, Object categoryOrGoal, {Function(int index)? changeScreen, Transaction? initialTransaction}) {
   showModalBottomSheet(
     backgroundColor: Colors.transparent,
     isScrollControlled: true,
@@ -22,7 +23,8 @@ void openBottomModalAmount(BuildContext context, Object categoryOrGoal, Function
     builder: (context) {
       return BottomModalamount(
         categoryOrGoal: categoryOrGoal,
-        changeScreen: changeScreen,
+        changeScreen: changeScreen ?? (int index) {},
+        initialTransaction: initialTransaction,
       );
     },
   );

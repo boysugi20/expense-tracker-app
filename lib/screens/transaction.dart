@@ -1,8 +1,8 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/components/functions.dart';
-import 'package:expense_tracker/database/transaction_dao.dart';
 import 'package:expense_tracker/forms/subscription.dart';
+import 'package:expense_tracker/forms/transaction.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
@@ -13,8 +13,7 @@ import 'package:intl/intl.dart';
 
 class TransactionPage extends StatelessWidget {
 
-
-  const TransactionPage({Key? key,}) : super(key: key);
+  const TransactionPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -47,32 +46,16 @@ class TransactionPage extends StatelessWidget {
 
 class TransactionsContainer extends StatefulWidget {
 
-  const TransactionsContainer({super.key,});
+  const TransactionsContainer({Key? key}) : super(key: key);
 
-  // @override
-  // State<TransactionsContainer> createState() => _TransactionsContainerState();
   @override
   TransactionsContainerState createState() => TransactionsContainerState();
 }
 
 class TransactionsContainerState extends State<TransactionsContainer> {
 
-  List<Transaction> transactionList = [];
   bool datePicked = false;
   List<DateTime?> selectedDateRange = [DateTime.now().add(const Duration(days: -7)), DateTime.now()];
-
-  void refreshData() async {
-    transactionList = await TransactionDAO.getTransactions();
-    setState(() {
-      transactionList = transactionList;
-    });
-  }
-  
-  @override
-  void initState() {
-    super.initState();
-    refreshData();
-  }
   
   Future<void> _selectDateRange(BuildContext context) async {
 
@@ -156,7 +139,8 @@ class TransactionsContainerState extends State<TransactionsContainer> {
               if(filteredTransactions.isNotEmpty){
                 final sortedTransactions = filteredTransactions.toList()..sort((a, b) => b.date.compareTo(a.date));
                 return Column(
-                  children: sortedTransactions.map((transactionItem) => Transactions(category: transactionItem.category, date: transactionItem.date, amount: transactionItem.amount,)).toList(),
+                  children: sortedTransactions.map((transactionItem) => 
+                  TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
                 );
               }
             }
@@ -226,19 +210,21 @@ class SubscriptionCard extends StatelessWidget {
   }
 }
 
-class Transactions extends StatelessWidget {
+class TransactionCard extends StatelessWidget {
 
-  final DateTime date;
-  final String? notes;
-  final double amount;
   final TransactionCategory category;
+  final Transaction transaction;
 
-  const Transactions({required this.category, required this.amount, required this.date, this.notes, Key? key}) : super(key: key);
+  const TransactionCard({required this.category, required this.transaction, Key? key}) : super(key: key);
   
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => TransactionForm(header1: 'Edit transaction', header2: 'Edit existing transaction', initialValues: transaction,)),
+        );
       },
       child: CardContainer(
         marginBottom: 6,
@@ -268,17 +254,17 @@ class Transactions extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 2),
                       child: RichText(
                         text: TextSpan(
-                          text: DateFormat('dd MMM yyyy').format(date),
+                          text: DateFormat('dd MMM yyyy').format(transaction.date),
                           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 10)
                         ),
                       ),
                     ),
-                    (notes != null) 
+                    (transaction.note != null && transaction.note!.isNotEmpty) 
                     ? Container(
                       margin: const EdgeInsets.only(top: 8),
                       child: RichText(
                         text: TextSpan(
-                          text: notes != null && notes!.length > 22 ? '${notes?.substring(0, 22)}...' : notes,
+                          text: transaction.note != null && transaction.note!.length > 22 ? '${transaction.note?.substring(0, 22)}...' : transaction.note,
                           style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 11),
                         ),
                       ),
@@ -290,7 +276,7 @@ class Transactions extends StatelessWidget {
             ),
             RichText(
               text:  TextSpan(
-                text: 'Rp ${amountDoubleToString(amount)}',
+                text: 'Rp ${amountDoubleToString(transaction.amount)}',
                 style: const TextStyle(color: Colors.red, fontSize: 12)
               ),
             ),

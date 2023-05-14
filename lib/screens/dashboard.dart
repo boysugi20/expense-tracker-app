@@ -242,17 +242,14 @@ class GoalsCard extends StatelessWidget {
                   flex: 4, 
                   child: Text(title, style: TextStyle(color: AppColors.black)),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(top: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      progressAmount != null ?
-                      Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toInt()}% )', style: TextStyle(color: AppColors.grey, fontSize: 12),) 
-                      : 
-                      Text('0 / ${amountDoubleToString(totalAmount)} ( 0% )', style: TextStyle(color: AppColors.grey, fontSize: 12),),
-                    ]
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    progressAmount != null ?
+                    Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toInt()}% )', style: TextStyle(color: AppColors.grey, fontSize: 12),) 
+                    : 
+                    Text('0 / ${amountDoubleToString(totalAmount)} ( 0% )', style: TextStyle(color: AppColors.grey, fontSize: 12),),
+                  ]
                 ),
               ],
             ),

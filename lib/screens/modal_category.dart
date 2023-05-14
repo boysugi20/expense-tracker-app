@@ -151,7 +151,7 @@ class GoalButton extends StatelessWidget {
     GestureDetector(
       onTap: (){
         Navigator.pop(context);
-        openBottomModalAmount(context, goal, changeScreen!);
+        openBottomModalAmount(context, goal, changeScreen: changeScreen!);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -191,7 +191,7 @@ class CategoryButton extends StatelessWidget {
     GestureDetector(
       onTap: (){
         Navigator.pop(context);
-        openBottomModalAmount(context, category, changeScreen!);
+        openBottomModalAmount(context, category, changeScreen: changeScreen!);
       },
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
