@@ -28,7 +28,7 @@ class TransactionDAO {
 
     final data = {
       'categoryId': category.id,
-      'date': transaction.date,
+      'date': (transaction.date).toIso8601String(),
       'amount': transaction.amount,
       'note': transaction.note,
       'createdAt': DateTime.now().toString()

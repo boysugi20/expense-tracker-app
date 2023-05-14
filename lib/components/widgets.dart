@@ -1,3 +1,4 @@
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -77,11 +78,22 @@ class FormTextInput extends StatefulWidget {
 
   final String title, initalText;
   final String? helperText, labelText;
-  final bool isKeypad, useThousandSeparator;
-  void Function(String?)? onSave;
-  String? Function(String?)? validateText;
+  final bool isKeypad, useThousandSeparator, isRequired;
+  final void Function(String?)? onSave;
+  final String? Function(String?)? validateText;
 
-  FormTextInput({required this.title, this.helperText, this.labelText, this.isKeypad = false, this.useThousandSeparator = false, this.onSave, this.initalText = '', this.validateText, Key? key}) : super(key: key);
+  const FormTextInput({
+    required this.title, 
+    this.helperText, 
+    this.labelText, 
+    this.isKeypad = false, 
+    this.useThousandSeparator = false, 
+    this.onSave, 
+    this.initalText = '', 
+    this.validateText, 
+    this.isRequired = false,
+    Key? key
+  }) : super(key: key);
 
   @override
   State<FormTextInput> createState() => _FormTextInputState();
@@ -110,11 +122,23 @@ class _FormTextInputState extends State<FormTextInput> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: RichText(
-              text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
-            ),
+          Row(
+            children: [
+              widget.isRequired ?
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RichText(
+                  text: const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 14)),
+                ),
+              )
+              : const SizedBox(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RichText(
+                  text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
+                ),
+              ),
+            ],
           ),
           Material(
             child: TextFormField(
@@ -137,6 +161,120 @@ class _FormTextInputState extends State<FormTextInput> {
     );
   }
 }
+
+
+class FormDateInput extends StatefulWidget {
+
+  final String title, initalText;
+  final String? helperText, labelText;
+  final bool isKeypad, useThousandSeparator, isRequired;
+  final void Function(String?)? onSave;
+  final String? Function(String?)? validateText;
+
+  const FormDateInput({
+    required this.title, 
+    this.helperText, 
+    this.labelText, 
+    this.isKeypad = false, 
+    this.useThousandSeparator = false, 
+    this.onSave, 
+    this.initalText = '', 
+    this.validateText, 
+    this.isRequired = false,
+    Key? key
+  }) : super(key: key);
+  
+  @override
+  State<FormDateInput> createState() => _FormDateInputState();
+}
+
+class _FormDateInputState extends State<FormDateInput> {
+
+  final _textController = TextEditingController();
+  
+  Future<void> _showDatePicker(BuildContext context) async {
+
+    var results  = await showCalendarDatePicker2Dialog(
+      context: context,
+      config: CalendarDatePicker2WithActionButtonsConfig(
+        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayHighlightColor: AppColors.accent,
+      ),
+      dialogSize: const Size(325, 400),
+      value: [DateFormat('dd MMM yyyy').parse(_textController.text)],
+      borderRadius: BorderRadius.circular(15),
+    );
+
+    if (results != null) {
+      setState(() {
+        _textController.text = DateFormat('dd MMM yyyy').format(results[0]!);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _textController.text = widget.initalText;
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              widget.isRequired ?
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RichText(
+                  text: const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 14)),
+                ),
+              )
+              : const SizedBox(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RichText(
+                  text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
+                ),
+              ),
+            ],
+          ),
+          Material(
+            child: TextFormField(
+              readOnly: true,
+              onTap: () => {_showDatePicker(context)},
+              onSaved: widget.onSave,
+              controller: _textController,
+              keyboardType: widget.isKeypad ? TextInputType.number : TextInputType.text,
+              inputFormatters: widget.useThousandSeparator ? [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()] : [],
+              decoration: InputDecoration(
+                helperText: widget.helperText,
+                hintText: widget.labelText,
+                hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+                enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.cardBorder),),  
+                focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),
+                contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                prefixIcon: Icon(Icons.calendar_month, color: AppColors.grey,),
+              ),
+              validator: widget.validateText,
+            )
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 
 class ThousandsSeparatorInputFormatter extends TextInputFormatter {

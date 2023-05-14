@@ -64,6 +64,7 @@ class _CategoriesFormState extends State<CategoriesForm> {
             FormTextInput(
               title: 'Name', 
               labelText: 'Category name', 
+              isRequired: true,
               initalText: category.name, 
               onSave: (value) {
                 category.name = value!; 

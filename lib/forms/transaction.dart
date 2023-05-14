@@ -3,9 +3,9 @@ import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/components/functions.dart';
 import 'package:expense_tracker/components/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
-import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 class TransactionForm extends StatefulWidget {
@@ -24,23 +24,13 @@ class _TransactionFormState extends State<TransactionForm> {
   final TransactionBloc transactionBloc = TransactionBloc();
 
   final _formKey = GlobalKey<FormState>();
-  Transaction transaction = Transaction(category: TransactionCategory(name: ''), date: DateTime.now(), amount: 0);
-
-  @override
-  void initState() {
-    super.initState();
-    if (widget.initialValues != null) {
-      transaction = widget.initialValues!;
-    }
-  }
-
-  Future<void> insertTransaction() async {
-  }
 
   Future<void> updateTransaction() async {
+    context.read<TransactionBloc>().add(UpdateTransaction(transaction: widget.initialValues!, category: widget.initialValues!.category));
   }
 
   Future<void> deleteTransaction() async {
+    context.read<TransactionBloc>().add(DeleteTransaction(transaction: widget.initialValues!));
   }
   
   @override
@@ -51,19 +41,20 @@ class _TransactionFormState extends State<TransactionForm> {
       header2: widget.header2,
       buttonText: widget.initialValues == null ? null : '',
       onSave: (){
-        widget.initialValues == null ? insertTransaction() : updateTransaction();
+        updateTransaction();
       },
       onDelete: (){ deleteTransaction(); },
       formInputs: Form(
         key: _formKey,
         child: Column(
           children: [
-            FormTextInput(
+            FormDateInput(
               title: 'Date', 
               labelText: 'Transaction date', 
-              initalText: DateFormat('dd MMM yyyy').format(transaction.date), 
+              isRequired: true,
+              initalText: DateFormat('dd MMM yyyy').format(widget.initialValues!.date), 
               onSave: (value) {
-                transaction.date = DateFormat('dd MMM yyyy').parse(value!); 
+                widget.initialValues!.date = DateFormat('dd MMM yyyy').parse(value!); 
               },
               validateText: (value) {
                 if (value == null || value.isEmpty) {
@@ -75,9 +66,12 @@ class _TransactionFormState extends State<TransactionForm> {
             FormTextInput(
               title: 'Amount', 
               labelText: 'Transaction amount', 
-              initalText: amountDoubleToString(transaction.amount), 
+              isRequired: true,
+              isKeypad: true,
+              useThousandSeparator: true,
+              initalText: amountDoubleToString(widget.initialValues!.amount), 
               onSave: (value) {
-                transaction.amount = amountStringToDouble(value!); 
+                widget.initialValues!.amount = amountStringToDouble(value!); 
               },
               validateText: (value) {
                 if (value == null || value.isEmpty) {
@@ -89,9 +83,9 @@ class _TransactionFormState extends State<TransactionForm> {
             FormTextInput(
               title: 'Notes', 
               labelText: 'Transaction notes', 
-              initalText: transaction.note!, 
+              initalText: widget.initialValues!.note!, 
               onSave: (value) {
-                transaction.note = value!; 
+                widget.initialValues!.note = value!; 
               },
             ),
           ],
