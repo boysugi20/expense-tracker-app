@@ -88,32 +88,27 @@ class TransactionsContainerState extends State<TransactionsContainer> {
       value: selectedDateRange,
     );
 
-    if (results != null && results != selectedDateRange) {
+    if (results != null && results != selectedDateRange && results.length == 2) {
       setState(() {
         selectedDateRange = results;
         datePicked = true;
-        _filterTransactions();
       });
     }
   }
 
-  void _filterTransactions() async {
-    transactionList = await TransactionDAO.getTransactions();
+  List<Transaction> _filterTransactions(List<Transaction> transactionList) {
+
     List<Transaction> results = [];
 
     results = transactionList.where((t) {
       final tDate = DateTime(t.date.year, t.date.month, t.date.day);
       final startDate = DateTime(selectedDateRange[0]!.year, selectedDateRange[0]!.month, selectedDateRange[0]!.day);
       final endDate = DateTime(selectedDateRange[1]!.year, selectedDateRange[1]!.month, selectedDateRange[1]!.day);
-      return tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate) && (tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate));
+      return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
     }).toList();
 
-    setState(() {
-      transactionList = results;
-    });
+    return results;
   }
-
-  methodInChild() => {print('child')};
 
   @override
   Widget build(BuildContext context) {
@@ -157,10 +152,11 @@ class TransactionsContainerState extends State<TransactionsContainer> {
               context.read<TransactionBloc>().add(const GetCategories());
             }
             if (state is TransactionLoaded) {
-              if(state.transaction.isNotEmpty){
-                state.transaction.sort((a, b) => b.date.compareTo(a.date));
+              final filteredTransactions = _filterTransactions(state.transaction);
+              if(filteredTransactions.isNotEmpty){
+                final sortedTransactions = filteredTransactions.toList()..sort((a, b) => b.date.compareTo(a.date));
                 return Column(
-                  children: state.transaction.map((transactionItem) => Transactions(category: transactionItem.category, date: transactionItem.date, amount: transactionItem.amount,)).toList(),
+                  children: sortedTransactions.map((transactionItem) => Transactions(category: transactionItem.category, date: transactionItem.date, amount: transactionItem.amount,)).toList(),
                 );
               }
             }
