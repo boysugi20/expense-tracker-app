@@ -1,4 +1,5 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/components/functions.dart';
 import 'package:expense_tracker/forms/subscription.dart';
@@ -55,7 +56,10 @@ class TransactionsContainer extends StatefulWidget {
 class TransactionsContainerState extends State<TransactionsContainer> {
 
   bool datePicked = false;
-  List<DateTime?> selectedDateRange = [DateTime.now().add(const Duration(days: -7)), DateTime.now()];
+  List<TransactionCategory> categories = [];
+  
+  List<DateTime?> filterDateRange = [DateTime.now().add(const Duration(days: -7)), DateTime.now()];
+  String filterCategoryName = 'All';
   
   Future<void> _selectDateRange(BuildContext context) async {
 
@@ -68,28 +72,30 @@ class TransactionsContainerState extends State<TransactionsContainer> {
       ),
       dialogSize: const Size(325, 400),
       borderRadius: BorderRadius.circular(15),
-      value: selectedDateRange,
+      value: filterDateRange,
     );
 
-    if (results != null && results != selectedDateRange && results.length == 2) {
+    if (results != null && results != filterDateRange && results.length == 2) {
       setState(() {
-        selectedDateRange = results;
+        filterDateRange = results;
         datePicked = true;
       });
     }
   }
 
   List<Transaction> _filterTransactions(List<Transaction> transactionList) {
-
     List<Transaction> results = [];
-
     results = transactionList.where((t) {
       final tDate = DateTime(t.date.year, t.date.month, t.date.day);
-      final startDate = DateTime(selectedDateRange[0]!.year, selectedDateRange[0]!.month, selectedDateRange[0]!.day);
-      final endDate = DateTime(selectedDateRange[1]!.year, selectedDateRange[1]!.month, selectedDateRange[1]!.day);
-      return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
+      final startDate = DateTime(filterDateRange[0]!.year, filterDateRange[0]!.month, filterDateRange[0]!.day);
+      final endDate = DateTime(filterDateRange[1]!.year, filterDateRange[1]!.month, filterDateRange[1]!.day);
+      // return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
+      if (filterCategoryName == "All") {
+        return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
+      } else {
+        return t.category.name == filterCategoryName && (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
+      }
     }).toList();
-
     return results;
   }
 
@@ -101,10 +107,51 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         const SectionTitle(text: 'Transaction:', useBottomMargin: false,),
 
         Container(
-          margin: const EdgeInsets.only(bottom: 12),
+          margin: const EdgeInsets.only(bottom: 8, top: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+
+              BlocBuilder<CategoryBloc, CategoryState>(
+                builder: (context, state) {
+                  if (state is CategoryInitial) {
+                    context.read<CategoryBloc>().add(const GetCategories());
+                  }
+                  if (state is CategoryLoaded) {
+                    // Get list of categories
+                    final categories = state.category.map((category) => category.name).toList();
+                    // Add "All" to the list
+                    categories.insert(0, "All");
+                    // Create DropdownMenuItem from the list
+                    final dropdownItems = categories.map((category) => DropdownMenuItem(
+                      value: category,
+                      child: Text(category),
+                    )).toList();
+                    return Container(
+                      padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.cardBorder),
+                        borderRadius: BorderRadius.circular(4),
+                        color: AppColors.white,
+                      ),
+                      child: DropdownButton(
+                        onChanged: (String? newValue){
+                          setState(() {
+                            filterCategoryName = newValue!;
+                          });
+                        },
+                        value: filterCategoryName,
+                        items: dropdownItems,
+                        style: TextStyle(color: AppColors.main, fontSize: 12),
+                        underline: const SizedBox(),
+                        isDense: true,
+                      ),
+                    );
+                  }
+                  return const NoDataWidget();
+                }
+              ),
+
               GestureDetector(
                 onTap: () {
                   _selectDateRange(context);
@@ -118,7 +165,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                   ),
                   child: Row(
                     children: [
-                      Text(datePicked? '${DateFormat('dd MMM yyyy').format(selectedDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(selectedDateRange[1]!)}': 'Pick date range', style: TextStyle(color: AppColors.main, fontSize: 12),),
+                      Text(datePicked? '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}': 'Pick date range', style: TextStyle(color: AppColors.main, fontSize: 12),),
                       Container(width: 8,),
                       Icon(Icons.calendar_today, color: AppColors.main, size: 12,),
                     ],
@@ -132,9 +179,10 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
             if (state is TransactionInitial) {
-              context.read<TransactionBloc>().add(const GetCategories());
+              context.read<TransactionBloc>().add(const GetTransactions());
             }
             if (state is TransactionLoaded) {
+              categories = state.transaction.map((transaction) => transaction.category).toSet().toList();
               final filteredTransactions = _filterTransactions(state.transaction);
               if(filteredTransactions.isNotEmpty){
                 final sortedTransactions = filteredTransactions.toList()..sort((a, b) => b.date.compareTo(a.date));

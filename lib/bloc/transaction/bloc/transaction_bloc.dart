@@ -14,7 +14,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
 
     List<Transaction> transactions = [];
 
-    on<GetCategories>((event, emit) async {
+    on<GetTransactions>((event, emit) async {
       transactions = await TransactionDAO.getTransactions();
       emit(TransactionLoaded(transaction: transactions, lastUpdated: DateTime.now()));
     });

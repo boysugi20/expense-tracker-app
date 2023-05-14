@@ -4,8 +4,8 @@ abstract class TransactionEvent extends Equatable {
   const TransactionEvent();
 }
 
-class GetCategories extends TransactionEvent {
-  const GetCategories();
+class GetTransactions extends TransactionEvent {
+  const GetTransactions();
   @override
   List<Object?> get props => [];
 }
