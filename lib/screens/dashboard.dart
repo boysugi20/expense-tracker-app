@@ -52,11 +52,6 @@ class DashboardPage extends StatelessWidget {
                 const SectionTitle(text: 'Monthly Expense'),
       
                 ExpenseChart(data: dummyData),
-
-                const SectionTitle(text: 'Goals'),
-
-                // const GoalsCard(title: 'Iphone XX', progress: 75),
-                // const GoalsCard(title: 'Ipad XX', progress: 100),
                 
                 BlocBuilder<GoalBloc, GoalState>(
                   builder: (context, state) {
@@ -66,18 +61,22 @@ class DashboardPage extends StatelessWidget {
                     if (state is GoalLoaded) {
                       if(state.goal.isNotEmpty){
                         return Column(
-                          children: state.goal.map((goalItem) => GoalsCard(
-                            title: goalItem.name,
-                            progressAmount: goalItem.progressAmount,
-                            totalAmount: goalItem.totalAmount,
-                            progress: goalItem.totalAmount != 0 
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SectionTitle(text: 'Goals'),
+                            ...state.goal.map((goalItem) => GoalsCard(
+                                  title: goalItem.name,
+                                  progressAmount: goalItem.progressAmount,
+                                  totalAmount: goalItem.totalAmount,
+                                  progress: goalItem.totalAmount != 0
                                       ? (goalItem.progressAmount != null ? (goalItem.progressAmount! / goalItem.totalAmount) * 100 : 0)
                                       : 0,
-                          )).toList(),
+                                )),
+                          ],
                         );
                       }
                     }
-                    return const NoDataWidget();
+                    return Container();
                   },
                 ),
       
