@@ -6,7 +6,7 @@ class Transaction{
   double amount;
   DateTime date;
   String? note;
-  TransactionCategory category;
+  ExpenseCategory category;
 
   Transaction({
     this.id,
@@ -31,7 +31,7 @@ class Transaction{
       amount: map["amount"],
       date: DateTime.parse(map["date"]),
       note: map["note"],
-      category: TransactionCategory(name: map['categoryName']),
+      category: ExpenseCategory(name: map['categoryName']),
     );
   }
 }

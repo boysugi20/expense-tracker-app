@@ -1,8 +1,8 @@
-class TransactionCategory{
+class ExpenseCategory{
   int? id;
   String name;
 
-  TransactionCategory({
+  ExpenseCategory({
     this.id,
     required this.name,
   });
@@ -11,8 +11,8 @@ class TransactionCategory{
     return {'name': name};
   }
 
-  static TransactionCategory fromMap(Map<String, dynamic> map) {
-    return TransactionCategory(
+  static ExpenseCategory fromMap(Map<String, dynamic> map) {
+    return ExpenseCategory(
       id: map['id'],
       name: map['name'],
     );

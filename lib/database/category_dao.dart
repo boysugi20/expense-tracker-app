@@ -8,24 +8,24 @@ class CategoryDAO {
 
 
   // Insert
-  static Future<int> insertCategory(TransactionCategory category) async {
+  static Future<int> insertExpenseCategory(ExpenseCategory category) async {
     final db = await DatabaseHelper.initializeDB();
 
     final data = category.toMap();
-    final id = await db.insert('TransactionCategories', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    final id = await db.insert('ExpenseCategories', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
 
     return id;
   }
 
   // Select
-  static Future<List<TransactionCategory>> getCategories() async {
+  static Future<List<ExpenseCategory>> getExpenseCategories() async {
     final db = await DatabaseHelper.initializeDB();
-    final List<Map<String, Object?>> queryResult = await db.query('TransactionCategories');
-    return queryResult.map((e) => TransactionCategory.fromMap(e)).toList();
+    final List<Map<String, Object?>> queryResult = await db.query('ExpenseCategories');
+    return queryResult.map((e) => ExpenseCategory.fromMap(e)).toList();
   }
 
   // Update
-  static Future<int> updateCategory(TransactionCategory category) async {
+  static Future<int> updateExpenseCategory(ExpenseCategory category) async {
     final db = await DatabaseHelper.initializeDB();
 
     final data = {
@@ -33,14 +33,14 @@ class CategoryDAO {
       'createdAt': DateTime.now().toString()
     };
 
-    final result = await db.update('TransactionCategories', data, where: "id = ?", whereArgs: [category.id]);
+    final result = await db.update('ExpenseCategories', data, where: "id = ?", whereArgs: [category.id]);
     return result;
   }
 
   // Delete
-  static Future<void> deleteCategory(TransactionCategory category) async {
+  static Future<void> deleteExpenseCategory(ExpenseCategory category) async {
     final db = await DatabaseHelper.initializeDB();
-    await db.delete("TransactionCategories", where: "id = ?", whereArgs: [category.id]);
+    await db.delete("ExpenseCategories", where: "id = ?", whereArgs: [category.id]);
   }
 
 }

@@ -10,7 +10,7 @@ class CategoryInitial extends CategoryState {
 }
 
 class CategoryLoaded extends CategoryState {
-  final List<TransactionCategory> category;
+  final List<ExpenseCategory> category;
   final DateTime lastUpdated;
 
   const CategoryLoaded({required this.category, required this.lastUpdated});

@@ -17,13 +17,13 @@ class TransactionDAO {
     final db = await DatabaseHelper.initializeDB();
     final List<Map<String, Object?>> queryResult = await db.rawQuery("""
         SELECT A.*, B.name as categoryName 
-        FROM Transactions AS A JOIN TransactionCategories AS B ON A.categoryId = B.id
+        FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
         ORDER BY A.date DESC
       """);
     return queryResult.map((e) => Transaction.fromMap(e)).toList();
   }
 
-  static Future<int> updateTransaction(Transaction transaction, TransactionCategory category) async {
+  static Future<int> updateTransaction(Transaction transaction, ExpenseCategory category) async {
     final db = await DatabaseHelper.initializeDB();
 
     final data = {

@@ -4,7 +4,7 @@ class DatabaseHelper {
   static Future<void> createTables(sql.Database db) async {
     await db.execute("""
 
-      CREATE TABLE TransactionCategories(
+      CREATE TABLE ExpenseCategories(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         name TEXT,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -16,12 +16,12 @@ class DatabaseHelper {
 
       CREATE TABLE Transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        categoryId INTEGER,
+        ExpenseCategoryId INTEGER,
         amount REAL,
         date DATETIME,
         note TEXT,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (categoryId) REFERENCES TransactionCategories(id)
+        FOREIGN KEY (ExpenseCategoryId) REFERENCES ExpenseCategories(id)
       );
 
       """);
@@ -41,16 +41,16 @@ class DatabaseHelper {
 
   static Future<void> onCreate(sql.Database db) async {
     var batch = db.batch();
-    batch.insert('TransactionCategories', {'name': 'Home'},);
-    batch.insert('TransactionCategories', {'name': 'Food'},);
-    batch.insert('TransactionCategories', {'name': 'Groceries'},);
-    batch.insert('TransactionCategories', {'name': 'Transportation'},);
-    batch.insert('TransactionCategories', {'name': 'Utilities'},);
-    batch.insert('TransactionCategories', {'name': 'Clothing'},);
-    batch.insert('TransactionCategories', {'name': 'Self Care'},);
-    batch.insert('TransactionCategories', {'name': 'Entertainment'},);
-    batch.insert('TransactionCategories', {'name': 'Investment'},);
-    batch.insert('TransactionCategories', {'name': 'Other'},);
+    batch.insert('ExpenseCategories', {'name': 'Home'},);
+    batch.insert('ExpenseCategories', {'name': 'Food'},);
+    batch.insert('ExpenseCategories', {'name': 'Groceries'},);
+    batch.insert('ExpenseCategories', {'name': 'Transportation'},);
+    batch.insert('ExpenseCategories', {'name': 'Utilities'},);
+    batch.insert('ExpenseCategories', {'name': 'Clothing'},);
+    batch.insert('ExpenseCategories', {'name': 'Self Care'},);
+    batch.insert('ExpenseCategories', {'name': 'Entertainment'},);
+    batch.insert('ExpenseCategories', {'name': 'Investment'},);
+    batch.insert('ExpenseCategories', {'name': 'Other'},);
     await batch.commit();
     
     final tables = await db.rawQuery('SELECT * FROM sqlite_master ORDER BY name;');
@@ -78,7 +78,7 @@ class DatabaseHelper {
   // }
 
   // // Update an item by id
-  // static Future<int> updateCategory(
+  // static Future<int> updateExpenseCategory(
   //     int id, String title, String? descrption) async {
   //   final db = await DatabaseHelper.initializeDB();
 

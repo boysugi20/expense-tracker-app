@@ -4,31 +4,31 @@ abstract class CategoryEvent extends Equatable {
   const CategoryEvent();
 }
 
-class GetCategories extends CategoryEvent {
-  const GetCategories();
+class GetExpenseCategories extends CategoryEvent {
+  const GetExpenseCategories();
   @override
   List<Object?> get props => [];
 }
 
-class AddCategory extends CategoryEvent {
-  final TransactionCategory category;
-  const AddCategory({required this.category,});
+class AddExpenseCategory extends CategoryEvent {
+  final ExpenseCategory category;
+  const AddExpenseCategory({required this.category,});
 
   @override
   List<Object?> get props => [category];
 }
 
-class UpdateCategory extends CategoryEvent {
-  final TransactionCategory category;
-  const UpdateCategory({required this.category});
+class UpdateExpenseCategory extends CategoryEvent {
+  final ExpenseCategory category;
+  const UpdateExpenseCategory({required this.category});
   
   @override
   List<Object?> get props => [category];
 }
 
-class DeleteCategory extends CategoryEvent {
-  final TransactionCategory category;
-  const DeleteCategory({required this.category});
+class DeleteExpenseCategory extends CategoryEvent {
+  final ExpenseCategory category;
+  const DeleteExpenseCategory({required this.category});
   
   @override
   List<Object?> get props => [category];

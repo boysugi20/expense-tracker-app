@@ -25,14 +25,14 @@ class BottomModalCategory extends StatefulWidget {
 
 class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTickerProviderStateMixin {
 
-  List<TransactionCategory> categoryList = [];
+  List<ExpenseCategory> categoryList = [];
   List<Goal> goalList = [];
 
   static const List<Tab> myTabs = <Tab>[Tab(text: 'Expense'),Tab(text: 'Goal'),];
   late TabController _tabController;
 
   void _refreshData() async {
-    final data1 = await CategoryDAO.getCategories();
+    final data1 = await CategoryDAO.getExpenseCategories();
     final data2 = await GoalDAO.getGoals();
     setState(() {
       categoryList = data1;
@@ -92,7 +92,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                 BlocBuilder<CategoryBloc, CategoryState>(
                   builder: (context, state) {
                     if (state is CategoryInitial) {
-                      context.read<CategoryBloc>().add(const GetCategories());
+                      context.read<CategoryBloc>().add(const GetExpenseCategories());
                     }
                     if (state is CategoryLoaded) {
                       if(state.category.isNotEmpty){
@@ -180,7 +180,7 @@ class GoalButton extends StatelessWidget {
 
 class CategoryButton extends StatelessWidget {
 
-  final TransactionCategory category;
+  final ExpenseCategory category;
   final Function(int)? changeScreen;
 
   const CategoryButton({required this.category, this.changeScreen, Key? key}) : super(key: key);

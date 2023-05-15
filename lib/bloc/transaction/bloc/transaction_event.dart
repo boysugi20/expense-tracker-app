@@ -20,7 +20,7 @@ class AddTransaction extends TransactionEvent {
 
 class UpdateTransaction extends TransactionEvent {
   final Transaction transaction;
-  final TransactionCategory category;
+  final ExpenseCategory category;
   
   const UpdateTransaction({required this.transaction, required this.category});
   

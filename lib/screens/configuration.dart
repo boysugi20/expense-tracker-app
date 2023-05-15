@@ -66,7 +66,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           BlocBuilder<CategoryBloc, CategoryState>(
             builder: (context, state) {
               if (state is CategoryInitial) {
-                context.read<CategoryBloc>().add(const GetCategories());
+                context.read<CategoryBloc>().add(const GetExpenseCategories());
               }
               if (state is CategoryLoaded) {
                 if(state.category.isNotEmpty){
@@ -97,7 +97,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
 
 class CategoriesCard extends StatelessWidget {
 
-  final TransactionCategory category;
+  final ExpenseCategory category;
 
   const CategoriesCard({required this.category, Key? key}) : super(key: key);
 

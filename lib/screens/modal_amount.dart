@@ -41,7 +41,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
 
   String _title = '';
   String _objectType = '';
-  TransactionCategory category = TransactionCategory(name: '');
+  ExpenseCategory category = ExpenseCategory(name: '');
   Goal goal = Goal(name: '', totalAmount: 0);
 
   @override
@@ -55,8 +55,8 @@ class _BottomModalamountState extends State<BottomModalamount> {
       selectedDate[0] = widget.initialTransaction!.date;
     }
     // Choose between expense or goal
-    if (widget.categoryOrGoal is TransactionCategory) {
-      category = widget.categoryOrGoal as TransactionCategory;
+    if (widget.categoryOrGoal is ExpenseCategory) {
+      category = widget.categoryOrGoal as ExpenseCategory;
       _title = category.name;
       _objectType = 'Category';
     } else if (widget.categoryOrGoal is Goal) {
@@ -64,7 +64,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
       _title = goal.name;
       _objectType = 'Goal';
     } else {
-      throw Exception('categoryOrGoal must be either a TransactionCategory or a Goal');
+      throw Exception('categoryOrGoal must be either a ExpenseCategory or a Goal');
     }
   }
 
@@ -97,7 +97,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
   }
 
   void _addTransaction({
-    required TransactionCategory category,
+    required ExpenseCategory category,
     required DateTime date,
     required double amount,
     required String note,

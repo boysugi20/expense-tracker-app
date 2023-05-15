@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesForm extends StatefulWidget {
   
-  final TransactionCategory? initialValues;
+  final ExpenseCategory? initialValues;
   final String header1, header2;
 
   const CategoriesForm({required this.header1, this.header2 = '', this.initialValues, Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class _CategoriesFormState extends State<CategoriesForm> {
   final CategoryBloc categoryBloc = CategoryBloc();
 
   final _formKey = GlobalKey<FormState>();
-  TransactionCategory category = TransactionCategory(name: '');
+  ExpenseCategory category = ExpenseCategory(name: '');
 
   @override
   void initState() {
@@ -32,18 +32,18 @@ class _CategoriesFormState extends State<CategoriesForm> {
     }
   }
 
-  Future<void> insertCategory() async {
+  Future<void> insertExpenseCategory() async {
     if(category.name.isNotEmpty){
-      context.read<CategoryBloc>().add(AddCategory(category: category));
+      context.read<CategoryBloc>().add(AddExpenseCategory(category: category));
     }
   }
 
-  Future<void> updateCategory() async {
-    context.read<CategoryBloc>().add(UpdateCategory(category: category));
+  Future<void> updateExpenseCategory() async {
+    context.read<CategoryBloc>().add(UpdateExpenseCategory(category: category));
   }
 
-  Future<void> deleteCategory() async {
-    context.read<CategoryBloc>().add(DeleteCategory(category: category));
+  Future<void> deleteExpenseCategory() async {
+    context.read<CategoryBloc>().add(DeleteExpenseCategory(category: category));
   }
   
   @override
@@ -54,9 +54,9 @@ class _CategoriesFormState extends State<CategoriesForm> {
       header2: widget.header2,
       buttonText: widget.initialValues == null ? null : '',
       onSave: (){
-        widget.initialValues == null ? insertCategory() : updateCategory();
+        widget.initialValues == null ? insertExpenseCategory() : updateExpenseCategory();
       },
-      onDelete: (){ deleteCategory(); },
+      onDelete: (){ deleteExpenseCategory(); },
       formInputs: Form(
         key: _formKey,
         child: Column(

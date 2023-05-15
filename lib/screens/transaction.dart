@@ -23,7 +23,7 @@ class TransactionPage extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionTitle(text: 'Subscription:', firstChild: true,),
+          const SectionTitle(text: 'Recurring Transaction:', firstChild: true,),
 
           const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
           const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
@@ -56,7 +56,7 @@ class TransactionsContainer extends StatefulWidget {
 class TransactionsContainerState extends State<TransactionsContainer> {
 
   bool datePicked = false;
-  List<TransactionCategory> categories = [];
+  List<ExpenseCategory> categories = [];
   
   List<DateTime?> filterDateRange = [DateTime.now().add(const Duration(days: -7)), DateTime.now()];
   String filterCategoryName = 'All';
@@ -115,7 +115,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
               BlocBuilder<CategoryBloc, CategoryState>(
                 builder: (context, state) {
                   if (state is CategoryInitial) {
-                    context.read<CategoryBloc>().add(const GetCategories());
+                    context.read<CategoryBloc>().add(const GetExpenseCategories());
                   }
                   if (state is CategoryLoaded) {
                     // Get list of categories
@@ -209,50 +209,46 @@ class SubscriptionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CardContainer(
-      color: AppColors.main,
-      paddingBottom: 18,
-      paddingTop: 18,
-      paddingLeft: 16,
-      paddingRight: 16,
-      marginBottom: 6,
-      useBorder: false,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-              Container(height: 8,),
-              Text('Rp ${addThousandSeperatorToString(amount.toString())}', style: const TextStyle(color: Colors.white, fontSize: 18),),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text('Start: $startDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
-              Text('End: $endDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
-              GestureDetector(
-                onTap: (){
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SubscriptionForm(
-                      header1: 'Edit Subsciprtion', 
-                      header2: 'Edit existing subscription', 
-                      initialValues: {'name': title,'price': amount.toString(),}
-                    )),
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Icon(Icons.edit, color: AppColors.white, size: 14,),
-                ),
-              )
-            ],
-          ),
-        ],
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SubscriptionForm(
+            header1: 'Edit Subsciprtion', 
+            header2: 'Edit existing subscription', 
+            initialValues: {'name': title,'price': amount.toString(),}
+          )),
+        );
+      },
+      child: CardContainer(
+        color: AppColors.main,
+        paddingBottom: 18,
+        paddingTop: 18,
+        paddingLeft: 16,
+        paddingRight: 16,
+        marginBottom: 6,
+        useBorder: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                Container(height: 8,),
+                Text('Rp ${addThousandSeperatorToString(amount.toString())}', style: const TextStyle(color: Colors.white, fontSize: 14),),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('Start: $startDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
+                Text('End: $endDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -260,7 +256,7 @@ class SubscriptionCard extends StatelessWidget {
 
 class TransactionCard extends StatelessWidget {
 
-  final TransactionCategory category;
+  final ExpenseCategory category;
   final Transaction transaction;
 
   const TransactionCard({required this.category, required this.transaction, Key? key}) : super(key: key);
