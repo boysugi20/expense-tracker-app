@@ -80,6 +80,16 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         filterDateRange = results;
         datePicked = true;
       });
+    }else if (results != null && results.length == 1){
+      setState(() {
+        filterDateRange = List.from(results)..addAll(results);
+        datePicked = true;
+      });
+    }
+    else{
+      setState(() {
+        datePicked = false;
+      });
     }
   }
 
@@ -89,7 +99,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
       final tDate = DateTime(t.date.year, t.date.month, t.date.day);
       final startDate = DateTime(filterDateRange[0]!.year, filterDateRange[0]!.month, filterDateRange[0]!.day);
       final endDate = DateTime(filterDateRange[1]!.year, filterDateRange[1]!.month, filterDateRange[1]!.day);
-      // return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
       if (filterCategoryName == "All") {
         return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
       } else {

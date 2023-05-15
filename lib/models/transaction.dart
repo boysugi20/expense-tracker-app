@@ -18,7 +18,7 @@ class Transaction{
 
   Map<String, Object?> toMap(){
     return {
-      'categoryId': category.id,
+      'expenseCategoryId': category.id,
       'amount': amount,
       'date': date.toIso8601String(),
       'note': note
