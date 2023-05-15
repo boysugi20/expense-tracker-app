@@ -22,7 +22,7 @@ class _CategoriesFormState extends State<CategoriesForm> {
   final CategoryBloc categoryBloc = CategoryBloc();
 
   final _formKey = GlobalKey<FormState>();
-  ExpenseCategory category = ExpenseCategory(name: '');
+  ExpenseCategory category = ExpenseCategory(id: 0, name: '');
 
   @override
   void initState() {

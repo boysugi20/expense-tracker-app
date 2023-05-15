@@ -41,8 +41,8 @@ class _BottomModalamountState extends State<BottomModalamount> {
 
   String _title = '';
   String _objectType = '';
-  ExpenseCategory category = ExpenseCategory(name: '');
-  Goal goal = Goal(name: '', totalAmount: 0);
+  ExpenseCategory category = ExpenseCategory(id: 0, name: '');
+  Goal goal = Goal(id: 0, name: '', totalAmount: 0);
 
   @override
   void initState() {
@@ -89,7 +89,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
   }
 
   Future<void> _addTransactionDB(category, date, amount, note) async {
-    context.read<TransactionBloc>().add(AddTransaction(transaction: Transaction(category: category, date: date, amount: amount, note: note)));
+    context.read<TransactionBloc>().add(AddTransaction(transaction: Transaction(id: 0, category: category, date: date, amount: amount, note: note)));
   }
 
   Future<void> _updateGoalDB(goal) async {

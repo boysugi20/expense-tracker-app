@@ -47,7 +47,10 @@ class FormTemplate extends StatelessWidget {
                     Expanded(
                       child: GestureDetector(
                         onTap: (){
-                          if (formKey.currentState!.validate()) {
+                          if(buttonText == null) {
+                            Navigator.pop(context);
+                          }
+                          else if (formKey.currentState!.validate()) {
                             formKey.currentState!.save();
                             onDelete!();
                             Navigator.pop(context);

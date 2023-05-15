@@ -16,12 +16,12 @@ class DatabaseHelper {
 
       CREATE TABLE Transactions (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        ExpenseCategoryId INTEGER,
+        expenseCategoryId INTEGER,
         amount REAL,
         date DATETIME,
         note TEXT,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (ExpenseCategoryId) REFERENCES ExpenseCategories(id)
+        FOREIGN KEY (expenseCategoryId) REFERENCES ExpenseCategories(id)
       );
 
       """);

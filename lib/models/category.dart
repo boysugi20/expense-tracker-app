@@ -1,20 +1,30 @@
 class ExpenseCategory{
-  int? id;
+  int id;
   String name;
 
   ExpenseCategory({
-    this.id,
+    required this.id,
     required this.name,
   });
 
   Map<String, Object> toMap(){
-    return {'name': name};
+    return {
+      'id': id,
+      'name': name
+    };
   }
 
   static ExpenseCategory fromMap(Map<String, dynamic> map) {
     return ExpenseCategory(
       id: map['id'],
       name: map['name'],
+    );
+  }
+
+  ExpenseCategory copyWith({int? id, String? name}) {
+    return ExpenseCategory(
+      id: id ?? this.id,
+      name: name ?? this.name,
     );
   }
 }

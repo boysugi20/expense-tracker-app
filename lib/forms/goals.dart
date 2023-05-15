@@ -24,7 +24,7 @@ class _GoalsFormState extends State<GoalsForm> {
   final _formKey = GlobalKey<FormState>();
 
   final GoalBloc categoryBloc = GoalBloc();
-  Goal goal = Goal(name: '', totalAmount: 0);
+  Goal goal = Goal(id: 0, name: '', totalAmount: 0);
 
   @override
   void initState() {
@@ -83,7 +83,7 @@ class _GoalsFormState extends State<GoalsForm> {
               isKeypad: true, 
               useThousandSeparator: true, 
               initalText: goal.progressAmount != null ? amountDoubleToString(goal.progressAmount!) : '', 
-              onSave: (value) {goal.totalAmount = amountStringToDouble(value!);},
+              onSave: (value) {goal.progressAmount = amountStringToDouble(value!);},
             ),
             FormTextInput(
               title: 'Target', 

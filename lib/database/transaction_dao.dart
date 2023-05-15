@@ -9,6 +9,7 @@ class TransactionDAO {
   static Future<int> insertTransaction(Transaction transaction) async {
     final db = await DatabaseHelper.initializeDB();
     final data = transaction.toMap();
+    data.remove('id');
     final id = await db.insert('Transactions', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return id;
   }
@@ -27,12 +28,15 @@ class TransactionDAO {
     final db = await DatabaseHelper.initializeDB();
 
     final data = {
-      'categoryId': category.id,
+      'expenseCategoryId': category.id,
       'date': (transaction.date).toIso8601String(),
       'amount': transaction.amount,
       'note': transaction.note,
-      'createdAt': DateTime.now().toString()
+      'createdAt': DateTime.now().toIso8601String()
     };
+
+    print(category);
+    print(data);
 
     final result = await db.update('Transactions', data, where: "id = ?", whereArgs: [transaction.id]);
     return result;
@@ -41,7 +45,7 @@ class TransactionDAO {
   // Delete
   static Future<void> deleteTransaction(Transaction transaction) async {
     final db = await DatabaseHelper.initializeDB();
-    await db.delete("TransactionCategories", where: "id = ?", whereArgs: [transaction.id]);
+    await db.delete("Transactions", where: "id = ?", whereArgs: [transaction.id]);
   }
 
 

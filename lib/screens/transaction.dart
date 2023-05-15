@@ -93,18 +93,48 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     }
   }
 
+  List<Transaction> _sortTransactions(List<Transaction> transactionList) {
+
+    List<Transaction> sortedTransactions = [];
+
+    // final sortedTransactions = transactionList.toList()..sort((a, b) => b.date.compareTo(a.date));
+    sortedTransactions = List.from(transactionList)
+      ..sort((a, b) {
+        final dateComparison = b.date.compareTo(a.date);
+        if (dateComparison != 0) {
+          return dateComparison;
+        }
+        return b.id.compareTo(a.id);
+      });
+    return sortedTransactions;
+  }
+
   List<Transaction> _filterTransactions(List<Transaction> transactionList) {
+
     List<Transaction> results = [];
-    results = transactionList.where((t) {
-      final tDate = DateTime(t.date.year, t.date.month, t.date.day);
-      final startDate = DateTime(filterDateRange[0]!.year, filterDateRange[0]!.month, filterDateRange[0]!.day);
-      final endDate = DateTime(filterDateRange[1]!.year, filterDateRange[1]!.month, filterDateRange[1]!.day);
-      if (filterCategoryName == "All") {
+
+    if(datePicked){
+      results = transactionList.where((t) {
+        final tDate = DateTime(t.date.year, t.date.month, t.date.day);
+        final startDate = DateTime(filterDateRange[0]!.year, filterDateRange[0]!.month, filterDateRange[0]!.day);
+        final endDate = DateTime(filterDateRange[1]!.year, filterDateRange[1]!.month, filterDateRange[1]!.day);
         return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
-      } else {
-        return t.category.name == filterCategoryName && (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
+      }).toList();
+      if(filterCategoryName != 'All'){
+        results = results.where((t) {
+          return t.category.name == filterCategoryName;
+        }).toList();
       }
-    }).toList();
+    }else{
+      if(filterCategoryName != 'All'){
+        results = transactionList.where((t) {
+          return t.category.name == filterCategoryName;
+        }).toList();
+      }else{
+        results = transactionList;
+      }
+    }
+
     return results;
   }
 
@@ -191,14 +221,21 @@ class TransactionsContainerState extends State<TransactionsContainer> {
               context.read<TransactionBloc>().add(const GetTransactions());
             }
             if (state is TransactionLoaded) {
-              categories = state.transaction.map((transaction) => transaction.category).toSet().toList();
-              final filteredTransactions = _filterTransactions(state.transaction);
-              if(filteredTransactions.isNotEmpty){
-                final sortedTransactions = filteredTransactions.toList()..sort((a, b) => b.date.compareTo(a.date));
+              if(state.transaction.isEmpty){
+                return const NoDataWidget();
+              }
+              if(datePicked == false && filterCategoryName == 'All'){
                 return Column(
-                  children: sortedTransactions.map((transactionItem) => 
-                  TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
+                  children: _sortTransactions(state.transaction).map((transactionItem) => TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
                 );
+              }
+              else{
+                final filteredTransactions = _filterTransactions(state.transaction);
+                if(filteredTransactions.isNotEmpty){
+                  return Column(
+                    children: _sortTransactions(state.transaction).map((transactionItem) => TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
+                  );
+                }
               }
             }
             return const NoDataWidget();

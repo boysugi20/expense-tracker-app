@@ -1,11 +1,11 @@
 class Goal{
-  int? id;
+  int id;
   String name;
   double totalAmount;
   double? progressAmount;
 
   Goal({
-    this.id,
+    required this.id,
     required this.name,
     required this.totalAmount,
     this.progressAmount
@@ -13,6 +13,7 @@ class Goal{
 
   Map<String, Object> toMap(){
     return {
+      'id': id,
       'name': name,
       'totalAmount': totalAmount,
     };
@@ -24,6 +25,15 @@ class Goal{
       name: map['name'],
       totalAmount: map['totalAmount'],
       progressAmount: map['progressAmount']
+    );
+  }
+
+  Goal copyWith({int? id, String? name, double? totalAmount, double? progressAmount}) {
+    return Goal(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      totalAmount: totalAmount ?? this.totalAmount,
+      progressAmount: progressAmount ?? this.progressAmount,
     );
   }
 }
