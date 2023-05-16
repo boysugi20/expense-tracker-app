@@ -1,3 +1,4 @@
+
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
@@ -88,4 +89,38 @@ double amountStringToDouble(String value) {
   }
 
   return finalDouble;
+}
+
+Future<String> getDownloadPath() async {
+
+  // final directorytemp = await getApplicationDocumentsDirectory();
+  // String localPath = '${directorytemp.path}${Platform.pathSeparator}Download';
+  // final savedDir = Directory(localPath);
+  // bool hasExisted = await savedDir.exists();
+  // if (!hasExisted) {
+  //   savedDir.create();
+  // }
+
+  // return localPath;
+  return '/storage/emulated/0/Download';
+}
+
+void showAlert(BuildContext context, String textBody, String textHeader) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(textHeader),
+        content: Text(textBody),
+        actions: [
+          TextButton(
+            child: const Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

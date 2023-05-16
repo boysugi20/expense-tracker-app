@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart' as sql;
 
 class DatabaseHelper {
+
   static Future<void> createTables(sql.Database db) async {
     await db.execute("""
 
@@ -66,6 +67,13 @@ class DatabaseHelper {
         await onCreate(database);
       },
     );
+  }
+
+  Future<List<Map<String, Object?>>> accessDatabase(String query) async {
+    final database = await initializeDB();
+    List<Map<String, Object?>> result = await database.rawQuery(query);
+
+    return result;
   }
 
 }
