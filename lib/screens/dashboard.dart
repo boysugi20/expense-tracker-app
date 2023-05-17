@@ -1,25 +1,48 @@
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
-import 'package:expense_tracker/components/functions.dart';
+import 'package:expense_tracker/database/connection.dart';
+import 'package:expense_tracker/general/functions.dart';
 
 import 'package:expense_tracker/styles/color.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:expense_tracker/components/widgets.dart';
+import 'package:expense_tracker/general/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
 
   const DashboardPage({Key? key}) : super(key: key);
 
-  final List<FlSpot> dummyData = const [
-    FlSpot(1, 2500000),
-    FlSpot(2, 1700000),
-    FlSpot(3, 2300000),
-    FlSpot(4, 2200000),
-    FlSpot(5, 2400000),
-    FlSpot(6, 3000000),
-    FlSpot(7, 2300000),
-  ];
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+
+  DatabaseHelper db = DatabaseHelper();
+
+  List<FlSpot> chartData = [];
+
+  Future<List<FlSpot>> createDummyData() async {
+    List<Map<String, Object?>> monthlyAmounts = await db.accessDatabase('''
+      SELECT strftime('%m', date) AS month, SUM(amount) AS totalAmount
+      FROM Transactions
+      GROUP BY month
+      ORDER BY month ASC
+    ''');
+
+    chartData = monthlyAmounts.map((row) {
+      double x = double.parse(row['month'] as String);
+      double y = row['totalAmount'] as double;
+      return FlSpot(x, y);
+    }).toList();
+
+    return chartData;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,8 +73,19 @@ class DashboardPage extends StatelessWidget {
                 const BalanceCard(),
       
                 const SectionTitle(text: 'Monthly Expense'),
-      
-                ExpenseChart(data: dummyData),
+
+                FutureBuilder<List<FlSpot>>(
+                  future: createDummyData(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      chartData = snapshot.data!;
+                      return ExpenseChart(data: chartData);
+                    } else if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    return const CircularProgressIndicator();
+                  },
+                ),
                 
                 BlocBuilder<GoalBloc, GoalState>(
                   builder: (context, state) {
@@ -101,10 +135,7 @@ class DashboardPage extends StatelessWidget {
 
 class ExpenseChart extends StatelessWidget {
 
-  ExpenseChart({
-    Key? key,
-    required this.data,
-  }) : super(key: key);
+  ExpenseChart({Key? key,required this.data,}) : super(key: key);
 
   final List<FlSpot> data;
 

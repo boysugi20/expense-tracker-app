@@ -1,7 +1,7 @@
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
-import 'package:expense_tracker/components/functions.dart';
-import 'package:expense_tracker/components/widgets.dart';
+import 'package:expense_tracker/general/functions.dart';
+import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/categories.dart';
 import 'package:expense_tracker/forms/goals.dart';
 import 'package:expense_tracker/models/category.dart';

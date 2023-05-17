@@ -1,6 +1,6 @@
 
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
-import 'package:expense_tracker/components/widgets.dart';
+import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:flutter/material.dart';

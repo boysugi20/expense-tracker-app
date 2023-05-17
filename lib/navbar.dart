@@ -6,7 +6,7 @@ import 'package:expense_tracker/screens/transaction.dart';
 import 'package:expense_tracker/screens/configuration.dart';
 import 'package:expense_tracker/screens/more_setting.dart';
 
-import 'components/functions.dart';
+import 'general/functions.dart';
 
 class MyBottomNavigationBar extends StatefulWidget {
 

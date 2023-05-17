@@ -1,7 +1,7 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
-import 'package:expense_tracker/components/functions.dart';
+import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/goal.dart';
 import 'package:expense_tracker/models/transaction.dart';
@@ -199,6 +199,8 @@ class _BottomModalamountState extends State<BottomModalamount> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+
+              // Category
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: (){
@@ -228,6 +230,8 @@ class _BottomModalamountState extends State<BottomModalamount> {
                   ],
                 ),
               ),
+              
+              // Divider
               Divider(
                 color: AppColors.white,
                 indent: 20,
@@ -235,12 +239,18 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 height: 36,
               ),
               
+              // Date
               Builder(
                 builder: (BuildContext context) {
                   if(_objectType == 'Category'){
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      child: RichText(text: TextSpan(text: DateFormat('dd MMM yyyy').format(selectedDate[0]!), style: TextStyle(color: AppColors.white))),
+                    return GestureDetector(
+                      onTap: () {
+                        _showDatePicker(context);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: RichText(text: TextSpan(text: DateFormat('dd MMM yyyy').format(selectedDate[0]!), style: TextStyle(color: AppColors.white))),
+                      ),
                     );
                   }
                   else{
@@ -251,6 +261,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 }
               ),
 
+              // Ammount
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                 margin: const EdgeInsets.symmetric(horizontal: 24),
@@ -271,6 +282,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 ),
               ),
 
+              // Notes
               Builder(
                 builder: (BuildContext context) {
                   if(_objectType == 'Category'){
@@ -297,6 +309,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 }
               ),
               
+              // Numpad
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

@@ -1,6 +1,14 @@
 
-import 'package:expense_tracker/components/widgets.dart';
+
+import 'dart:io';
+
+import 'package:expense_tracker/general/functions.dart';
+import 'package:expense_tracker/general/widgets.dart';
+import 'package:expense_tracker/database/connection.dart';
+import 'package:expense_tracker/main.dart';
+import 'package:expense_tracker/notification.dart';
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MoreSettingPage extends StatelessWidget {
   const MoreSettingPage({Key? key}) : super(key: key);
@@ -8,37 +16,31 @@ class MoreSettingPage extends StatelessWidget {
   void _handleTap(BuildContext context) async {
     // // Request storage permission
     // PermissionStatus permissionStatus = await Permission.storage.request();
-    // if (permissionStatus.isGranted) {
-    //   DatabaseHelper db = DatabaseHelper();
-    //   var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
-    //   for (var row in queryResult) {
-    //     print(row);
-    //   }
+    await Permission.storage.request();
 
-    //   List<String> csvData = [];
-    //   // Add headers to the CSV data
-    //   csvData.add(queryResult[0].keys.join(','));
-    //   // Add rows to the CSV data
-    //   for (var row in queryResult) {
-    //     csvData.add(row.values.map((value) => value.toString()).join(','));
-    //   }
-    //   String csvString = csvData.join('\n');
+    DatabaseHelper db = DatabaseHelper();
+    var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
 
-    //   // Get Downloads path
-    //   final downloadPath = await getDownloadPath();
-    //   final filepath = '$downloadPath/output.csv';
+    List<String> csvData = [];
+    // Add headers to the CSV data
+    csvData.add(queryResult[0].keys.join(','));
+    // Add rows to the CSV data
+    for (var row in queryResult) {
+      csvData.add(row.values.map((value) => value.toString()).join(','));
+    }
+    String csvString = csvData.join('\n');
 
-    //   // Save the CSV data to a file
-    //   File file = File(filepath);
+    // Get Downloads path
+    final downloadPath = await getDownloadPath();
+    final filepath = '$downloadPath/output.csv';
 
-    //   await file.writeAsString(csvString);
+    // Save the CSV data to a file
+    File file = File(filepath);
 
-    //   if (!context.mounted) return;
-    //   showAlert(context, 'CSV Downloaded!', 'Success');
-    // } else {
-    //   if (!context.mounted) return;
-    //   showAlert(context, 'Storage permission denied', 'Error');
-    // }
+    await file.writeAsString(csvString);
+    
+    // String jsonString = json.encode(queryResult);
+    NotificationService.showNotification(title: 'Success', body: 'Your CSV file have been downloaded', fln: flutterLocalNotificationsPlugin);
   }
 
   @override

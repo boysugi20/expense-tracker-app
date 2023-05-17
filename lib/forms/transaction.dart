@@ -1,7 +1,7 @@
 
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
-import 'package:expense_tracker/components/functions.dart';
-import 'package:expense_tracker/components/widgets.dart';
+import 'package:expense_tracker/general/functions.dart';
+import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:flutter/material.dart';

@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
-import 'package:expense_tracker/components/widgets.dart';
+import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/database/category_dao.dart';
 import 'package:expense_tracker/database/goal_dao.dart';
 import 'package:expense_tracker/models/category.dart';
@@ -11,7 +11,7 @@ import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../components/functions.dart';
+import '../general/functions.dart';
 
 class BottomModalCategory extends StatefulWidget {
 
