@@ -84,11 +84,11 @@ class _DashboardPageState extends State<DashboardPage> {
                       if (chartData.isEmpty){
                         return const NoDataWidget(text: 'No Transactions yet');
                       }
-                      return ExpenseChart(data: chartData);
+                      return ExpenseChart(data: chartData.sublist(chartData.length - 6, chartData.length,));
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     }
-                    return const CircularProgressIndicator();
+                    return const Center(child: CircularProgressIndicator());
                   },
                 ),
                 
@@ -155,107 +155,181 @@ class ExpenseChart extends StatelessWidget {
       paddingRight: 24,
       paddingLeft: 8,
       paddingBottom: 8,
-      child: LineChart(
-          LineChartData(
-            lineTouchData: LineTouchData(
-              touchTooltipData: LineTouchTooltipData(
-                tooltipBgColor: AppColors.white, 
-                tooltipBorder: BorderSide(color: AppColors.accent, width: 2),
-                getTooltipItems: (List<LineBarSpot> touchedSpots) {
-                  TextStyle tooltipStyle = TextStyle(color: AppColors.accent);
-                  return touchedSpots.map((LineBarSpot touchedSpot) {
-                    return LineTooltipItem(
-                      '${monthIntToString((touchedSpot.x).toInt())}\nRp ${addThousandSeperatorToString((touchedSpot.y).toInt().toString())}',
-                      tooltipStyle,
-                    );
-                  }).toList();
-                },
-              ),
-            ),
-            titlesData: FlTitlesData(
-              show: true,
-              rightTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              topTitles: AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              bottomTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  reservedSize: 30,
-                  interval: 1,
-                  getTitlesWidget: bottomTitleWidgets,
-                ),
-              ),
-              leftTitles: AxisTitles(
-                sideTitles: SideTitles(
-                  showTitles: true,
-                  interval: ((maxY+minY)/2) * 0.5,
-                  getTitlesWidget: leftTitleWidgets,
-                  reservedSize: 42,
-                ),
-              ),
-            ),
-            borderData: FlBorderData(
-              show: false,
-              border: Border.all(color: const Color(0xff37434d)),
-            ),
-            // minX: 0,
-            // maxX: 11,
-            // baselineY: minY,
-            minY: max(minY - (maxY * 0.25), 0),
-            maxY: maxY + (maxY * 0.25),
-            lineBarsData: [
-              LineChartBarData(
-                spots: data,
-                curveSmoothness: 0.3,
-                dotData: FlDotData(
-                  show: true, 
-                  getDotPainter: (spot, percent, barData, index) =>  FlDotCirclePainter(
-                    radius: 3,
-                    color: AppColors.accent,
-                  ),
-                ),
-                isCurved: true,
-                barWidth: 1,
-                isStrokeCapRound: true,
-                belowBarData: BarAreaData(
-                  show: true,
-                  gradient: LinearGradient(
-                    colors: [AppColors.main,AppColors.accent].map((color) => color.withOpacity(0.3)).toList(),
-                  ),
-                ),
-                gradient: LinearGradient(
-                  colors: [
-                    ColorTween(begin: AppColors.main, end: AppColors.accent).lerp(0.2)!,
-                    ColorTween(begin: AppColors.main, end: AppColors.accent).lerp(0.2)!,
-                  ],
-                ),
-              ),
-            ],
-            gridData: FlGridData(
-              show: true,
-              drawVerticalLine: true,
-              horizontalInterval: maxY * 0.25,
-              verticalInterval: 1,
-              getDrawingHorizontalLine: (value) {
-                return FlLine(
-                  color: AppColors.cardBorder,
-                  strokeWidth: 1,
-                );
-              },
-              getDrawingVerticalLine: (value) {
-                return FlLine(
-                  color: AppColors.cardBorder,
-                  strokeWidth: 1,
+      child: BarChart(
+        BarChartData(
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              tooltipBgColor: AppColors.white,
+              tooltipBorder: BorderSide(color: AppColors.main, width: 1),
+              tooltipPadding: const EdgeInsets.all(8),
+              tooltipRoundedRadius: 2,
+              tooltipMargin: 2,
+              getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                TextStyle textStyle = TextStyle(color: AppColors.black);
+                return BarTooltipItem(
+                  '${monthIntToString(group.x.toInt())}\nRp ${addThousandSeperatorToString((rod.toY).toInt().toString())}',
+                  textStyle,
                 );
               },
             ),
           ),
-          swapAnimationDuration: const Duration(milliseconds: 150), // Optional
-          swapAnimationCurve: Curves.linear, // Optional
+          titlesData: FlTitlesData(
+            show: true,
+            rightTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                interval: 1,
+                getTitlesWidget: bottomTitleWidgets,
+              ),
+            ),
+            leftTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                interval: ((maxY+minY)/2) * 0.5,
+                getTitlesWidget: leftTitleWidgets,
+                reservedSize: 42,
+              ),
+            ),
+          ),
+          borderData: FlBorderData(show: false,),
+          minY: max(minY - (maxY * 0.25), 0),
+          maxY: maxY + (maxY * 0.25),
+          barGroups: data.map((item) {
+            return BarChartGroupData(
+              x: item.x.toInt(),
+              barRods: [
+                BarChartRodData(
+                  toY: item.y,
+                  color: AppColors.accent,
+                  width: 8,
+                ),
+              ],
+            );
+          }).toList(),
+          gridData: FlGridData(
+            show: true,
+            drawVerticalLine: false,
+            horizontalInterval: ((maxY+minY)/2) * 0.5,
+            verticalInterval: 1,
+            getDrawingHorizontalLine: (value) {
+              return FlLine(
+                color: AppColors.cardBorder,
+                strokeWidth: 1,
+              );
+            },
+          ),
         ),
+        swapAnimationDuration: const Duration(milliseconds: 150),
+        swapAnimationCurve: Curves.linear,
+      ),
+      // child: LineChart(
+      //     LineChartData(
+      //       lineTouchData: LineTouchData(
+      //         touchTooltipData: LineTouchTooltipData(
+      //           tooltipBgColor: AppColors.white, 
+      //           tooltipBorder: BorderSide(color: AppColors.accent, width: 2),
+      //           getTooltipItems: (List<LineBarSpot> touchedSpots) {
+      //             TextStyle tooltipStyle = TextStyle(color: AppColors.accent);
+      //             return touchedSpots.map((LineBarSpot touchedSpot) {
+      //               return LineTooltipItem(
+      //                 '${monthIntToString((touchedSpot.x).toInt())}\nRp ${addThousandSeperatorToString((touchedSpot.y).toInt().toString())}',
+      //                 tooltipStyle,
+      //               );
+      //             }).toList();
+      //           },
+      //         ),
+      //       ),
+      //       titlesData: FlTitlesData(
+      //         show: true,
+      //         rightTitles: AxisTitles(
+      //           sideTitles: SideTitles(showTitles: false),
+      //         ),
+      //         topTitles: AxisTitles(
+      //           sideTitles: SideTitles(showTitles: false),
+      //         ),
+      //         bottomTitles: AxisTitles(
+      //           sideTitles: SideTitles(
+      //             showTitles: true,
+      //             reservedSize: 30,
+      //             interval: 1,
+      //             getTitlesWidget: bottomTitleWidgets,
+      //           ),
+      //         ),
+      //         leftTitles: AxisTitles(
+      //           sideTitles: SideTitles(
+      //             showTitles: true,
+      //             interval: ((maxY+minY)/2) * 0.5,
+      //             getTitlesWidget: leftTitleWidgets,
+      //             reservedSize: 42,
+      //           ),
+      //         ),
+      //       ),
+      //       borderData: FlBorderData(
+      //         show: false,
+      //         border: Border.all(color: const Color(0xff37434d)),
+      //       ),
+      //       // minX: 0,
+      //       // maxX: 11,
+      //       // baselineY: minY,
+      //       minY: max(minY - (maxY * 0.25), 0),
+      //       maxY: maxY + (maxY * 0.25),
+      //       lineBarsData: [
+      //         LineChartBarData(
+      //           spots: data,
+      //           curveSmoothness: 0.3,
+      //           dotData: FlDotData(
+      //             show: true, 
+      //             getDotPainter: (spot, percent, barData, index) =>  FlDotCirclePainter(
+      //               radius: 3,
+      //               color: AppColors.accent,
+      //             ),
+      //           ),
+      //           isCurved: true,
+      //           barWidth: 1,
+      //           isStrokeCapRound: true,
+      //           belowBarData: BarAreaData(
+      //             show: true,
+      //             gradient: LinearGradient(
+      //               colors: [AppColors.main,AppColors.accent].map((color) => color.withOpacity(0.3)).toList(),
+      //             ),
+      //           ),
+      //           gradient: LinearGradient(
+      //             colors: [
+      //               ColorTween(begin: AppColors.main, end: AppColors.accent).lerp(0.2)!,
+      //               ColorTween(begin: AppColors.main, end: AppColors.accent).lerp(0.2)!,
+      //             ],
+      //           ),
+      //         ),
+      //       ],
+      //       gridData: FlGridData(
+      //         show: true,
+      //         drawVerticalLine: true,
+      //         horizontalInterval: maxY * 0.25,
+      //         verticalInterval: 1,
+      //         getDrawingHorizontalLine: (value) {
+      //           return FlLine(
+      //             color: AppColors.cardBorder,
+      //             strokeWidth: 1,
+      //           );
+      //         },
+      //         getDrawingVerticalLine: (value) {
+      //           return FlLine(
+      //             color: AppColors.cardBorder,
+      //             strokeWidth: 1,
+      //           );
+      //         },
+      //       ),
+      //     ),
+      //     swapAnimationDuration: const Duration(milliseconds: 150), // Optional
+      //     swapAnimationCurve: Curves.linear, // Optional
+      //   ),
     );
   }
 }
