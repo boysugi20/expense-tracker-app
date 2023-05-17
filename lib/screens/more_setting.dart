@@ -1,7 +1,8 @@
-
-
+import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:expense_tracker/database/connection.dart';
+import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/main.dart';
 import 'package:expense_tracker/notification.dart';
@@ -30,12 +31,29 @@ class MoreSettingPage extends StatelessWidget {
     });
 
     if (allAccepted) {
-      NotificationService.showNotification(title: 'Success', body: 'Permission granted', fln: flutterLocalNotificationsPlugin);
-    }
+      DatabaseHelper db = DatabaseHelper();
+      var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
 
-    // // Request storage permission
-    // PermissionStatus permissionStatus = await Permission.storage.request();
-    // await Permission.storage.request();
+      List<String> csvData = [];
+      // Add headers to the CSV data
+      csvData.add(queryResult[0].keys.join(','));
+      // Add rows to the CSV data
+      for (var row in queryResult) {
+        csvData.add(row.values.map((value) => value.toString()).join(','));
+      }
+      String csvString = csvData.join('\n');
+
+      // Get Downloads path
+      final downloadPath = await getDownloadPath();
+      String fileName = 'TransactionData.csv';
+      final filepath = '$downloadPath${Platform.pathSeparator}$fileName';
+
+      // Save the CSV data to a file
+      File file = File(filepath);
+      await file.writeAsString(csvString);
+      
+      NotificationService.showNotification(title: 'Success', body: 'Your CSV file have been downloaded', fln: flutterLocalNotificationsPlugin);
+    }
 
     // DatabaseHelper db = DatabaseHelper();
     // var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');

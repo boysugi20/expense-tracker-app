@@ -2,6 +2,8 @@
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io' show Directory, Platform;
 
 import '../screens/modal_amount.dart';
 
@@ -93,16 +95,23 @@ double amountStringToDouble(String value) {
 
 Future<String> getDownloadPath() async {
 
-  // final directorytemp = await getApplicationDocumentsDirectory();
-  // String localPath = '${directorytemp.path}${Platform.pathSeparator}Download';
-  // final savedDir = Directory(localPath);
-  // bool hasExisted = await savedDir.exists();
-  // if (!hasExisted) {
-  //   savedDir.create();
-  // }
+  bool dirDownloadExists = true;
+  String directory;
 
-  // return localPath;
-  return '/storage/emulated/0/Download';
+  if (Platform.isIOS) {
+    final directorytemp  = await getDownloadsDirectory();
+    directory = directorytemp!.path;
+  } else {
+    dirDownloadExists = await Directory("/storage/emulated/0/Download/").exists();
+    if(dirDownloadExists){
+      directory = "/storage/emulated/0/Download/";
+    }else{
+      directory = "/storage/emulated/0/Downloads/";
+    }
+  }
+  return directory;
+
+  // return '/storage/emulated/0/Download';
 }
 
 void showAlert(BuildContext context, String textBody, String textHeader) {

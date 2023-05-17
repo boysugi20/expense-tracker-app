@@ -41,6 +41,7 @@ dependencies:
   flutter_local_notifications: ^14.0.0+2
   permission_handler: ^10.2.0
   device_info_plus: ^9.0.0
+  path_provider: ^2.0.15
 
 dev_dependencies:
   flutter_test:
