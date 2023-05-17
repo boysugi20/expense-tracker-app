@@ -187,7 +187,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                       ),
                     );
                   }
-                  return const NoDataWidget();
+                  return NoDataWidget();
                 }
               ),
 
@@ -222,7 +222,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             }
             if (state is TransactionLoaded) {
               if(state.transaction.isEmpty){
-                return const NoDataWidget();
+                return NoDataWidget();
               }
               if(datePicked == false && filterCategoryName == 'All'){
                 return Column(
@@ -238,7 +238,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                 }
               }
             }
-            return const NoDataWidget();
+            return NoDataWidget();
           },
         ),
       ],

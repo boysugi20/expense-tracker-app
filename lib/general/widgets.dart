@@ -294,14 +294,16 @@ class ThousandsSeparatorInputFormatter extends TextInputFormatter {
 
 class NoDataWidget extends StatelessWidget {
   
-  const NoDataWidget({super.key});
+  final String text;
+
+  const NoDataWidget({this.text = '', Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 16),
-        child: Text('No Data', style: TextStyle(color: AppColors.grey),),
+        child: text == '' ? Text('No Data', style: TextStyle(color: AppColors.grey),) : Text(text, style: TextStyle(color: AppColors.grey),) ,
       ),
     );
   }

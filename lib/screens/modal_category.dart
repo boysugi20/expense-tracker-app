@@ -106,7 +106,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                         );
                       }
                     }
-                    return const NoDataWidget();
+                    return NoDataWidget();
                   },
                 ),
                 BlocBuilder<GoalBloc, GoalState>(
@@ -126,7 +126,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                         );
                       }
                     }
-                    return const NoDataWidget();
+                    return NoDataWidget();
                   },
                 ),
               ]

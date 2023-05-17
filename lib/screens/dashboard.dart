@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/general/functions.dart';
@@ -79,6 +81,9 @@ class _DashboardPageState extends State<DashboardPage> {
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       chartData = snapshot.data!;
+                      if (chartData.isEmpty){
+                        return const NoDataWidget(text: 'No Transactions yet');
+                      }
                       return ExpenseChart(data: chartData);
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -186,7 +191,7 @@ class ExpenseChart extends StatelessWidget {
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  interval: maxY * 0.25,
+                  interval: ((maxY+minY)/2) * 0.5,
                   getTitlesWidget: leftTitleWidgets,
                   reservedSize: 42,
                 ),
@@ -198,13 +203,20 @@ class ExpenseChart extends StatelessWidget {
             ),
             // minX: 0,
             // maxX: 11,
-            minY: minY - (maxY * 0.25),
+            // baselineY: minY,
+            minY: max(minY - (maxY * 0.25), 0),
             maxY: maxY + (maxY * 0.25),
             lineBarsData: [
               LineChartBarData(
-                curveSmoothness: 0.3,
-                dotData: FlDotData(show: false,),
                 spots: data,
+                curveSmoothness: 0.3,
+                dotData: FlDotData(
+                  show: true, 
+                  getDotPainter: (spot, percent, barData, index) =>  FlDotCirclePainter(
+                    radius: 3,
+                    color: AppColors.accent,
+                  ),
+                ),
                 isCurved: true,
                 barWidth: 1,
                 isStrokeCapRound: true,
