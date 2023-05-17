@@ -11,8 +11,8 @@ class NotificationService {
 
   static Future showNotification({var id=0, required String title, required String body, var payload, required FlutterLocalNotificationsPlugin fln}) async{
     AndroidNotificationDetails androidNotificationDetails = const AndroidNotificationDetails(
-      'your channel id',
-      'your channel name',
+      'default_notification_channel_id',
+      'Default',
 
       playSound: true,
       // sound: RawResourceAndroidNotificationSound('notification'),
