@@ -1,11 +1,12 @@
+
 import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:expense_tracker/database/connection.dart';
-import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/main.dart';
 import 'package:expense_tracker/notification.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -31,53 +32,40 @@ class MoreSettingPage extends StatelessWidget {
     });
 
     if (allAccepted) {
-      DatabaseHelper db = DatabaseHelper();
-      var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
-
-      List<String> csvData = [];
-      // Add headers to the CSV data
-      csvData.add(queryResult[0].keys.join(','));
-      // Add rows to the CSV data
-      for (var row in queryResult) {
-        csvData.add(row.values.map((value) => value.toString()).join(','));
-      }
-      String csvString = csvData.join('\n');
-
-      // Get Downloads path
-      final downloadPath = await getDownloadPath();
-      String fileName = 'TransactionData.csv';
-      final filepath = '$downloadPath${Platform.pathSeparator}$fileName';
-
-      // Save the CSV data to a file
-      File file = File(filepath);
-      await file.writeAsString(csvString);
       
-      NotificationService.showNotification(title: 'Success', body: 'Your CSV file have been downloaded', fln: flutterLocalNotificationsPlugin);
-    }
+      // FilePickerResult? result = await FilePicker.platform.pickFiles();
+      String? saveDirectory = await FilePicker.platform.getDirectoryPath();
 
-    // DatabaseHelper db = DatabaseHelper();
-    // var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
+      if (saveDirectory != null) {
+        DatabaseHelper db = DatabaseHelper();
+        var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
 
-    // List<String> csvData = [];
-    // // Add headers to the CSV data
-    // csvData.add(queryResult[0].keys.join(','));
-    // // Add rows to the CSV data
-    // for (var row in queryResult) {
-    //   csvData.add(row.values.map((value) => value.toString()).join(','));
-    // }
-    // String csvString = csvData.join('\n');
+        List<String> csvData = [];
+        // Add headers to the CSV data
+        csvData.add(queryResult[0].keys.join(','));
+        // Add rows to the CSV data
+        for (var row in queryResult) {
+          csvData.add(row.values.map((value) => value.toString()).join(','));
+        }
+        String csvString = csvData.join('\n');
 
-    // // Get Downloads path
-    // final downloadPath = await getDownloadPath();
-    // final filepath = '$downloadPath/output.csv';
+        // final downloadPath = await getDownloadPath();
+        String fileName = 'TransactionData.csv';
+        final filepath = '$saveDirectory${Platform.pathSeparator}$fileName';
 
-    // // Save the CSV data to a file
-    // File file = File(filepath);
-
-    // await file.writeAsString(csvString);
-    
-    // // String jsonString = json.encode(queryResult);
-    // NotificationService.showNotification(title: 'Success', body: 'Your CSV file have been downloaded', fln: flutterLocalNotificationsPlugin);
+        try{
+          // Save the CSV data to a file
+          File file = File(filepath);
+          await file.writeAsString(csvString, mode: FileMode.write);
+          // await OpenFile.open(filepath);
+          NotificationService.showNotification(title: 'Success', body: 'CSV file exported', fln: flutterLocalNotificationsPlugin);
+        }catch (e){
+          NotificationService.showNotification(title: 'Error', body: 'Failed to export CSV file', fln: flutterLocalNotificationsPlugin);
+        }
+      } else {
+        NotificationService.showNotification(title: 'Error', body: 'Failed to choose destination', fln: flutterLocalNotificationsPlugin);
+      }
+}
   }
 
   @override

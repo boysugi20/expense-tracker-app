@@ -84,7 +84,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       if (chartData.isEmpty){
                         return const NoDataWidget(text: 'No Transactions yet');
                       }
-                      return ExpenseChart(data: chartData.sublist(chartData.length - 6, chartData.length,));
+                      return ExpenseChart(data: chartData.length > 6 ? chartData.sublist(chartData.length - 6, chartData.length,) : chartData);
                     } else if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     }
