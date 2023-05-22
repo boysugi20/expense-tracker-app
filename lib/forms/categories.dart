@@ -19,8 +19,6 @@ class CategoriesForm extends StatefulWidget {
 
 class _CategoriesFormState extends State<CategoriesForm> {
   
-  final CategoryBloc categoryBloc = CategoryBloc();
-
   final _formKey = GlobalKey<FormState>();
   ExpenseCategory category = ExpenseCategory(id: 0, name: '');
 

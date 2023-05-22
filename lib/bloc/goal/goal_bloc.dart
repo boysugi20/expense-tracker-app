@@ -19,10 +19,11 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
     });
 
     on<AddGoal>((event, emit) async {
-      await GoalDAO.insertGoal(event.goal);
+      final insertedId = await GoalDAO.insertGoal(event.goal);
+      final updatedGoal = event.goal.copyWith(id: insertedId);
       if(state is GoalLoaded){
         final state = this.state as GoalLoaded;
-        emit(GoalLoaded(goal: List.from(state.goal)..add(event.goal), lastUpdated: DateTime.now()));
+        emit(GoalLoaded(goal: List.from(state.goal)..add(updatedGoal), lastUpdated: DateTime.now()));
       }
     });
 

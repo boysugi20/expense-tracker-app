@@ -47,7 +47,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   );
                 }
               }
-              return NoDataWidget();
+              return const NoDataWidget();
             },
           ),
 
@@ -75,7 +75,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
                   );
                 }
               }
-              return NoDataWidget();
+              return const NoDataWidget();
             },
           ),
           

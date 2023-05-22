@@ -187,7 +187,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                       ),
                     );
                   }
-                  return NoDataWidget();
+                  return const NoDataWidget();
                 }
               ),
 
@@ -222,7 +222,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             }
             if (state is TransactionLoaded) {
               if(state.transaction.isEmpty){
-                return NoDataWidget();
+                return const NoDataWidget();
               }
               if(datePicked == false && filterCategoryName == 'All'){
                 return Column(
@@ -233,12 +233,12 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                 final filteredTransactions = _filterTransactions(state.transaction);
                 if(filteredTransactions.isNotEmpty){
                   return Column(
-                    children: _sortTransactions(state.transaction).map((transactionItem) => TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
+                    children: _sortTransactions(filteredTransactions).map((transactionItem) => TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
                   );
                 }
               }
             }
-            return NoDataWidget();
+            return const NoDataWidget();
           },
         ),
       ],

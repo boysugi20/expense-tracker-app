@@ -207,8 +207,9 @@ class ExpenseChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: item.y,
-                  color: AppColors.accent,
-                  width: 8,
+                  color: AppColors.main,
+                  width: 18,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ],
             );

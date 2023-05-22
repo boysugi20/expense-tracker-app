@@ -19,10 +19,11 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     });
 
     on<AddExpenseCategory>((event, emit) async {
-      await CategoryDAO.insertExpenseCategory(event.category);
+      final insertedId = await CategoryDAO.insertExpenseCategory(event.category);
+      final updatedCategory = event.category.copyWith(id: insertedId);
       if(state is CategoryLoaded){
         final state = this.state as CategoryLoaded;
-        emit(CategoryLoaded(category: List.from(state.category)..add(event.category), lastUpdated: DateTime.now()));
+        emit(CategoryLoaded(category: List.from(state.category)..add(updatedCategory), lastUpdated: DateTime.now()));
       }
     });
 

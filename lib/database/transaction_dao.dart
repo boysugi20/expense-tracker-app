@@ -34,10 +34,6 @@ class TransactionDAO {
       'note': transaction.note,
       'createdAt': DateTime.now().toIso8601String()
     };
-
-    print(category);
-    print(data);
-
     final result = await db.update('Transactions', data, where: "id = ?", whereArgs: [transaction.id]);
     return result;
   }

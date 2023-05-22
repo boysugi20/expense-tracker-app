@@ -10,8 +10,8 @@ class CategoryDAO {
   // Insert
   static Future<int> insertExpenseCategory(ExpenseCategory category) async {
     final db = await DatabaseHelper.initializeDB();
-
     final data = category.toMap();
+    data.remove('id');
     final id = await db.insert('ExpenseCategories', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
 
     return id;
@@ -21,6 +21,12 @@ class CategoryDAO {
   static Future<List<ExpenseCategory>> getExpenseCategories() async {
     final db = await DatabaseHelper.initializeDB();
     final List<Map<String, Object?>> queryResult = await db.query('ExpenseCategories');
+    return queryResult.map((e) => ExpenseCategory.fromMap(e)).toList();
+  }
+
+  static Future<List<ExpenseCategory>> getExpenseCategoryIDbyName(String name) async {
+    final db = await DatabaseHelper.initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.query('ExpenseCategories', where: "name = ?", whereArgs: [name]);
     return queryResult.map((e) => ExpenseCategory.fromMap(e)).toList();
   }
 
