@@ -24,21 +24,29 @@ class _DashboardPageState extends State<DashboardPage> {
 
   List<FlSpot> chartData = [];
 
-  Future<List<FlSpot>> createDummyData() async {
+  Future<List<FlSpot>> getChartData() async {
     List<Map<String, Object?>> monthlyAmounts = await db.accessDatabase('''
-      SELECT strftime('%m', date) AS month, SUM(amount) AS totalAmount
+      SELECT strftime('%Y-%m', date) AS yearMonth, SUM(amount) AS totalAmount
       FROM Transactions
-      GROUP BY month
-      ORDER BY month ASC
+      GROUP BY yearMonth
+      ORDER BY yearMonth ASC
     ''');
 
     chartData = monthlyAmounts.map((row) {
-      double x = double.parse(row['month'] as String);
+      String yearMonth = row['yearMonth'] as String;
       double y = row['totalAmount'] as double;
-      return FlSpot(x, y);
+      return FlSpot(_parseYearMonth(yearMonth), y);
     }).toList();
 
     return chartData;
+  }
+
+  double _parseYearMonth(String yearMonth) {
+    List<String> parts = yearMonth.split('-');
+    int year = int.tryParse(parts[0]) ?? 0;
+    int month = int.tryParse(parts[1]) ?? 0;
+
+    return (((month+1)*10000) + year).toDouble();
   }
 
   @override
@@ -89,7 +97,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 const SectionTitle(text: 'Monthly Expense'),
 
                 FutureBuilder<List<FlSpot>>(
-                  future: createDummyData(),
+                  future: getChartData(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       chartData = snapshot.data!;
@@ -233,7 +241,7 @@ class ExpenseChart extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 30,
-                interval: 1,
+                interval: 0.1,
                 getTitlesWidget: bottomTitleWidgets,
               ),
             ),
@@ -411,7 +419,7 @@ class GoalsCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     progressAmount != null ?
-                    Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toInt()}% )', style: TextStyle(color: AppColors.grey, fontSize: 12),) 
+                    Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toStringAsFixed(1)}% )', style: TextStyle(color: AppColors.grey, fontSize: 12),) 
                     : 
                     Text('0 / ${amountDoubleToString(totalAmount)} ( 0% )', style: TextStyle(color: AppColors.grey, fontSize: 12),),
                   ]
@@ -587,9 +595,15 @@ class _WaveCustomPaint extends CustomPainter {
 
 Widget bottomTitleWidgets(double value, TitleMeta meta) {
 
-  String monthText = monthIntToString(value.toInt());
+  String yearText = value.toInt().toString();
+  String year = yearText.substring(yearText.length - 4);
+
+  int month = value~/10000;
+  String monthText = monthIntToString(month);
+
+  String title = '$year - $monthText';
   
-  Widget text = Text(monthText, style: const TextStyle(fontSize: 12,));
+  Widget text = Text(title, style: const TextStyle(fontSize: 12,));
 
   return SideTitleWidget(
     axisSide: meta.axisSide,

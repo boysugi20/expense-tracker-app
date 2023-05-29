@@ -48,18 +48,18 @@ String addThousandSeperatorToString (String string) {
 String monthIntToString (int value){
   
   List<Map<String, dynamic>> months = [  
-    {'index': 0, 'label': 'Jan'},  
-    {'index': 1, 'label': 'Feb'},  
-    {'index': 2, 'label': 'Mar'},  
-    {'index': 3, 'label': 'Apr'},  
-    {'index': 4, 'label': 'May'},  
-    {'index': 5, 'label': 'Jun'},  
-    {'index': 6, 'label': 'Jul'},  
-    {'index': 7, 'label': 'Aug'},  
-    {'index': 8, 'label': 'Sep'},  
-    {'index': 9, 'label': 'Oct'},  
-    {'index': 10, 'label': 'Nov'},  
-    {'index': 11, 'label': 'Dec'},
+    {'index': 1, 'label': 'Jan'},  
+    {'index': 2, 'label': 'Feb'},  
+    {'index': 3, 'label': 'Mar'},  
+    {'index': 4, 'label': 'Apr'},  
+    {'index': 5, 'label': 'May'},  
+    {'index': 6, 'label': 'Jun'},  
+    {'index': 7, 'label': 'Jul'},  
+    {'index': 8, 'label': 'Aug'},  
+    {'index': 9, 'label': 'Sep'},  
+    {'index': 10, 'label': 'Oct'},  
+    {'index': 11, 'label': 'Nov'},  
+    {'index': 12, 'label': 'Dec'},
   ];
   
   String monthText = '';

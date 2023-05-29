@@ -138,6 +138,14 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     return groupedTransactions;
   }
 
+  double _calculateTotalAmount(List<Transaction> transactions) {
+    double total = 0.0;
+    for (final transaction in transactions) {
+      total += transaction.amount;
+    }
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -236,13 +244,27 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 12, bottom: 8),
-                            child: Text(
-                              entry.key,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.normal,
-                              ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  entry.key,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                    color: AppColors.grey
+                                  ),
+                                ),
+                                Text(
+                                  'Rp ${amountDoubleToString(_calculateTotalAmount(entry.value))}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.normal,
+                                    color: AppColors.grey
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           Column(
@@ -309,15 +331,15 @@ class TransactionCard extends StatelessWidget {
                         style: const TextStyle(color: Colors.black)
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: RichText(
-                        text: TextSpan(
-                          text: DateFormat('dd MMM yyyy').format(transaction.date),
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 10)
-                        ),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 2),
+                    //   child: RichText(
+                    //     text: TextSpan(
+                    //       text: DateFormat('dd MMM yyyy').format(transaction.date),
+                    //       style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 8)
+                    //     ),
+                    //   ),
+                    // ),
                     (transaction.note != null && transaction.note!.isNotEmpty) 
                     ? Container(
                       margin: const EdgeInsets.only(top: 8),
