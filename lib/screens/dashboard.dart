@@ -76,30 +76,15 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 const SectionTitle(text: 'Notifications'),
                 
-                GlowingOverscrollIndicator(
-                  color: AppColors.main, // Set your desired overscroll color
-                  axisDirection: AxisDirection.right, // Set the axis direction according to your scrolling direction
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: const [
-                        NotificationCard(),
-                        NotificationCard(),
-                      ],
-                    ),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: const [
+                      NotificationCard(),
+                      NotificationCard(),
+                    ],
                   ),
                 ),
-
-                // SizedBox(
-                //   width: 1000,
-                //   child: ListView(
-                //     scrollDirection: Axis.horizontal,
-                //     children:const [
-                //       NotificationCard(),
-                //       NotificationCard(),
-                //     ]
-                //   ),
-                // ),
       
                 const SectionTitle(text: 'Monthly Expense'),
 

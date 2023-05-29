@@ -260,7 +260,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
                   children: [
                     const Text('Budget mode'),
 
-                    Container(width: 14,),
+                    Container(width: 8,),
 
                     const Tooltip(
                       message: 'Enable this to calculate\nbalance from specified budget',
@@ -291,7 +291,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
                   children: [
                     const Text('Carry over'),
 
-                    Container(width: 14,),
+                    Container(width: 8,),
 
                     const Tooltip(
                       message: 'Enable this to carryover\nremaining balance each month',

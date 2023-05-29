@@ -122,6 +122,22 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     return results;
   }
 
+  Map<String, List<Transaction>> _groupTransactionsByDate(List<Transaction> transactions) {
+    final Map<String, List<Transaction>> groupedTransactions = {};
+
+    for (var transaction in transactions) {
+      final String date = DateFormat('dd MMM yyyy').format(transaction.date); // Replace 'formatDate' with your date formatting logic
+
+      if (groupedTransactions.containsKey(date)) {
+        groupedTransactions[date]!.add(transaction);
+      } else {
+        groupedTransactions[date] = [transaction];
+      }
+    }
+
+    return groupedTransactions;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -198,33 +214,56 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             ]
           ),
         ),
-
+                
         BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
             if (state is TransactionInitial) {
               context.read<TransactionBloc>().add(const GetTransactions());
             }
             if (state is TransactionLoaded) {
-              if(state.transaction.isEmpty){
+              if (state.transaction.isEmpty) {
                 return const NoDataWidget();
               }
-              if(datePicked == false && filterCategoryName == 'All'){
-                return Column(
-                  children: _sortTransactions(state.transaction).map((transactionItem) => TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
-                );
-              }
-              else{
-                final filteredTransactions = _filterTransactions(state.transaction);
-                if(filteredTransactions.isNotEmpty){
-                  return Column(
-                    children: _sortTransactions(filteredTransactions).map((transactionItem) => TransactionCard(category: transactionItem.category, transaction: transactionItem,)).toList(),
-                  );
-                }
-              }
+
+              final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
+              final Map<String, List<Transaction>> groupedTransactions = _groupTransactionsByDate(transactions);
+
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    for (final entry in groupedTransactions.entries)
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(top: 12, bottom: 8),
+                            child: Text(
+                              entry.key,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                          Column(
+                            children: [
+                              for (final transaction in entry.value)
+                                TransactionCard(
+                                  category: transaction.category,
+                                  transaction: transaction,
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                  ],
+                ),
+              );
             }
+
             return const NoDataWidget();
           },
-        ),
+        )
       ],
     );
   }
