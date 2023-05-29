@@ -1,5 +1,6 @@
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
+import 'package:expense_tracker/forms/subscription.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/categories.dart';
@@ -27,13 +28,26 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionTitle(text: 'Budget:', firstChild: true,),
+          const SectionTitle(
+            text: 'Budget:', 
+            firstChild: true,
+            button: AddButton(text: 'Add +'),
+          ),
 
           const BudgetCard(amount: 3000000),
-
-          const AddButton(text: 'Add +'),
           
-          const SectionTitle(text: 'Goals:'),
+          SectionTitle(
+            text: 'Goals:',
+            button: AddButton(
+              text: 'Add +',
+              onPressed: (context) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const GoalsForm(header1: 'Add Goal', header2: 'Add a new goal',)),
+                );
+              },
+            ),
+          ),
           
           BlocBuilder<GoalBloc, GoalState>(
             builder: (context, state) {
@@ -51,17 +65,37 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             },
           ),
 
-          AddButton(
-            text: 'Add +',
-            onPressed: (context) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const GoalsForm(header1: 'Add Goal', header2: 'Add a new goal',)),
-              );
-            },
+          
+          SectionTitle(
+            text: 'Recurring Transaction:',
+            button: 
+            AddButton(
+              text: 'Add +',
+              onPressed: (context) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SubscriptionForm(header1: 'Add Subcription', header2: 'Add a new subscription',)),
+                );
+              },
+            ),
           ),
 
-          const SectionTitle(text: 'Categories:'),
+          const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
+          const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
+          
+
+          SectionTitle(
+            text: 'Categories:',
+            button: AddButton(
+              text: 'Add +',
+              onPressed: (context) async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CategoriesForm(header1: 'Add Category', header2: 'Add a new category',)),
+                );
+              },
+            ),
+          ),
 
           BlocBuilder<CategoryBloc, CategoryState>(
             builder: (context, state) {
@@ -79,15 +113,7 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             },
           ),
           
-          AddButton(
-            text: 'Add +',
-            onPressed: (context) async {
-              await Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const CategoriesForm(header1: 'Add Category', header2: 'Add a new category',)),
-              );
-            },
-          ),
+          
         ],
       ),
     );
@@ -199,6 +225,61 @@ class BudgetCard extends StatelessWidget {
           // Icon(Icons.edit, color: AppColors.white, size: 16,)
         ],
       )
+    );
+  }
+}
+
+
+class SubscriptionCard extends StatelessWidget {
+  
+  final String title, startDate, endDate;
+  final int amount;
+
+  const SubscriptionCard({required this.title, required this.startDate, required this.endDate, required this.amount, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SubscriptionForm(
+            header1: 'Edit Subsciprtion', 
+            header2: 'Edit existing subscription', 
+            initialValues: {'name': title,'price': amount.toString(),}
+          )),
+        );
+      },
+      child: CardContainer(
+        color: AppColors.main,
+        paddingBottom: 18,
+        paddingTop: 18,
+        paddingLeft: 16,
+        paddingRight: 16,
+        marginBottom: 6,
+        useBorder: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                Container(height: 8,),
+                Text('Rp ${addThousandSeperatorToString(amount.toString())}', style: const TextStyle(color: Colors.white, fontSize: 14),),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('Start: $startDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
+                Text('End: $endDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

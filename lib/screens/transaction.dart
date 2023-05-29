@@ -2,7 +2,6 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
-import 'package:expense_tracker/forms/subscription.dart';
 import 'package:expense_tracker/forms/transaction.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/transaction.dart';
@@ -22,23 +21,8 @@ class TransactionPage extends StatelessWidget {
       padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24, bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SectionTitle(text: 'Recurring Transaction:', firstChild: true,),
-
-          const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
-          const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
-
-          AddButton(
-            text: 'Add +',
-            onPressed: (context) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SubscriptionForm(header1: 'Add Subcription', header2: 'Add a new subscription',)),
-              );
-            },
-          ),
-
-          const TransactionsContainer()
+        children: const [
+          TransactionsContainer()
         ],
       ),
     );
@@ -143,7 +127,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(text: 'Transaction:', useBottomMargin: false,),
+        const SectionTitle(text: 'Transaction:', useBottomMargin: false, firstChild: true,),
 
         Container(
           margin: const EdgeInsets.only(bottom: 8, top: 12),
@@ -242,60 +226,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
           },
         ),
       ],
-    );
-  }
-}
-
-class SubscriptionCard extends StatelessWidget {
-  
-  final String title, startDate, endDate;
-  final int amount;
-
-  const SubscriptionCard({required this.title, required this.startDate, required this.endDate, required this.amount, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: (){
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SubscriptionForm(
-            header1: 'Edit Subsciprtion', 
-            header2: 'Edit existing subscription', 
-            initialValues: {'name': title,'price': amount.toString(),}
-          )),
-        );
-      },
-      child: CardContainer(
-        color: AppColors.main,
-        paddingBottom: 18,
-        paddingTop: 18,
-        paddingLeft: 16,
-        paddingRight: 16,
-        marginBottom: 6,
-        useBorder: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                Container(height: 8,),
-                Text('Rp ${addThousandSeperatorToString(amount.toString())}', style: const TextStyle(color: Colors.white, fontSize: 14),),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text('Start: $startDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
-                Text('End: $endDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -9,18 +9,25 @@ class SectionTitle extends StatelessWidget {
   final String text;
   final bool firstChild;
   final bool useBottomMargin;
+  final Widget? button;
 
-  const SectionTitle({required this.text, this.firstChild = false, this.useBottomMargin = true, Key? key}) : super(key: key);
+  const SectionTitle({required this.text, this.firstChild = false, this.useBottomMargin = true, this.button, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(bottom: useBottomMargin ? 12 : 0, top: firstChild ? 0 : 16,),
-      child: RichText(
-        text: TextSpan(
-          text: text,
-          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
-        ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          RichText(
+            text: TextSpan(
+              text: text,
+              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+            ),
+          ),
+          if (button != null) button!,
+        ],
       ),
     );
   }

@@ -4,9 +4,11 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/database/category_dao.dart';
 import 'package:expense_tracker/database/connection.dart';
+import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/transaction.dart';
+import 'package:expense_tracker/styles/color.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -31,7 +33,6 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
       context.read<TransactionBloc>().add(AddTransaction(transaction: Transaction(id: 0, category: expenseCategory, date: date, amount: amount, note: note)));
     }
   }
-  
 
   void _exportTransToCSV(BuildContext context) async {
 
@@ -175,6 +176,36 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
     );
   }
 
+  bool budgetMode = true;
+  bool carryOver = true;
+
+  List<String> weekList = <String>['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  String weekDropdown = 'Sunday';
+
+  List<int> dayList = List<int>.generate(31, (index) => index + 1);
+  int dayDropdown = 1;
+
+  void initializeValues() async {
+    bool? budgetModeValue = await getConfigurationBool('budget_mode');
+    bool? carryOverValue = await getConfigurationBool('carry_over');
+
+    String? weekDropdownValue = await getConfigurationString('first_day_week');
+    int? dayDropdownValue = await getConfigurationInt('first_day_month');
+    
+    setState(() {
+      budgetMode = budgetModeValue ?? true;
+      carryOver = carryOverValue ?? true;
+      weekDropdown = weekDropdownValue ?? 'Sunday';
+      dayDropdown = dayDropdownValue ?? 1;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeValues();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -182,7 +213,9 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           const SectionTitle(text: 'Tools:', firstChild: true,),
+
           GestureDetector(
             onTap: () {
               _exportTransToCSV(context);
@@ -199,6 +232,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
               ),
             ),
           ),
+
           GestureDetector(
             onTap: () {
               _importTransFromCSV(context);
@@ -214,7 +248,127 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
                 ],
               ),
             ),
-          )
+          ),
+
+          const SectionTitle(text: 'Settings:'),
+
+          CardContainer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Text('Budget mode'),
+
+                    Container(width: 14,),
+
+                    const Tooltip(
+                      message: 'Enable this to calculate\nbalance from specified budget',
+                      child: Icon(Icons.info, size: 16,)
+                    ),
+                  ],
+                ),
+                
+                Switch(
+                  value: budgetMode,
+                  activeColor: AppColors.accent,
+                  onChanged: (bool value) {
+                    saveConfiguration('budget_mode', !budgetMode);
+                    setState(() {
+                      budgetMode = !budgetMode;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          CardContainer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Text('Carry over'),
+
+                    Container(width: 14,),
+
+                    const Tooltip(
+                      message: 'Enable this to carryover\nremaining balance each month',
+                      child: Icon(Icons.info, size: 16,)
+                    ),
+                  ],
+                ),
+                
+                Switch(
+                  value: carryOver,
+                  activeColor: AppColors.accent,
+                  onChanged: (bool value) {
+                    saveConfiguration('carry_over', !carryOver);
+                    setState(() {
+                      carryOver = !carryOver;
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+
+          CardContainer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('First day of the week'),
+
+                DropdownButton<String>(
+                  value: weekDropdown,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  elevation: 16,
+                  style: TextStyle(color: AppColors.accent),
+                  onChanged: (String? value) {
+                    saveConfiguration('first_day_week', value!);
+                    setState(() {
+                      weekDropdown = value;
+                    });
+                  },
+                  items: weekList.map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+
+          CardContainer(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('First day of the month'),
+
+                DropdownButton<int>(
+                  value: dayDropdown,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  elevation: 16,
+                  style: TextStyle(color: AppColors.accent),
+                  onChanged: (int? value) {
+                    saveConfiguration('first_day_month', value!);
+                    setState(() {
+                      dayDropdown = value;
+                    });
+                  },
+                  items: dayList.map<DropdownMenuItem<int>>((int value) {
+                    return DropdownMenuItem<int>(
+                      value: value,
+                      child: Text(value.toString()),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

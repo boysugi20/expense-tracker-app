@@ -1,8 +1,11 @@
 
+
+
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Directory, Platform;
 
 import '../screens/modal_amount.dart';
@@ -132,4 +135,42 @@ void showAlert(BuildContext context, String textBody, String textHeader) {
       );
     },
   );
+}
+
+
+saveConfiguration(String title, Object value) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  if (value is bool) {
+    prefs.setBool(title, value);
+  }
+  else if (value is String) {
+    prefs.setString(title, value);
+  }
+  else if (value is int) {
+    prefs.setInt(title, value);
+  }
+  else if (value is double) {
+    prefs.setDouble(title, value);
+  }
+}
+
+Future<bool?> getConfigurationBool(String title) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getBool(title);
+}
+
+Future<String?> getConfigurationString(String title) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString(title);
+}
+
+Future<int?> getConfigurationInt(String title) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getInt(title);
+}
+
+Future<double?> getConfigurationDouble(String title) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getDouble(title);
 }

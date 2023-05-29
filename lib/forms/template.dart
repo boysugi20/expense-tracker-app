@@ -28,7 +28,7 @@ class FormTemplate extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.main,
+                color: AppColors.accent,
                 borderRadius: BorderRadius.circular(32)
               ),
               child: Icon(Icons.arrow_back, color: AppColors.white,),
@@ -77,9 +77,9 @@ class FormTemplate extends StatelessWidget {
                           }
                         },
                         child: buttonText != null? 
-                          FormSubmitButton(buttonText: 'Update', buttonColor: AppColors.main)
+                          FormSubmitButton(buttonText: 'Update', buttonColor: AppColors.accent)
                           :
-                          FormSubmitButton(buttonText: 'Save', buttonColor: AppColors.main)
+                          FormSubmitButton(buttonText: 'Save', buttonColor: AppColors.accent)
                           ,
                       ),
                     ),

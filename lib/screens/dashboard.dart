@@ -73,6 +73,33 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
         
                 const BalanceCard(),
+
+                const SectionTitle(text: 'Notifications'),
+                
+                GlowingOverscrollIndicator(
+                  color: AppColors.main, // Set your desired overscroll color
+                  axisDirection: AxisDirection.right, // Set the axis direction according to your scrolling direction
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: const [
+                        NotificationCard(),
+                        NotificationCard(),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // SizedBox(
+                //   width: 1000,
+                //   child: ListView(
+                //     scrollDirection: Axis.horizontal,
+                //     children:const [
+                //       NotificationCard(),
+                //       NotificationCard(),
+                //     ]
+                //   ),
+                // ),
       
                 const SectionTitle(text: 'Monthly Expense'),
 
@@ -133,6 +160,42 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
           ),
         ]
+      ),
+    );
+  }
+}
+
+class NotificationCard extends StatelessWidget {
+  const NotificationCard({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return CardContainer(
+      child: IntrinsicWidth(
+        child: Row(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(right: 12),
+              child: CircleAvatar(
+                backgroundColor: AppColors.grey,
+              ),
+            ),
+            RichText(
+              text: const TextSpan(
+                text: 'Warning\n',
+                style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                children: [
+                  TextSpan(
+                    text: 'Lorem ipsum dolor sit amet',
+                    style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.normal),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -443,7 +506,7 @@ class BalanceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 32),
+      margin: const EdgeInsets.only(top: 24),
       decoration: BoxDecoration(
         color: AppColors.neutralDark,
         borderRadius: const BorderRadius.all(Radius.circular(20)),
@@ -459,29 +522,42 @@ class BalanceCard extends StatelessWidget {
       padding: const EdgeInsets.only(left: 24, right: 24, top: 32, bottom: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          RichText(text: TextSpan(text: 'Balance\n', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-          RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 20))),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: Stack(
-              children: [
-                Container(
-                  height: 8,
-                  margin: const EdgeInsets.only(top: 32, bottom: 32),
-                  color: AppColors.neutralLight,
-                ),
-                Container(
-                  height: 8,
-                  width: 90,
-                  margin: const EdgeInsets.only(top: 32, bottom: 32),
-                  color: AppColors.accent,
-                ),
-              ]
-            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              RichText(text: TextSpan(text: 'Balance', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+              RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold))),
+            ],
           ),
-          RichText(text: TextSpan(text: 'Usage: ${addThousandSeperatorToString(1800000.toString())} / ${addThousandSeperatorToString(3000000.toString())} (75%)', style: const TextStyle(color: Colors.white, fontSize: 12))),
+          Container(height: 24,),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    RichText(text: TextSpan(text: 'Expense', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+                    RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 14))),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    RichText(text: TextSpan(text: 'Income', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+                    RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 14))),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
