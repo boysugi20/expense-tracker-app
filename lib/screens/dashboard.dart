@@ -223,7 +223,7 @@ class ExpenseChart extends StatelessWidget {
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 TextStyle textStyle = TextStyle(color: AppColors.black);
                 return BarTooltipItem(
-                  '${monthIntToString(group.x.toInt())}\nRp ${addThousandSeperatorToString((rod.toY).toInt().toString())}',
+                  '${valueToTitle(group.x.toDouble())}\nRp ${addThousandSeperatorToString((rod.toY).toInt().toString())}',
                   textStyle,
                 );
               },
@@ -240,7 +240,7 @@ class ExpenseChart extends StatelessWidget {
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 30,
+                reservedSize: 45,
                 interval: 0.1,
                 getTitlesWidget: bottomTitleWidgets,
               ),
@@ -593,7 +593,7 @@ class _WaveCustomPaint extends CustomPainter {
 
 }
 
-Widget bottomTitleWidgets(double value, TitleMeta meta) {
+String valueToTitle(double value){
 
   String yearText = value.toInt().toString();
   String year = yearText.substring(yearText.length - 4);
@@ -601,9 +601,16 @@ Widget bottomTitleWidgets(double value, TitleMeta meta) {
   int month = value~/10000;
   String monthText = monthIntToString(month);
 
-  String title = '$year - $monthText';
+  String finalString = '$monthText\n$year';
+
+  return finalString;
+}
+
+Widget bottomTitleWidgets(double value, TitleMeta meta) {
+
+  String title = valueToTitle(value);
   
-  Widget text = Text(title, style: const TextStyle(fontSize: 12,));
+  Widget text = Text(title, style: const TextStyle(fontSize: 12,), textAlign: TextAlign.center,);
 
   return SideTitleWidget(
     axisSide: meta.axisSide,

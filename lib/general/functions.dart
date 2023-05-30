@@ -1,9 +1,7 @@
-
-
-
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io' show Directory, Platform;
@@ -11,13 +9,10 @@ import 'dart:io' show Directory, Platform;
 import '../screens/modal_amount.dart';
 
 void openBottomModalCategory(BuildContext context, Function(int index) changeScreen) {
-  showModalBottomSheet(
+  showMaterialModalBottomSheet(
     backgroundColor: Colors.transparent,
-    isScrollControlled: true,
     context: context,
-    builder: (context) {
-      return BottomModalCategory(changeScreen: changeScreen);
-    }
+    builder: (context) => BottomModalCategory(changeScreen: changeScreen)
   );
 }
 

@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
@@ -85,7 +84,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
             ),
           ),
           SizedBox(
-            height: max((((max(categoryList.length, goalList.length).toDouble()/4).ceil()) * 86) + (((max(categoryList.length, goalList.length).toDouble()/4).ceil()) * 16), MediaQuery.of(context).size.height*0.4),
+            height: MediaQuery.of(context).size.height * 0.4,
             child: TabBarView(
               controller: _tabController,
               children: [
@@ -97,7 +96,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                     if (state is CategoryLoaded) {
                       if(state.category.isNotEmpty){
                         return GridView.count(
-                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(0),
                           shrinkWrap: true,
                           crossAxisCount: 4,
                           mainAxisSpacing: 8,
@@ -106,7 +105,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                         );
                       }
                     }
-                    return NoDataWidget();
+                    return const NoDataWidget();
                   },
                 ),
                 BlocBuilder<GoalBloc, GoalState>(
@@ -117,7 +116,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                     if (state is GoalLoaded) {
                       if(state.goal.isNotEmpty){
                         return GridView.count(
-                          physics: const NeverScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(0),
                           shrinkWrap: true,
                           crossAxisCount: 4,
                           mainAxisSpacing: 8,
@@ -126,7 +125,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                         );
                       }
                     }
-                    return NoDataWidget();
+                    return const NoDataWidget();
                   },
                 ),
               ]
