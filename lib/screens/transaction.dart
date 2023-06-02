@@ -18,7 +18,7 @@ class TransactionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24, bottom: 100),
+      padding: const EdgeInsets.only(bottom: 100),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
@@ -39,11 +39,51 @@ class TransactionsContainer extends StatefulWidget {
 
 class TransactionsContainerState extends State<TransactionsContainer> {
 
-  bool datePicked = false;
+  bool datePicked = true;
   List<ExpenseCategory> categories = [];
   
-  List<DateTime?> filterDateRange = [DateTime.now().add(const Duration(days: -7)), DateTime.now()];
+  List<DateTime?> filterDateRange = [DateTime(DateTime.now().year, DateTime.now().month, 1), DateTime(DateTime.now().year, DateTime.now().month + 1, 0)];
+  String filterDateRangeText = 'This Month';
+  String customDateRangeText = 'Custom';
+
+  List<DropdownMenuItem<String>> get dropdownDateRangeItems{
+    List<DropdownMenuItem<String>> menuItems = [
+      const DropdownMenuItem(value: "All", child: Text("All")),
+      const DropdownMenuItem(value: "This Month", child: Text("This Month")),
+      const DropdownMenuItem(value: "Last Month", child: Text("Last Month")),
+      DropdownMenuItem(value: "Custom", child: Text(customDateRangeText)),
+    ];
+    return menuItems;
+  }
+
   String filterCategoryName = 'All';
+
+  void setDateRange(String dateRange){
+
+    DateTime now = DateTime.now();
+
+    if(dateRange == 'This Month'){
+      DateTime startOfMonth = DateTime(now.year, now.month, 1);
+      DateTime endOfMonth = DateTime(now.year, now.month + 1, 0);
+      setState(() {
+        filterDateRange = [startOfMonth, endOfMonth];
+        datePicked = true;
+      });
+    }
+    else if(dateRange == 'Last Month'){
+      DateTime startOfMonth = DateTime(now.year, now.month - 1, 1);
+      DateTime endOfMonth = DateTime(now.year, now.month, 0);
+      setState(() {
+        filterDateRange = [startOfMonth, endOfMonth];
+        datePicked = true;
+      });
+    }
+    else{
+      setState(() {
+        datePicked = false;
+      });
+    }
+  }
   
   Future<void> _selectDateRange(BuildContext context) async {
 
@@ -59,7 +99,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
       value: filterDateRange,
     );
 
-    if (results != null && results != filterDateRange && results.length == 2) {
+    if (results != null && results.length == 2) {
       setState(() {
         filterDateRange = results;
         datePicked = true;
@@ -73,6 +113,8 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     else{
       setState(() {
         datePicked = false;
+        filterDateRangeText = 'All';
+        customDateRangeText = 'Custom';
       });
     }
   }
@@ -81,7 +123,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
 
     List<Transaction> sortedTransactions = [];
 
-    // final sortedTransactions = transactionList.toList()..sort((a, b) => b.date.compareTo(a.date));
     sortedTransactions = List.from(transactionList)
       ..sort((a, b) {
         final dateComparison = b.date.compareTo(a.date);
@@ -118,7 +159,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         results = transactionList;
       }
     }
-
     return results;
   }
 
@@ -149,32 +189,98 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionTitle(text: 'Transaction:', useBottomMargin: false, firstChild: true,),
 
-        Container(
-          margin: const EdgeInsets.only(bottom: 8, top: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+        BlocBuilder<TransactionBloc, TransactionState>(
+          builder: (context, state) {
+            if (state is TransactionInitial) {
+              context.read<TransactionBloc>().add(const GetTransactions());
+            }
+            if (state is TransactionLoaded) {
+              if (state.transaction.isEmpty) {
+                return Text('Rp -', style: TextStyle(color: AppColors.white));
+              }
+              final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
+              double totalAmount = 0;
+              for (Transaction transaction in transactions) {
+                totalAmount += transaction.amount;
+              }
+              return Container(
+                padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
+                color: AppColors.main,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Column(
+                      children: [
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Text('Total', style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),)
+                        ),
+                        Text('Rp -${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.white)),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            }
+            return Text('Rp -', style: TextStyle(color: AppColors.white));
+          }
+        ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              BlocBuilder<CategoryBloc, CategoryState>(
-                builder: (context, state) {
-                  if (state is CategoryInitial) {
-                    context.read<CategoryBloc>().add(const GetExpenseCategories());
-                  }
-                  if (state is CategoryLoaded) {
-                    // Get list of categories
-                    final categories = state.category.map((category) => category.name).toList();
-                    // Add "All" to the list
-                    categories.insert(0, "All");
-                    // Create DropdownMenuItem from the list
-                    final dropdownItems = categories.map((category) => DropdownMenuItem(
-                      value: category,
-                      child: Text(category),
-                    )).toList();
-                    return Container(
+        
+              Container(
+                margin: const EdgeInsets.only(bottom: 8, top: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+        
+                    BlocBuilder<CategoryBloc, CategoryState>(
+                      builder: (context, state) {
+                        if (state is CategoryInitial) {
+                          context.read<CategoryBloc>().add(const GetExpenseCategories());
+                        }
+                        if (state is CategoryLoaded) {
+                          // Get list of categories
+                          final categories = state.category.map((category) => category.name).toList();
+                          // Add "All" to the list
+                          categories.insert(0, "All");
+                          // Create DropdownMenuItem from the list
+                          final dropdownItems = categories.map((category) => DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          )).toList();
+                          return Container(
+                            padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.cardBorder),
+                              borderRadius: BorderRadius.circular(4),
+                              color: AppColors.white,
+                            ),
+                            child: DropdownButton(
+                              onChanged: (String? newValue){
+                                setState(() {
+                                  filterCategoryName = newValue!;
+                                });
+                              },
+                              value: filterCategoryName,
+                              items: dropdownItems,
+                              style: TextStyle(color: AppColors.main, fontSize: 12),
+                              underline: const SizedBox(),
+                              isDense: true,
+                            ),
+                          );
+                        }
+                        return const NoDataWidget();
+                      }
+                    ),
+        
+                    Container(
                       padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
                       decoration: BoxDecoration(
                         border: Border.all(color: AppColors.cardBorder),
@@ -183,109 +289,122 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                       ),
                       child: DropdownButton(
                         onChanged: (String? newValue){
+                          if(newValue == 'Custom'){
+                            _selectDateRange(context);
+                            setState(() {
+                              customDateRangeText = '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}';
+                            });
+                          }
+                          else{
+                            setDateRange(newValue!);
+                          }
                           setState(() {
-                            filterCategoryName = newValue!;
+                            filterDateRangeText = newValue!;
                           });
                         },
-                        value: filterCategoryName,
-                        items: dropdownItems,
+                        value: filterDateRangeText,
+                        items: dropdownDateRangeItems,
                         style: TextStyle(color: AppColors.main, fontSize: 12),
                         underline: const SizedBox(),
                         isDense: true,
                       ),
-                    );
-                  }
-                  return const NoDataWidget();
-                }
-              ),
-
-              GestureDetector(
-                onTap: () {
-                  _selectDateRange(context);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppColors.cardBorder),
-                    borderRadius: BorderRadius.circular(4),
-                    color: AppColors.white,
-                  ),
-                  child: Row(
-                    children: [
-                      Text(datePicked? '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}': 'Pick date range', style: TextStyle(color: AppColors.main, fontSize: 12),),
-                      Container(width: 8,),
-                      Icon(Icons.calendar_today, color: AppColors.main, size: 12,),
-                    ],
-                  ),
+                    ),
+        
+                    // GestureDetector(
+                    //   onTap: () {
+                    //     _selectDateRange(context);
+                    //   },
+                    //   child: Container(
+                    //     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                    //     decoration: BoxDecoration(
+                    //       border: Border.all(color: AppColors.cardBorder),
+                    //       borderRadius: BorderRadius.circular(4),
+                    //       color: AppColors.white,
+                    //     ),
+                    //     child: Row(
+                    //       children: [
+                    //         Text(datePicked? '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}': 'This Month', style: TextStyle(color: AppColors.main, fontSize: 12),),
+                    //         Container(width: 8,),
+                    //         Icon(Icons.calendar_today, color: AppColors.main, size: 12,),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // )
+                  ]
                 ),
+              ),
+                      
+              BlocBuilder<TransactionBloc, TransactionState>(
+                builder: (context, state) {
+                  if (state is TransactionInitial) {
+                    context.read<TransactionBloc>().add(const GetTransactions());
+                  }
+                  if (state is TransactionLoaded) {
+                    if (state.transaction.isEmpty) {
+                      return const NoDataWidget();
+                    }
+        
+                    final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
+                    final Map<String, List<Transaction>> groupedTransactions = _groupTransactionsByDate(transactions);
+        
+                    if(transactions.isEmpty){
+                      return const NoDataWidget();
+                    }
+                    else{
+                      return SingleChildScrollView(
+                        child: Column(
+                          children: [
+                            for (final entry in groupedTransactions.entries)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          entry.key,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.normal,
+                                            color: AppColors.grey
+                                          ),
+                                        ),
+                                        Text(
+                                          'Rp ${amountDoubleToString(_calculateTotalAmount(entry.value))}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.normal,
+                                            color: AppColors.grey
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    children: [
+                                      for (final transaction in entry.value)
+                                        TransactionCard(
+                                          category: transaction.category,
+                                          transaction: transaction,
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                      );
+                    }
+                  }
+        
+                  return const NoDataWidget();
+                },
               )
-            ]
+            ],
           ),
         ),
-                
-        BlocBuilder<TransactionBloc, TransactionState>(
-          builder: (context, state) {
-            if (state is TransactionInitial) {
-              context.read<TransactionBloc>().add(const GetTransactions());
-            }
-            if (state is TransactionLoaded) {
-              if (state.transaction.isEmpty) {
-                return const NoDataWidget();
-              }
-
-              final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
-              final Map<String, List<Transaction>> groupedTransactions = _groupTransactionsByDate(transactions);
-
-              return SingleChildScrollView(
-                child: Column(
-                  children: [
-                    for (final entry in groupedTransactions.entries)
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  entry.key,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.normal,
-                                    color: AppColors.grey
-                                  ),
-                                ),
-                                Text(
-                                  'Rp ${amountDoubleToString(_calculateTotalAmount(entry.value))}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.normal,
-                                    color: AppColors.grey
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              for (final transaction in entry.value)
-                                TransactionCard(
-                                  category: transaction.category,
-                                  transaction: transaction,
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              );
-            }
-
-            return const NoDataWidget();
-          },
-        )
       ],
     );
   }

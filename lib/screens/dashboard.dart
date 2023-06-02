@@ -9,6 +9,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -21,6 +22,16 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
 
   DatabaseHelper db = DatabaseHelper();
+
+  String dropdownText = 'This Month';
+  List<DropdownMenuItem<String>> get dropdownItems{
+    List<DropdownMenuItem<String>> menuItems = [
+      const DropdownMenuItem(value: "All", child: Text("All")),
+      const DropdownMenuItem(value: "This Month", child: Text("This Month")),
+      const DropdownMenuItem(value: "Last Month", child: Text("Last Month")),
+    ];
+    return menuItems;
+  }
 
   List<FlSpot> chartData = [];
 
@@ -41,17 +52,47 @@ class _DashboardPageState extends State<DashboardPage> {
     return chartData;
   }
 
+  Future<List<Map<String, Object?>>>getTransactionsFiltered() async {
+
+    List<Map<String, Object?>> transactions = [];
+
+    if(dropdownText == 'This Month'){
+      DateTime now = DateTime.now();
+      String currentMonth = DateFormat('yyyy-MM').format(now);
+
+      transactions = await db.accessDatabase('''
+        SELECT *
+        FROM Transactions
+        WHERE strftime('%Y-%m', date) = '$currentMonth'
+      ''');
+    }
+    else if (dropdownText == 'Last Month'){
+      DateTime now = DateTime.now();
+      DateTime previousMonthDate = DateTime(now.year, now.month - 1, now.day);
+      String previousMonth = DateFormat('yyyy-MM').format(previousMonthDate);
+
+      transactions = await db.accessDatabase('''
+        SELECT *
+        FROM Transactions
+        WHERE strftime('%Y-%m', date) = '$previousMonth'
+      ''');
+    }
+    else{
+      transactions = await db.accessDatabase('''
+        SELECT *
+        FROM Transactions
+      ''');
+    }
+
+    return transactions;
+  }
+
   double _parseYearMonth(String yearMonth) {
     List<String> parts = yearMonth.split('-');
     int year = int.tryParse(parts[0]) ?? 0;
     int month = int.tryParse(parts[1]) ?? 0;
 
-    return (((month+1)*10000) + year).toDouble();
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    return (((month)*10000) + year).toDouble();
   }
 
   @override
@@ -70,17 +111,67 @@ class _DashboardPageState extends State<DashboardPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                RichText(
-                  text: const TextSpan(
-                    text: 'Hello,\n',
-                    style: TextStyle(color: Colors.white),
-                    children: <TextSpan>[
-                      TextSpan(text: 'John Doe', style: TextStyle(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    RichText(
+                      text: const TextSpan(
+                        text: 'Hello,\n',
+                        style: TextStyle(color: Colors.white),
+                        children: <TextSpan>[
+                          TextSpan(text: 'John Doe', style: TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(left: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.cardBorder),
+                        borderRadius: BorderRadius.circular(4),
+                        color: AppColors.white,
+                      ),
+                      child: DropdownButton(
+                        onChanged: (String? newValue){
+                          setState(() {
+                            dropdownText = newValue!;
+                          });
+                        },
+                        value: dropdownText,
+                        items: dropdownItems,
+                        style: TextStyle(color: AppColors.main, fontSize: 12),
+                        underline: const SizedBox(),
+                        isDense: true,
+                      ),
+                    ),
+                  ],
                 ),
-        
-                const BalanceCard(),
+                
+                FutureBuilder<List<Map<String, Object?>>>(
+                  future: getTransactionsFiltered(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    List<Map<String, Object?>> transactions = snapshot.data ?? [];
+
+                    double balance = 0;
+                    double income = 0;
+                    double expense = 0;
+
+                    for (var transaction in transactions) {
+                      double amount = transaction['amount'] as double;
+                      if (amount > 0) {
+                        expense += amount;
+                      } else {
+                        income += amount;
+                      }
+                      balance += amount;
+                    }
+
+                    return BalanceCard(balance: balance, income: income, expense: expense);
+                  },
+                ),
 
                 const SectionTitle(text: 'Notifications'),
                 
@@ -140,8 +231,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
       
                 const SectionTitle(text: 'Expenses'),
-      
-                
+
                 const Expenses(text: 'Home', amount: 100000,),
                 const Expenses(text: 'Home1', amount: 100000,),
                 const Expenses(text: 'Home2', amount: 100000,),
@@ -492,9 +582,17 @@ class Expenses extends StatelessWidget {
 }
 
 class BalanceCard extends StatelessWidget {
+
+  final double income;
+  final double expense;
+  final double balance;
+
   const BalanceCard({
-    super.key,
-  });
+    Key? key,
+    required this.income,
+    required this.expense,
+    required this.balance,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -521,7 +619,7 @@ class BalanceCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               RichText(text: TextSpan(text: 'Balance', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-              RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold))),
+              RichText(text: TextSpan(text: 'Rp ${amountDoubleToString(balance)}', style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold))),
             ],
           ),
           Container(height: 24,),
@@ -529,24 +627,28 @@ class BalanceCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    RichText(text: TextSpan(text: 'Expense', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-                    RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 14))),
-                  ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RichText(text: TextSpan(text: 'Expense', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+                      RichText(text: TextSpan(text: 'Rp ${amountDoubleToString(expense)}', style: TextStyle(color: AppColors.white, fontSize: 14))),
+                    ],
+                  ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    RichText(text: TextSpan(text: 'Income', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-                    RichText(text: TextSpan(text: 'Rp ${addThousandSeperatorToString(3000000.toString())}', style: TextStyle(color: AppColors.white, fontSize: 14))),
-                  ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RichText(text: TextSpan(text: 'Income', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+                      RichText(text: TextSpan(text: 'Rp ${amountDoubleToString(income)}', style: TextStyle(color: AppColors.white, fontSize: 14))),
+                    ],
+                  ),
                 ),
               ),
             ],
