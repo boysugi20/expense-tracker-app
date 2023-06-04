@@ -32,7 +32,7 @@ class Transaction{
       amount: map["amount"],
       date: DateTime.parse(map["date"]),
       note: map["note"],
-      category: ExpenseCategory(id: 0, name: map['categoryName']),
+      category: ExpenseCategory(id: 0, name: map['categoryName'], icon: map['categoryIcon']),
     );
   }
 

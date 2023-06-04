@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
@@ -8,6 +10,7 @@ import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconpicker_plus/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/services.dart'; 
@@ -215,11 +218,11 @@ class _BottomModalamountState extends State<BottomModalamount> {
                       child: CircleAvatar(
                         backgroundColor: Colors.grey.shade200,
                         radius: 16,
-                        child: Text(
-                          _title.isNotEmpty ? _title.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", 
-                          style: TextStyle(color: AppColors.main),
+                        child: category.icon != null ? 
+                          Icon(deserializeIcon(jsonDecode(category.icon!)), color: AppColors.main,) 
+                          : 
+                          Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
                         ),
-                      ),
                     ),
                     RichText(
                       text: TextSpan(
@@ -384,13 +387,13 @@ class _BottomModalamountState extends State<BottomModalamount> {
                                     :
                                     buildIconButton(
                                       Icons.check, 
-                                      onPressed: () => {
+                                      onPressed: () {
                                         _addTransaction(
                                           category: category, 
                                           date: selectedDate[0]!, 
                                           amount: amountStringToDouble(_text), 
                                           note: _notesController.text
-                                        ),
+                                        );
                                       },
                                       height: 2, color: AppColors.accent, iconcolor: AppColors.white
                                     ),
@@ -434,52 +437,6 @@ class _BottomModalamountState extends State<BottomModalamount> {
                         }
                       },
                     )
-                    // child: Table(
-                    //   children: [
-                    //     TableRow(
-                    //       children: [
-                    //         buildIconButton(
-                    //           Icons.backspace_outlined, 
-                    //           onLongPressed: () => _updateText('clear'),
-                    //           onPressed: () => _updateText('backspace')
-                    //         )
-                    //       ]
-                    //     ),
-                    //     TableRow(
-                    //       children: [
-                    //         buildIconButton(Icons.calendar_month_outlined, onPressed: () => _showDatePicker(context)),
-                    //       ]
-                    //     ),
-                    //     TableRow(
-                    //       children: [
-                    //         _operatorPressed ? 
-                    //           buildIconButton(
-                    //             Icons.calculate, 
-                    //             onPressed: () => _updateText('equals'), 
-                    //             height: 2, color: AppColors.accent, iconcolor: AppColors.white
-                    //           )
-                    //           :
-                    //           buildIconButton(
-                    //             Icons.check, 
-                    //             onPressed: () => {
-                    //               if(_objectType == 'Category'){
-                    //                 _addTransaction(
-                    //                   category: category, 
-                    //                   date: selectedDate[0]!, 
-                    //                   amount: amountStringToDouble(_text), 
-                    //                   note: _notesController.text
-                    //                 ),
-                    //               }
-                    //               else if (_objectType == 'Goal'){
-                    //                 _addGoal(goal: goal, amount: amountStringToDouble(_text))
-                    //               }
-                    //             },
-                    //             height: 2, color: AppColors.accent, iconcolor: AppColors.white
-                    //           ),
-                    //       ]
-                    //     ),
-                    //   ],
-                    // ),
                   ),
                 ],
               ),

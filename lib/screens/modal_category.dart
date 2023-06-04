@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/general/widgets.dart';
@@ -9,6 +11,7 @@ import 'package:expense_tracker/models/goal.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconpicker_plus/Serialization/iconDataSerialization.dart';
 
 import '../general/functions.dart';
 
@@ -208,7 +211,10 @@ class CategoryButton extends StatelessWidget {
           CircleAvatar(
               backgroundColor: Colors.grey.shade200,
               radius: 24,
-              child: Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+              child: category.icon != null ? 
+                Icon(deserializeIcon(jsonDecode(category.icon!)), color: AppColors.main,) 
+                : 
+                Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
           ),
         ],
       ),

@@ -17,7 +17,7 @@ class TransactionDAO {
   static Future<List<Transaction>> getTransactions() async {
     final db = await DatabaseHelper.initializeDB();
     final List<Map<String, Object?>> queryResult = await db.rawQuery("""
-        SELECT A.*, B.name as categoryName 
+        SELECT A.*, B.name as categoryName, B.icon as categoryIcon
         FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
         ORDER BY A.date DESC
       """);

@@ -1,8 +1,12 @@
+
+import 'dart:convert';
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_iconpicker_plus/flutter_iconpicker.dart';
 
 class SectionTitle extends StatelessWidget {
   
@@ -174,7 +178,7 @@ class FormDateInput extends StatefulWidget {
 
   final String title, initalText;
   final String? helperText, labelText;
-  final bool isKeypad, useThousandSeparator, isRequired;
+  final bool isRequired;
   final void Function(String?)? onSave;
   final String? Function(String?)? validateText;
 
@@ -182,8 +186,6 @@ class FormDateInput extends StatefulWidget {
     required this.title, 
     this.helperText, 
     this.labelText, 
-    this.isKeypad = false, 
-    this.useThousandSeparator = false, 
     this.onSave, 
     this.initalText = '', 
     this.validateText, 
@@ -262,8 +264,6 @@ class _FormDateInputState extends State<FormDateInput> {
               onTap: () => {_showDatePicker(context)},
               onSaved: widget.onSave,
               controller: _textController,
-              keyboardType: widget.isKeypad ? TextInputType.number : TextInputType.text,
-              inputFormatters: widget.useThousandSeparator ? [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()] : [],
               decoration: InputDecoration(
                 helperText: widget.helperText,
                 hintText: widget.labelText,
@@ -282,7 +282,133 @@ class _FormDateInputState extends State<FormDateInput> {
   }
 }
 
+class FormIconInput extends StatefulWidget {
 
+  final String title;
+  final String? initialIcon;
+  final String? helperText, labelText;
+  final bool isRequired;
+  final void Function(String?)? onSave;
+  final String? Function(String?)? validateText;
+
+  const FormIconInput({
+    required this.title, 
+    this.helperText, 
+    this.labelText, 
+    this.onSave, 
+    this.initialIcon, 
+    this.validateText, 
+    this.isRequired = false,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  State<FormIconInput> createState() => _FormIconInputState();
+}
+
+class _FormIconInputState extends State<FormIconInput> {
+
+  Icon? _icon;
+  String? iconText;
+
+  _pickIcon() async {
+
+    IconData? icon = await FlutterIconPicker.showIconPicker(context);
+
+    if(icon != null){
+      _icon = Icon(icon, color: AppColors.main, size: 32,);
+
+      String formattedString = serializeIcon(icon).toString().replaceAllMapped(
+        RegExp(r'(\w+):\s?(\w+)'),
+        (match) => '"${match.group(1)}": "${match.group(2)}"',
+      );
+
+      setState(() {
+        _icon = _icon;
+        iconText = formattedString;
+      });
+
+      if (widget.onSave != null) {
+        widget.onSave!(formattedString);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.initialIcon != null){
+      setState(() {
+        _icon = Icon(deserializeIcon(jsonDecode(widget.initialIcon!)), color: AppColors.main,);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              widget.isRequired ?
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RichText(
+                  text: const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 14)),
+                ),
+              )
+              : const SizedBox(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RichText(
+                  text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.cardBorder),
+                    ),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.grey.shade200,
+                      radius: 24,
+                      child: _icon
+                    ),
+                  ),
+                  RichText(
+                    text: TextSpan(text: jsonDecode(iconText!)['key'].toString(), style: const TextStyle(color: Colors.black, fontSize: 11)),
+                  ),
+                ],
+              ),
+              Container(width: 12,),
+              ElevatedButton(
+                onPressed: _pickIcon,
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(AppColors.main),
+                  overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
+                  elevation: MaterialStateProperty.all<double>(0),
+                ),
+                child: const Text('Choose Icon', style: TextStyle(fontSize: 11),),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
 
 class ThousandsSeparatorInputFormatter extends TextInputFormatter {
   @override

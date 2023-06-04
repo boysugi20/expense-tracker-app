@@ -11,6 +11,7 @@ import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -56,7 +57,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
       String? saveDirectory = await FilePicker.platform.getDirectoryPath();
       if (saveDirectory != null) {
         DatabaseHelper db = DatabaseHelper();
-        var queryResult = await db.accessDatabase('SELECT A.*, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
+        var queryResult = await db.accessDatabase('SELECT A.amount, strftime("%Y-%m-%d %H:%M:%S", A.date) AS date, A.note, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
 
         List<String> csvData = [];
         // Add headers to the CSV data
@@ -68,7 +69,9 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
         String csvString = csvData.join('\n');
 
         // final downloadPath = await getDownloadPath();
-        String fileName = 'TransactionData.csv';
+        String currentDate = DateFormat('yyyyMMdd').format(DateTime.now());
+        String fileName = 'TransactionData_$currentDate.csv';
+
         final filepath = '$saveDirectory${Platform.pathSeparator}$fileName';
 
         try{
@@ -119,12 +122,12 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
         final file = File(result.files.first.path!);
         final lines = await file.readAsLines();
 
-        final header = lines[0].split(',');
+        final header = lines[0].replaceAll(';', ',').split(',');
 
         List<Map> listOfMap = [];
 
         for (var i = 1; i < lines.length; i++) {
-          final values = lines[i].split(',');
+          final values = lines[i].replaceAll(';', ',').split(',');
           var map = {};
           for (var j = 0; j < header.length; j++) {
             map[header[j]] = values[j];

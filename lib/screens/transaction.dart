@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
@@ -9,6 +11,7 @@ import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconpicker_plus/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 
 class TransactionPage extends StatelessWidget {
@@ -198,7 +201,24 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             }
             if (state is TransactionLoaded) {
               if (state.transaction.isEmpty) {
-                return Text('Rp -', style: TextStyle(color: AppColors.white));
+                return Container(
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
+                  color: AppColors.main,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: Text('Total', style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),)
+                          ),
+                          Text('Rp 0', style: TextStyle(color: AppColors.white)),
+                        ],
+                      ),
+                    ],
+                  )
+                );
               }
               final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
               double totalAmount = 0;
@@ -437,7 +457,10 @@ class TransactionCard extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 12),
                   child: CircleAvatar(
                     backgroundColor: Colors.grey.shade200,
-                    child: Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                    child: category.icon != null ? 
+                      Icon(deserializeIcon(jsonDecode(category.icon!)), color: AppColors.main,) 
+                      : 
+                      Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
                   ),
                 ),
                 Column(

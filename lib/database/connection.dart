@@ -8,6 +8,7 @@ class DatabaseHelper {
       CREATE TABLE ExpenseCategories(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         name TEXT,
+        icon TEXT,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
 

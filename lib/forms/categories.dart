@@ -74,6 +74,13 @@ class _CategoriesFormState extends State<CategoriesForm> {
                 return null;
               },
             ),
+            FormIconInput(
+              title: 'Icon',
+              initialIcon: category.icon,
+              onSave: (value) {
+                category.icon = value!;
+              },
+            ),
           ],
         ),
       ),

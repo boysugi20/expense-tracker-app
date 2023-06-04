@@ -6,7 +6,6 @@ import 'package:sqflite/sqflite.dart' as sql;
 // Data Access Object
 class CategoryDAO {
 
-
   // Insert
   static Future<int> insertExpenseCategory(ExpenseCategory category) async {
     final db = await DatabaseHelper.initializeDB();
@@ -36,6 +35,7 @@ class CategoryDAO {
 
     final data = {
       'name': category.name,
+      'icon': category.icon,
       'createdAt': DateTime.now().toString()
     };
 

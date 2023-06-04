@@ -24,7 +24,6 @@ class _TransactionFormState extends State<TransactionForm> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> updateTransaction() async {
-    print(widget.initialValues!.category);
     context.read<TransactionBloc>().add(UpdateTransaction(transaction: widget.initialValues!, category: widget.initialValues!.category));
   }
 
