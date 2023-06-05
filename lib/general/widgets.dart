@@ -6,7 +6,7 @@ import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_iconpicker_plus/flutter_iconpicker.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 
 class SectionTitle extends StatelessWidget {
   
@@ -394,7 +394,11 @@ class _FormIconInputState extends State<FormIconInput> {
                     ),
                   ),
                   RichText(
-                    text: TextSpan(text: jsonDecode(iconText!)['key'].toString(), style: const TextStyle(color: Colors.black, fontSize: 11)),
+                    text: iconText != null 
+                    ? 
+                    TextSpan(text: jsonDecode(iconText!)['key'].toString(), style: const TextStyle(color: Colors.black, fontSize: 11))
+                    :
+                    const TextSpan(text: '_', style: TextStyle(color: Colors.black, fontSize: 11)),
                   ),
                 ],
               ),

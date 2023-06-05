@@ -12,7 +12,7 @@ import 'package:expense_tracker/models/goal.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_iconpicker_plus/Serialization/iconDataSerialization.dart';
+import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 
 class ConfigurationPage extends StatefulWidget {
   

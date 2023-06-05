@@ -11,7 +11,7 @@ import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_iconpicker_plus/Serialization/iconDataSerialization.dart';
+import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 
 class TransactionPage extends StatelessWidget {
@@ -22,9 +22,9 @@ class TransactionPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(bottom: 100),
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           TransactionsContainer()
         ],
       ),
