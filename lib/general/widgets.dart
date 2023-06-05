@@ -311,25 +311,30 @@ class _FormIconInputState extends State<FormIconInput> {
   Icon? _icon;
   String? iconText;
 
+  String _formatString(IconData icon){
+
+    String formattedString = serializeIcon(icon).toString().replaceAllMapped(
+      RegExp(r'(\w+):\s?(\w+)'),
+      (match) => '"${match.group(1)}": "${match.group(2)}"',
+    );
+
+    return formattedString;
+  }
+
   _pickIcon() async {
 
     IconData? icon = await FlutterIconPicker.showIconPicker(context);
+    _icon = Icon(icon, color: AppColors.main, size: 32,);
 
     if(icon != null){
-      _icon = Icon(icon, color: AppColors.main, size: 32,);
-
-      String formattedString = serializeIcon(icon).toString().replaceAllMapped(
-        RegExp(r'(\w+):\s?(\w+)'),
-        (match) => '"${match.group(1)}": "${match.group(2)}"',
-      );
 
       setState(() {
         _icon = _icon;
-        iconText = formattedString;
+        iconText = _formatString(icon);
       });
 
       if (widget.onSave != null) {
-        widget.onSave!(formattedString);
+        widget.onSave!(iconText);
       }
     }
   }
@@ -340,6 +345,7 @@ class _FormIconInputState extends State<FormIconInput> {
     if(widget.initialIcon != null){
       setState(() {
         _icon = Icon(deserializeIcon(jsonDecode(widget.initialIcon!)), color: AppColors.main,);
+        iconText = widget.initialIcon;
       });
     }
   }

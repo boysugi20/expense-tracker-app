@@ -46,7 +46,7 @@ dependencies:
   csv: ^5.0.2
   shared_preferences: ^2.0.7
   modal_bottom_sheet: ^3.0.0-pre
-  flutter_iconpicker_plus: ^3.2.3
+  flutter_iconpicker: ^3.2.2
 
 dev_dependencies:
   flutter_test:
