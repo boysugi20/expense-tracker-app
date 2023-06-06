@@ -1,6 +1,8 @@
 
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
 import 'package:expense_tracker/database/category_dao.dart';
 import 'package:expense_tracker/database/connection.dart';
@@ -24,14 +26,25 @@ class MoreSettingPage extends StatefulWidget {
 
 class _MoreSettingPageState extends State<MoreSettingPage> {
 
-  Future<void> _addTransactionDB(ExpenseCategory expenseCategory, DateTime date, double amount, String note) async {
-    if (expenseCategory.id == 0) {
-      final db = await DatabaseHelper.initializeDB();
-      final int categoryId = await db.insert('ExpenseCategories', expenseCategory.toMap());
-      expenseCategory = expenseCategory.copyWith(id: categoryId);
-    }
-    if (context.mounted){
-      context.read<TransactionBloc>().add(AddTransaction(transaction: Transaction(id: 0, category: expenseCategory, date: date, amount: amount, note: note)));
+  void _addTransactionDB(ExpenseCategory expenseCategory, DateTime date, double amount, String note) {
+    context.read<TransactionBloc>().add(AddTransaction(transaction: Transaction(id: 0, category: expenseCategory, date: date, amount: amount, note: note)));
+  }
+
+  Future<void> _insertExpenseCategory(ExpenseCategory expenseCategory, void Function(ExpenseCategory) callback) async {
+    final categoryState = context.read<CategoryBloc>().state;
+    if (categoryState is CategoryLoaded) {
+      final List<ExpenseCategory> categories = categoryState.category;
+      final existingCategory = categories.firstWhereOrNull((category) => category.name == expenseCategory.name);
+      if (existingCategory == null) {
+        final insertedId = await CategoryDAO.insertExpenseCategory(expenseCategory);
+        final updatedCategory = expenseCategory.copyWith(id: insertedId);
+        if (context.mounted){
+          context.read<CategoryBloc>().add(AddExpenseCategory(category: updatedCategory));
+        }
+        callback(updatedCategory);
+      } else {
+        callback(existingCategory);
+      }
     }
   }
 
@@ -136,17 +149,34 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
         }
 
         try{
-          for (var i = 0; i < listOfMap.length; i++){
-            var map = listOfMap[i];
-            var expenseCategories = await CategoryDAO.getExpenseCategoryIDbyName(map['name']);
-            if (expenseCategories.isNotEmpty) {
-              _addTransactionDB(expenseCategories.first, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
-            } else {
-              _addTransactionDB(ExpenseCategory(id: 0, name: map['name']), DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
-            }
-          }
-
           if (context.mounted){
+            final categoryState = context.read<CategoryBloc>().state;
+            if (categoryState is CategoryLoaded) {
+              final List<ExpenseCategory> categories = categoryState.category;
+              for (var i = 0; i < listOfMap.length; i++){
+                var map = listOfMap[i];
+
+                ExpenseCategory? category;
+                for (ExpenseCategory temp in categories) {
+                  if (temp.name == map['name']) {
+                    category = temp;
+                    break;
+                  }
+                }
+
+                // If category exists
+                if(category != null){
+                  _addTransactionDB(category, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
+                }
+                else{
+                  ExpenseCategory newCategory = ExpenseCategory(id: 0, name: map['name']);
+
+                  _insertExpenseCategory(newCategory, (newCategory) {
+                    _addTransactionDB(newCategory, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
+                  });
+                }
+              }
+            } 
             _showPopup(context, 'Import Success', 'Transaction data imported');
           }
         }catch (e){
@@ -223,12 +253,12 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
             onTap: () {
               _exportTransToCSV(context);
             },
-            child: CardContainer(
+            child: const CardContainer(
               paddingBottom: 16,
               paddingTop: 16,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text('Export transactions to CSV'),
                   Icon(Icons.upload_rounded)
                 ],
@@ -240,12 +270,12 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
             onTap: () {
               _importTransFromCSV(context);
             },
-            child: CardContainer(
+            child: const CardContainer(
               paddingBottom: 16,
               paddingTop: 16,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Text('Import transactions from CSV'),
                   Icon(Icons.download_rounded)
                 ],

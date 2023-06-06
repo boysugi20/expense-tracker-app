@@ -323,7 +323,12 @@ class _FormIconInputState extends State<FormIconInput> {
 
   _pickIcon() async {
 
-    IconData? icon = await FlutterIconPicker.showIconPicker(context);
+    IconData? icon = await FlutterIconPicker.showIconPicker(
+      context,
+      showTooltips: true,
+      closeChild: Text('Close', style: TextStyle(color: AppColors.accent)),
+      searchIcon: Icon(Icons.search, color: AppColors.accent,)
+    );
     _icon = Icon(icon, color: AppColors.main, size: 32,);
 
     if(icon != null){

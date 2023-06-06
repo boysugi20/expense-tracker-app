@@ -19,7 +19,7 @@ void main() {
     MultiProvider(
       providers: [
         Provider<CategoryBloc>(create: (_) => CategoryBloc()),
-        Provider<TransactionBloc>(create: (_) => TransactionBloc()),
+        Provider<TransactionBloc>(create: (_) => TransactionBloc(categoryBloc: CategoryBloc())),
         Provider<GoalBloc>(create: (_) => GoalBloc()),
       ],
       child: const MyApp(),

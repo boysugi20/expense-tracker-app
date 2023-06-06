@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/database/transaction_dao.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/transaction.dart';
@@ -10,7 +13,15 @@ part 'transaction_state.dart';
 
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
 
-  TransactionBloc() : super(TransactionInitial()) {
+  final CategoryBloc categoryBloc;
+  StreamSubscription<CategoryState>? subscription;
+
+  TransactionBloc({required this.categoryBloc}) : super(TransactionInitial()) {
+    subscription = categoryBloc.stream.listen((state) {
+      if (state is CategoryLoaded) {
+        add(const GetTransactions());
+      }
+    });
 
     List<Transaction> transactions = [];
 

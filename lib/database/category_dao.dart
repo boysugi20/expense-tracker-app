@@ -29,6 +29,12 @@ class CategoryDAO {
     return queryResult.map((e) => ExpenseCategory.fromMap(e)).toList();
   }
 
+  static Future<List<ExpenseCategory>> getExpenseCategorybyID(int id) async {
+    final db = await DatabaseHelper.initializeDB();
+    final List<Map<String, Object?>> queryResult = await db.query('ExpenseCategories', where: "id = ?", whereArgs: [id]);
+    return queryResult.map((e) => ExpenseCategory.fromMap(e)).toList();
+  }
+
   // Update
   static Future<int> updateExpenseCategory(ExpenseCategory category) async {
     final db = await DatabaseHelper.initializeDB();

@@ -179,7 +179,6 @@ class GoalButton extends StatelessWidget {
   }
 }
 
-
 class CategoryButton extends StatelessWidget {
 
   final ExpenseCategory category;
