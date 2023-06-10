@@ -31,16 +31,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionTitle(
-            text: 'Budget:', 
-            firstChild: true,
-            button: AddButton(text: 'Add +'),
-          ),
 
-          const BudgetCard(amount: 3000000),
-          
           SectionTitle(
             text: 'Goals:',
+            firstChild: true,
             button: AddButton(
               text: 'Add +',
               onPressed: (context) {
@@ -115,8 +109,6 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               return const NoDataWidget();
             },
           ),
-          
-          
         ],
       ),
     );
@@ -234,7 +226,6 @@ class BudgetCard extends StatelessWidget {
     );
   }
 }
-
 
 class SubscriptionCard extends StatelessWidget {
   

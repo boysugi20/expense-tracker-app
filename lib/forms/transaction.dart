@@ -1,5 +1,5 @@
 
-import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
+import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';

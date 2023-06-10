@@ -43,16 +43,16 @@ class DatabaseHelper {
 
   static Future<void> onCreate(sql.Database db) async {
     var batch = db.batch();
-    batch.insert('ExpenseCategories', {'name': 'Home'},);
-    batch.insert('ExpenseCategories', {'name': 'Food'},);
-    batch.insert('ExpenseCategories', {'name': 'Groceries'},);
-    batch.insert('ExpenseCategories', {'name': 'Transportation'},);
-    batch.insert('ExpenseCategories', {'name': 'Utilities'},);
-    batch.insert('ExpenseCategories', {'name': 'Clothing'},);
-    batch.insert('ExpenseCategories', {'name': 'Self Care'},);
-    batch.insert('ExpenseCategories', {'name': 'Entertainment'},);
-    batch.insert('ExpenseCategories', {'name': 'Investment'},);
-    batch.insert('ExpenseCategories', {'name': 'Other'},);
+    batch.insert('ExpenseCategories', {'name': 'Home', 'icon': '{"pack": "material", "key": "home_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Food', 'icon': '{"pack": "material", "key": "fastfood_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Groceries', 'icon': '{"pack": "material", "key": "local_grocery_store_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Transportation', 'icon': '{"pack": "material", "key": "directions_transit_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Utilities', 'icon': '{"pack": "material", "key": "build_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Clothing', 'icon': '{"pack": "material", "key": "dry_cleaning_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Self Care', 'icon': '{"pack": "material", "key": "health_and_safety_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Entertainment', 'icon': '{"pack": "material", "key": "live_tv_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Investment', 'icon': '{"pack": "material", "key": "candlestick_chart_outlined"}'},);
+    batch.insert('ExpenseCategories', {'name': 'Other', 'icon': '{"pack": "material", "key": "auto_fix_high_outlined"}'},);
     await batch.commit();
     
     final tables = await db.rawQuery('SELECT * FROM sqlite_master ORDER BY name;');

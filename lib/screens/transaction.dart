@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
-import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
+import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/forms/transaction.dart';
 import 'package:expense_tracker/models/category.dart';
@@ -191,6 +191,12 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    context.read<TransactionBloc>().add(const GetTransactions());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -329,28 +335,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                         underline: const SizedBox(),
                         isDense: true,
                       ),
-                    ),
-        
-                    // GestureDetector(
-                    //   onTap: () {
-                    //     _selectDateRange(context);
-                    //   },
-                    //   child: Container(
-                    //     padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                    //     decoration: BoxDecoration(
-                    //       border: Border.all(color: AppColors.cardBorder),
-                    //       borderRadius: BorderRadius.circular(4),
-                    //       color: AppColors.white,
-                    //     ),
-                    //     child: Row(
-                    //       children: [
-                    //         Text(datePicked? '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}': 'This Month', style: TextStyle(color: AppColors.main, fontSize: 12),),
-                    //         Container(width: 8,),
-                    //         Icon(Icons.calendar_today, color: AppColors.main, size: 12,),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // )
+                    ),        
                   ]
                 ),
               ),

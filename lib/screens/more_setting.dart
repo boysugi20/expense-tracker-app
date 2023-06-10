@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
-import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
+import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/database/category_dao.dart';
 import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/general/functions.dart';
@@ -13,6 +13,7 @@ import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -209,7 +210,10 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
     );
   }
 
+  final budgetTextController = TextEditingController();
+
   bool budgetMode = true;
+  double budgetAmount = 0;
   bool carryOver = true;
 
   List<String> weekList = <String>['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -220,6 +224,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
 
   void initializeValues() async {
     bool? budgetModeValue = await getConfigurationBool('budget_mode');
+    double? budgetAmountValue  = await getConfigurationDouble('budget_amount');
     bool? carryOverValue = await getConfigurationBool('carry_over');
 
     String? weekDropdownValue = await getConfigurationString('first_day_week');
@@ -227,11 +232,14 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
     
     setState(() {
       budgetMode = budgetModeValue ?? true;
+      budgetAmount = budgetAmountValue ?? 0;
+      budgetTextController.text = budgetAmountValue != null ? amountDoubleToString(budgetAmount) : '0';
       carryOver = carryOverValue ?? true;
       weekDropdown = weekDropdownValue ?? 'Sunday';
       dayDropdown = dayDropdownValue ?? 1;
     });
   }
+
 
   @override
   void initState() {
@@ -315,6 +323,36 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
               ],
             ),
           ),
+
+          budgetMode ?
+          CardContainer(
+            height: 50,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Budget amount'),
+                Container(width: 100,),
+                Expanded(
+                  child: TextFormField(
+                    controller: budgetTextController,
+                    keyboardType: TextInputType.number,
+                    onFieldSubmitted: (text) {
+                      saveConfiguration('budget_amount', amountStringToDouble(text));
+                    },
+                    textAlign: TextAlign.end,
+                    style: TextStyle(color: AppColors.accent),
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()],
+                    decoration: InputDecoration(
+                      hintStyle: TextStyle(color: AppColors.grey, fontSize: 12), 
+                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+          :
+          Container(),
 
           CardContainer(
             child: Row(

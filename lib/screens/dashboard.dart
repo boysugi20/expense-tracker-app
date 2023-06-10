@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -61,8 +63,8 @@ class _DashboardPageState extends State<DashboardPage> {
       String currentMonth = DateFormat('yyyy-MM').format(now);
 
       transactions = await db.accessDatabase('''
-        SELECT *
-        FROM Transactions
+        SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon
+        FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
         WHERE strftime('%Y-%m', date) = '$currentMonth'
       ''');
     }
@@ -72,15 +74,15 @@ class _DashboardPageState extends State<DashboardPage> {
       String previousMonth = DateFormat('yyyy-MM').format(previousMonthDate);
 
       transactions = await db.accessDatabase('''
-        SELECT *
-        FROM Transactions
+        SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon
+        FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
         WHERE strftime('%Y-%m', date) = '$previousMonth'
       ''');
     }
     else{
       transactions = await db.accessDatabase('''
-        SELECT *
-        FROM Transactions
+        SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon
+        FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
       ''');
     }
 
@@ -93,6 +95,25 @@ class _DashboardPageState extends State<DashboardPage> {
     int month = int.tryParse(parts[1]) ?? 0;
 
     return (((month)*10000) + year).toDouble();
+  }
+
+  bool budgetMode = true;
+  double budgetAmount = 0;
+
+  void initializeValues() async {
+    bool? budgetModeValue = await getConfigurationBool('budget_mode');
+    double? budgetAmountValue  = await getConfigurationDouble('budget_amount');
+    
+    setState(() {
+      budgetMode = budgetModeValue ?? true;
+      budgetAmount = budgetAmountValue ?? 0;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initializeValues();
   }
 
   @override
@@ -149,10 +170,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 FutureBuilder<List<Map<String, Object?>>>(
                   future: getTransactionsFiltered(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
                     List<Map<String, Object?>> transactions = snapshot.data ?? [];
 
                     double balance = 0;
@@ -166,8 +183,14 @@ class _DashboardPageState extends State<DashboardPage> {
                       } else {
                         income += amount;
                       }
-                      balance += amount;
                     }
+
+                    if(budgetMode){
+                      balance = budgetAmount - expense;
+                    }else{
+                      balance = income - expense;
+                    }
+                    
 
                     return BalanceCard(balance: balance, income: income, expense: expense);
                   },
@@ -175,10 +198,10 @@ class _DashboardPageState extends State<DashboardPage> {
 
                 const SectionTitle(text: 'Notifications'),
                 
-                SingleChildScrollView(
+                const SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: const [
+                    children: [
                       NotificationCard(),
                       NotificationCard(),
                     ],
@@ -232,12 +255,53 @@ class _DashboardPageState extends State<DashboardPage> {
       
                 const SectionTitle(text: 'Expenses'),
 
-                const Expenses(text: 'Home', amount: 100000,),
-                const Expenses(text: 'Home1', amount: 100000,),
-                const Expenses(text: 'Home2', amount: 100000,),
-                const Expenses(text: 'Home2', amount: 100000,),
-                const Expenses(text: 'Home2', amount: 100000,),
-                const Expenses(text: 'Home2', amount: 100000,),
+                FutureBuilder<List<Map<String, Object?>>>(
+                  future: getTransactionsFiltered(),
+                  builder: (context, snapshot) {
+                    List<Map<String, Object?>> transactions = snapshot.data ?? [];
+
+                    // Calculate the total amount for each category
+                    final categoryTotalMap = <String, Map<String, dynamic>>{};
+                    for (var transaction in transactions) {
+                      final category = transaction['categoryName'].toString();
+                      final amount = double.parse(transaction['amount'].toString());
+                      final icon = transaction['categoryIcon'].toString();
+
+                      if (!categoryTotalMap.containsKey(category)) {
+                        categoryTotalMap[category] = {
+                          'amount': amount,
+                          'icon': icon,
+                        };
+                      } else {
+                        categoryTotalMap[category]!['amount'] += amount;
+                      }
+                    }
+
+                    // Generate a list of Expenses widgets based on the category totals
+                    final expenseWidgets = categoryTotalMap.entries.map((entry) {
+                      final category = entry.key;
+                      final totalAmount = entry.value['amount'] as double;
+                      final icon = entry.value['icon'] as String;
+
+                      return Expenses(
+                        text: category,
+                        amount: totalAmount.toInt(),
+                        icon: icon,
+                      );
+                    }).toList();
+
+                    // Sort the expenseWidgets list by amount in descending order
+                    expenseWidgets.sort((a, b) => b.amount.compareTo(a.amount));
+
+                    if (expenseWidgets.isNotEmpty) {
+                      return Column(
+                        children: expenseWidgets,
+                      );
+                    } else {
+                      return const NoDataWidget();
+                    }
+                  },
+                ),
       
               ],
             ),
@@ -542,9 +606,10 @@ class GoalsCard extends StatelessWidget {
 class Expenses extends StatelessWidget {
 
   final String text;
+  final String? icon;
   final int amount;
 
-  const Expenses({required this.text, required this.amount, Key? key}) : super(key: key);
+  const Expenses({required this.text, required this.amount, this.icon, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -558,7 +623,10 @@ class Expenses extends StatelessWidget {
                 margin: const EdgeInsets.only(right: 12),
                 child: CircleAvatar(
                   backgroundColor: Colors.grey.shade200,
-                  child: Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                  child: icon != null ? 
+                      Icon(deserializeIcon(jsonDecode(icon!)), color: AppColors.main,) 
+                      : 
+                      Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
                 ),
               ),
               RichText(

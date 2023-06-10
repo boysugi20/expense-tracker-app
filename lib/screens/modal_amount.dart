@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
-import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
+import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/goal.dart';

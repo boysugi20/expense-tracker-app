@@ -26,13 +26,13 @@ class Transaction{
     };
   }
 
-  factory Transaction.fromMap(Map<String, dynamic> map) {
+  factory Transaction.fromMap(Map<String, dynamic> map, ExpenseCategory expenseCategory) {
     return Transaction(
       id: map['id'],
       amount: map["amount"],
       date: DateTime.parse(map["date"]),
       note: map["note"],
-      category: ExpenseCategory(id: 0, name: map['categoryName'], icon: map['categoryIcon']),
+      category: expenseCategory,
     );
   }
 

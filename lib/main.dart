@@ -1,6 +1,6 @@
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
-import 'package:expense_tracker/bloc/transaction/bloc/transaction_bloc.dart';
+import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/navbar.dart';
 import 'package:expense_tracker/notification.dart';
 import 'package:expense_tracker/styles/color.dart';
