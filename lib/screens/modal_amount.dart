@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/services.dart'; 
+import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 
 
 class BottomModalamount extends StatefulWidget {
@@ -188,6 +190,70 @@ class _BottomModalamountState extends State<BottomModalamount> {
 
     });
   }
+  
+  List<Map<String, String>> tags = [
+    {'name': 'Pending', 'color': '#22A699'},
+    {'name': 'Reimbursable', 'color': '#F29727'}
+  ];
+  List<Map<String, String>> selectedTags = [];
+
+  void openTagPopup(BuildContext context) {
+
+    List<MultiSelectCard> temp = [];
+
+    for (var tag in tags) {
+      
+      String? tagName = tag['name'];
+      bool isTagSelected = selectedTags.any((selectedTag) => selectedTag['name'] == tagName);
+
+      if (isTagSelected) {
+        temp.add(MultiSelectCard(value: tag, label: tagName, selected: true));
+      } else {
+        temp.add(MultiSelectCard(value: tag, label: tagName, selected: false));
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Add Tags'),
+          content: temp.isNotEmpty ?
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: MultiSelectContainer(
+              onChange: (allSelectedItems, selectedItem) {
+                setState(() {
+                  selectedTags = allSelectedItems.cast<Map<String, String>>().toList();
+                });
+              },
+              items: temp,
+              itemsDecoration: MultiSelectDecorations(
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.accent),
+                  borderRadius: BorderRadius.circular(5)),
+                selectedDecoration: BoxDecoration(
+                  color: AppColors.accent,
+                  borderRadius: BorderRadius.circular(5)),
+              ),
+            )
+          )
+          :
+          Container(
+            child: const Text('No Tags'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Close', style: TextStyle(color: AppColors.accent),),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -202,6 +268,67 @@ class _BottomModalamountState extends State<BottomModalamount> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              
+              // Tags
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Wrap(
+                  direction: Axis.horizontal,
+                  alignment: WrapAlignment.center,
+                  spacing: 4, // gap between adjacent chips
+                  runSpacing: 8, // gap between lines
+                  children: [
+                    for (var tag in selectedTags)
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
+                        decoration: BoxDecoration(
+                          color: Color(int.parse(tag['color']!.substring(1, 7), radix: 16) + 0xFF000000),
+                          borderRadius: const BorderRadius.all(Radius.circular(4))
+                        ),
+                        child: IntrinsicWidth(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(tag['name']!, style: TextStyle(color: AppColors.white, fontSize: 12)),
+                              Container(width: 2,),
+                            ],
+                          ),
+                        ),
+                      ),
+                    GestureDetector(
+                      onTap: () {
+                        openTagPopup(context);
+                      },
+                      child: DottedBorder(
+                        color: AppColors.white,
+                        borderType: BorderType.RRect,
+                        radius: const Radius.circular(4),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
+                          child: IntrinsicWidth(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Edit Tag', style: TextStyle(color: AppColors.white, fontSize: 12)),
+                                Container(width: 4,),
+                                Icon(Icons.edit, color: AppColors.white, size: 12)
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Divider
+              Divider(
+                color: AppColors.white,
+                indent: 20,
+                endIndent: 20,
+                height: 36,
+              ),
 
               // Category
               GestureDetector(

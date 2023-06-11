@@ -294,65 +294,72 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
           const SectionTitle(text: 'Settings:'),
 
           CardContainer(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Budget mode'),
+                    Row(
+                      children: [
+                        const Text('Budget mode'),
 
-                    Container(width: 8,),
+                        Container(width: 8,),
 
-                    const Tooltip(
-                      message: 'Enable this to calculate\nbalance from specified budget',
-                      child: Icon(Icons.info, size: 16,)
+                        const Tooltip(
+                          message: 'Enable this to calculate\nbalance from specified budget',
+                          child: Icon(Icons.info, size: 16,)
+                        ),
+                      ],
+                    ),
+                    
+                    Switch(
+                      value: budgetMode,
+                      activeColor: AppColors.accent,
+                      onChanged: (bool value) {
+                        saveConfiguration('budget_mode', !budgetMode);
+                        setState(() {
+                          budgetMode = !budgetMode;
+                        });
+                      },
                     ),
                   ],
                 ),
-                
-                Switch(
-                  value: budgetMode,
-                  activeColor: AppColors.accent,
-                  onChanged: (bool value) {
-                    saveConfiguration('budget_mode', !budgetMode);
-                    setState(() {
-                      budgetMode = !budgetMode;
-                    });
-                  },
-                ),
+                budgetMode ?
+                Column(
+                  children: [
+                    const Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Amount'),
+                        Container(width: 100,),
+                        Expanded(
+                          child: TextFormField(
+                            controller: budgetTextController,
+                            keyboardType: TextInputType.number,
+                            onFieldSubmitted: (text) {
+                              saveConfiguration('budget_amount', amountStringToDouble(text));
+                            },
+                            textAlign: TextAlign.end,
+                            style: TextStyle(color: AppColors.accent),
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()],
+                            decoration: InputDecoration(
+                              prefixText: 'Rp',
+                              isDense: true,
+                              hintStyle: TextStyle(color: AppColors.grey, fontSize: 12), 
+                              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                :
+                Container()
               ],
             ),
           ),
-
-          budgetMode ?
-          CardContainer(
-            height: 50,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Budget amount'),
-                Container(width: 100,),
-                Expanded(
-                  child: TextFormField(
-                    controller: budgetTextController,
-                    keyboardType: TextInputType.number,
-                    onFieldSubmitted: (text) {
-                      saveConfiguration('budget_amount', amountStringToDouble(text));
-                    },
-                    textAlign: TextAlign.end,
-                    style: TextStyle(color: AppColors.accent),
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()],
-                    decoration: InputDecoration(
-                      hintStyle: TextStyle(color: AppColors.grey, fontSize: 12), 
-                      focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.accent),),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-          :
-          Container(),
 
           CardContainer(
             child: Row(

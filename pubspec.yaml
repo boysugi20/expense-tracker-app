@@ -48,6 +48,8 @@ dependencies:
   modal_bottom_sheet: ^3.0.0-pre
   flutter_iconpicker: ^3.2.4
   collection: ^1.15.0
+  dotted_border: ^2.0.0+3
+  flutter_multi_select_items: ^0.4.2
 
 dev_dependencies:
   flutter_test:
