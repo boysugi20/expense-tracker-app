@@ -262,10 +262,14 @@ class _DashboardPageState extends State<DashboardPage> {
 
                     // Calculate the total amount for each category
                     final categoryTotalMap = <String, Map<String, dynamic>>{};
+                    double totalAmount = 0;
+                    
                     for (var transaction in transactions) {
                       final category = transaction['categoryName'].toString();
                       final amount = double.parse(transaction['amount'].toString());
                       final icon = transaction['categoryIcon'].toString();
+
+                      totalAmount += amount;
 
                       if (!categoryTotalMap.containsKey(category)) {
                         categoryTotalMap[category] = {
@@ -280,13 +284,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     // Generate a list of Expenses widgets based on the category totals
                     final expenseWidgets = categoryTotalMap.entries.map((entry) {
                       final category = entry.key;
-                      final totalAmount = entry.value['amount'] as double;
+                      final amount = entry.value['amount'] as double;
                       final icon = entry.value['icon'] as String;
 
                       return Expenses(
                         text: category,
-                        amount: totalAmount.toInt(),
+                        amount: amount,
                         icon: icon,
+                        totalAmount: totalAmount
                       );
                     }).toList();
 
@@ -298,7 +303,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         children: expenseWidgets,
                       );
                     } else {
-                      return const NoDataWidget();
+                      return const NoDataWidget(text: 'No Transactions yet');
                     }
                   },
                 ),
@@ -607,40 +612,54 @@ class Expenses extends StatelessWidget {
 
   final String text;
   final String? icon;
-  final int amount;
+  final double amount, totalAmount;
 
-  const Expenses({required this.text, required this.amount, this.icon, Key? key}) : super(key: key);
+  const Expenses({required this.text, required this.amount, required this.totalAmount, this.icon, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return CardContainer(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                margin: const EdgeInsets.only(right: 12),
-                child: CircleAvatar(
-                  backgroundColor: Colors.grey.shade200,
-                  child: icon != null ? 
-                      Icon(deserializeIcon(jsonDecode(icon!)), color: AppColors.main,) 
-                      : 
-                      Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
-                ),
+              Row(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(right: 12),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.grey.shade200,
+                      child: icon != null ? 
+                          Icon(deserializeIcon(jsonDecode(icon!)), color: AppColors.main,) 
+                          : 
+                          Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                    ),
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      text: text,
+                      style: const TextStyle(color: Colors.black)
+                    ),
+                  ),
+                ],
               ),
               RichText(
-                text: TextSpan(
-                  text: text,
-                  style: const TextStyle(color: Colors.black)
+                text:  TextSpan(
+                  text: 'Rp ${amountDoubleToString(amount)}',
+                  style: const TextStyle(color: Colors.red, fontSize: 12)
                 ),
               ),
             ],
           ),
-          RichText(
-            text:  TextSpan(
-              text: 'Rp ${addThousandSeperatorToString(amount.toString())}',
-              style: const TextStyle(color: Colors.red, fontSize: 12)
+          const Divider(),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              minHeight: 4,
+              value: amount/totalAmount,
+              color: AppColors.main,
+              backgroundColor: AppColors.main.withOpacity(0.2),
             ),
           ),
         ],
