@@ -22,8 +22,13 @@ class FormTemplate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return SingleChildScrollView(
       child: Container(
+        constraints: BoxConstraints(
+          minHeight: screenHeight,
+        ),
         color: AppColors.neutralLight,
         padding: EdgeInsets.only(
             left: 16,
@@ -59,6 +64,7 @@ class FormTemplate extends StatelessWidget {
                     header2: header2,
                   ),
                   Material(
+                    color: Colors.transparent,
                     child: formInputs,
                   ),
                   Row(
