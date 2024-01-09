@@ -14,7 +14,6 @@ import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 
 class DashboardPage extends StatefulWidget {
-
   const DashboardPage({Key? key}) : super(key: key);
 
   @override
@@ -22,11 +21,10 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-
   DatabaseHelper db = DatabaseHelper();
 
   String dropdownText = 'This Month';
-  List<DropdownMenuItem<String>> get dropdownItems{
+  List<DropdownMenuItem<String>> get dropdownItems {
     List<DropdownMenuItem<String>> menuItems = [
       const DropdownMenuItem(value: "All", child: Text("All")),
       const DropdownMenuItem(value: "This Month", child: Text("This Month")),
@@ -54,11 +52,10 @@ class _DashboardPageState extends State<DashboardPage> {
     return chartData;
   }
 
-  Future<List<Map<String, Object?>>>getTransactionsFiltered() async {
-
+  Future<List<Map<String, Object?>>> getTransactionsFiltered() async {
     List<Map<String, Object?>> transactions = [];
 
-    if(dropdownText == 'This Month'){
+    if (dropdownText == 'This Month') {
       DateTime now = DateTime.now();
       String currentMonth = DateFormat('yyyy-MM').format(now);
 
@@ -67,8 +64,7 @@ class _DashboardPageState extends State<DashboardPage> {
         FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
         WHERE strftime('%Y-%m', date) = '$currentMonth'
       ''');
-    }
-    else if (dropdownText == 'Last Month'){
+    } else if (dropdownText == 'Last Month') {
       DateTime now = DateTime.now();
       DateTime previousMonthDate = DateTime(now.year, now.month - 1, now.day);
       String previousMonth = DateFormat('yyyy-MM').format(previousMonthDate);
@@ -78,8 +74,7 @@ class _DashboardPageState extends State<DashboardPage> {
         FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
         WHERE strftime('%Y-%m', date) = '$previousMonth'
       ''');
-    }
-    else{
+    } else {
       transactions = await db.accessDatabase('''
         SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon
         FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
@@ -94,7 +89,7 @@ class _DashboardPageState extends State<DashboardPage> {
     int year = int.tryParse(parts[0]) ?? 0;
     int month = int.tryParse(parts[1]) ?? 0;
 
-    return (((month)*10000) + year).toDouble();
+    return (((month) * 10000) + year).toDouble();
   }
 
   bool budgetMode = true;
@@ -102,8 +97,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void initializeValues() async {
     bool? budgetModeValue = await getConfigurationBool('budget_mode');
-    double? budgetAmountValue  = await getConfigurationDouble('budget_amount');
-    
+    double? budgetAmountValue = await getConfigurationDouble('budget_amount');
+
     setState(() {
       budgetMode = budgetModeValue ?? true;
       budgetAmount = budgetAmountValue ?? 0;
@@ -120,199 +115,211 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 100),
-      child: Stack(
-        children: [
-          CustomPaint(
-            painter: _WaveCustomPaint(backgroundColor: AppColors.main),
-            size: MediaQuery.of(context).size,
-          ),
-          Container(
-            padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    RichText(
-                      text: const TextSpan(
-                        text: 'Hello,\n',
-                        style: TextStyle(color: Colors.white),
-                        children: <TextSpan>[
-                          TextSpan(text: 'John Doe', style: TextStyle(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
+      child: Stack(children: [
+        CustomPaint(
+          painter: _WaveCustomPaint(backgroundColor: AppColors.main),
+          size: MediaQuery.of(context).size,
+        ),
+        Container(
+          padding: EdgeInsets.only(
+              left: 32,
+              right: 32,
+              top: MediaQuery.of(context).viewPadding.top + 24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                    text: const TextSpan(
+                      text: 'Hello,\n',
+                      style: TextStyle(color: Colors.white),
+                      children: <TextSpan>[
+                        TextSpan(
+                            text: 'John Doe',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(left: 8),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.cardBorder),
-                        borderRadius: BorderRadius.circular(4),
-                        color: AppColors.white,
-                      ),
-                      child: DropdownButton(
-                        onChanged: (String? newValue){
-                          setState(() {
-                            dropdownText = newValue!;
-                          });
-                        },
-                        value: dropdownText,
-                        items: dropdownItems,
-                        style: TextStyle(color: AppColors.main, fontSize: 12),
-                        underline: const SizedBox(),
-                        isDense: true,
-                      ),
-                    ),
-                  ],
-                ),
-                
-                FutureBuilder<List<Map<String, Object?>>>(
-                  future: getTransactionsFiltered(),
-                  builder: (context, snapshot) {
-                    List<Map<String, Object?>> transactions = snapshot.data ?? [];
-
-                    double balance = 0;
-                    double income = 0;
-                    double expense = 0;
-
-                    for (var transaction in transactions) {
-                      double amount = transaction['amount'] as double;
-                      if (amount > 0) {
-                        expense += amount;
-                      } else {
-                        income += amount;
-                      }
-                    }
-
-                    if(budgetMode){
-                      balance = budgetAmount - expense;
-                    }else{
-                      balance = income - expense;
-                    }
-                    
-
-                    return BalanceCard(balance: balance, income: income, expense: expense);
-                  },
-                ),
-
-                const SectionTitle(text: 'Notifications'),
-                
-                const SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      NotificationCard(),
-                      NotificationCard(),
-                    ],
                   ),
-                ),
-      
-                const SectionTitle(text: 'Monthly Expense'),
+                  Container(
+                    padding: const EdgeInsets.only(left: 8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.cardBorder),
+                      borderRadius: BorderRadius.circular(4),
+                      color: AppColors.white,
+                    ),
+                    child: DropdownButton(
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropdownText = newValue!;
+                        });
+                      },
+                      value: dropdownText,
+                      items: dropdownItems,
+                      style: TextStyle(color: AppColors.main, fontSize: 12),
+                      underline: const SizedBox(),
+                      isDense: true,
+                    ),
+                  ),
+                ],
+              ),
 
-                FutureBuilder<List<FlSpot>>(
-                  future: getChartData(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      chartData = snapshot.data!;
-                      if (chartData.isEmpty){
-                        return const NoDataWidget(text: 'No Transactions yet');
-                      }
-                      return ExpenseChart(data: chartData.length > 6 ? chartData.sublist(chartData.length - 6, chartData.length,) : chartData);
-                    } else if (snapshot.hasError) {
-                      return Text('Error: ${snapshot.error}');
+              FutureBuilder<List<Map<String, Object?>>>(
+                future: getTransactionsFiltered(),
+                builder: (context, snapshot) {
+                  List<Map<String, Object?>> transactions = snapshot.data ?? [];
+
+                  double balance = 0;
+                  double income = 0;
+                  double expense = 0;
+
+                  for (var transaction in transactions) {
+                    double amount = transaction['amount'] as double;
+                    if (amount > 0) {
+                      expense += amount;
+                    } else {
+                      income += amount;
                     }
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                ),
-                
-                BlocBuilder<GoalBloc, GoalState>(
-                  builder: (context, state) {
-                    if (state is GoalInitial) {
-                      context.read<GoalBloc>().add(const GetGoals());
+                  }
+
+                  if (budgetMode) {
+                    balance = budgetAmount - expense;
+                  } else {
+                    balance = income - expense;
+                  }
+
+                  return BalanceCard(
+                      balance: balance, income: income, expense: expense);
+                },
+              ),
+
+              // const SectionTitle(text: 'Notifications'),
+
+              // const SingleChildScrollView(
+              //   scrollDirection: Axis.horizontal,
+              //   child: Row(
+              //     children: [
+              //       NotificationCard(),
+              //       NotificationCard(),
+              //     ],
+              //   ),
+              // ),
+
+              const SectionTitle(text: 'Monthly Expense'),
+
+              FutureBuilder<List<FlSpot>>(
+                future: getChartData(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    chartData = snapshot.data!;
+                    if (chartData.isEmpty) {
+                      return const NoDataWidget(text: 'No Transactions yet');
                     }
-                    if (state is GoalLoaded) {
-                      if(state.goal.isNotEmpty){
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SectionTitle(text: 'Goals'),
-                            ...state.goal.map((goalItem) => GoalsCard(
-                                  title: goalItem.name,
-                                  progressAmount: goalItem.progressAmount,
-                                  totalAmount: goalItem.totalAmount,
-                                  progress: goalItem.totalAmount != 0
-                                      ? (goalItem.progressAmount != null ? (goalItem.progressAmount! / goalItem.totalAmount) * 100 : 0)
-                                      : 0,
-                                )),
-                          ],
-                        );
-                      }
+                    return ExpenseChart(
+                        data: chartData.length > 6
+                            ? chartData.sublist(
+                                chartData.length - 6,
+                                chartData.length,
+                              )
+                            : chartData);
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  }
+                  return const Center(child: CircularProgressIndicator());
+                },
+              ),
+
+              BlocBuilder<GoalBloc, GoalState>(
+                builder: (context, state) {
+                  if (state is GoalInitial) {
+                    context.read<GoalBloc>().add(const GetGoals());
+                  }
+                  if (state is GoalLoaded) {
+                    if (state.goal.isNotEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SectionTitle(text: 'Goals'),
+                          ...state.goal.map((goalItem) => GoalsCard(
+                                title: goalItem.name,
+                                progressAmount: goalItem.progressAmount,
+                                totalAmount: goalItem.totalAmount,
+                                progress: goalItem.totalAmount != 0
+                                    ? (goalItem.progressAmount != null
+                                        ? (goalItem.progressAmount! /
+                                                goalItem.totalAmount) *
+                                            100
+                                        : 0)
+                                    : 0,
+                              )),
+                        ],
+                      );
                     }
-                    return Container();
-                  },
-                ),
-      
-                const SectionTitle(text: 'Expenses'),
+                  }
+                  return Container();
+                },
+              ),
 
-                FutureBuilder<List<Map<String, Object?>>>(
-                  future: getTransactionsFiltered(),
-                  builder: (context, snapshot) {
-                    List<Map<String, Object?>> transactions = snapshot.data ?? [];
+              const SectionTitle(text: 'Expenses'),
 
-                    // Calculate the total amount for each category
-                    final categoryTotalMap = <String, Map<String, dynamic>>{};
-                    double totalAmount = 0;
-                    
-                    for (var transaction in transactions) {
-                      final category = transaction['categoryName'].toString();
-                      final amount = double.parse(transaction['amount'].toString());
-                      final icon = transaction['categoryIcon'].toString();
+              FutureBuilder<List<Map<String, Object?>>>(
+                future: getTransactionsFiltered(),
+                builder: (context, snapshot) {
+                  List<Map<String, Object?>> transactions = snapshot.data ?? [];
 
-                      totalAmount += amount;
+                  // Calculate the total amount for each category
+                  final categoryTotalMap = <String, Map<String, dynamic>>{};
+                  double totalAmount = 0;
 
-                      if (!categoryTotalMap.containsKey(category)) {
-                        categoryTotalMap[category] = {
-                          'amount': amount,
-                          'icon': icon,
-                        };
-                      } else {
-                        categoryTotalMap[category]!['amount'] += amount;
-                      }
+                  for (var transaction in transactions) {
+                    final category = transaction['categoryName'].toString();
+                    final amount =
+                        double.parse(transaction['amount'].toString());
+                    final icon = transaction['categoryIcon'].toString();
+
+                    totalAmount += amount;
+
+                    if (!categoryTotalMap.containsKey(category)) {
+                      categoryTotalMap[category] = {
+                        'amount': amount,
+                        'icon': icon,
+                      };
+                    } else {
+                      categoryTotalMap[category]!['amount'] += amount;
                     }
+                  }
 
-                    // Generate a list of Expenses widgets based on the category totals
-                    final expenseWidgets = categoryTotalMap.entries.map((entry) {
-                      final category = entry.key;
-                      final amount = entry.value['amount'] as double;
-                      final icon = entry.value['icon'] as String;
+                  // Generate a list of Expenses widgets based on the category totals
+                  final expenseWidgets = categoryTotalMap.entries.map((entry) {
+                    final category = entry.key;
+                    final amount = entry.value['amount'] as double;
+                    final icon = entry.value['icon'] as String;
 
-                      return Expenses(
+                    return Expenses(
                         text: category,
                         amount: amount,
                         icon: icon,
-                        totalAmount: totalAmount
-                      );
-                    }).toList();
+                        totalAmount: totalAmount);
+                  }).toList();
 
-                    // Sort the expenseWidgets list by amount in descending order
-                    expenseWidgets.sort((a, b) => b.amount.compareTo(a.amount));
+                  // Sort the expenseWidgets list by amount in descending order
+                  expenseWidgets.sort((a, b) => b.amount.compareTo(a.amount));
 
-                    if (expenseWidgets.isNotEmpty) {
-                      return Column(
-                        children: expenseWidgets,
-                      );
-                    } else {
-                      return const NoDataWidget(text: 'No Transactions yet');
-                    }
-                  },
-                ),
-      
-              ],
-            ),
+                  if (expenseWidgets.isNotEmpty) {
+                    return Column(
+                      children: expenseWidgets,
+                    );
+                  } else {
+                    return const NoDataWidget(text: 'No Transactions yet');
+                  }
+                },
+              ),
+            ],
           ),
-        ]
-      ),
+        ),
+      ]),
     );
   }
 }
@@ -337,11 +344,17 @@ class NotificationCard extends StatelessWidget {
             RichText(
               text: const TextSpan(
                 text: 'Warning\n',
-                style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold),
                 children: [
                   TextSpan(
                     text: 'Lorem ipsum dolor sit amet',
-                    style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.normal),
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal),
                   ),
                 ],
               ),
@@ -354,13 +367,17 @@ class NotificationCard extends StatelessWidget {
 }
 
 class ExpenseChart extends StatelessWidget {
-
-  ExpenseChart({Key? key,required this.data,}) : super(key: key);
+  ExpenseChart({
+    Key? key,
+    required this.data,
+  }) : super(key: key);
 
   final List<FlSpot> data;
 
-  late final double maxY = data.reduce((value, element) => value.y > element.y ? value : element).y;
-  late final double minY = data.reduce((value, element) => value.y < element.y ? value : element).y;
+  late final double maxY =
+      data.reduce((value, element) => value.y > element.y ? value : element).y;
+  late final double minY =
+      data.reduce((value, element) => value.y < element.y ? value : element).y;
 
   @override
   Widget build(BuildContext context) {
@@ -407,13 +424,15 @@ class ExpenseChart extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                interval: ((maxY+minY)/2) * 0.5,
+                interval: ((maxY + minY) / 2) * 0.5,
                 getTitlesWidget: leftTitleWidgets,
                 reservedSize: 42,
               ),
             ),
           ),
-          borderData: FlBorderData(show: false,),
+          borderData: FlBorderData(
+            show: false,
+          ),
           minY: max(minY - (maxY * 0.25), 0),
           maxY: maxY + (maxY * 0.25),
           barGroups: data.map((item) {
@@ -432,7 +451,7 @@ class ExpenseChart extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
-            horizontalInterval: ((maxY+minY)/2) * 0.5,
+            horizontalInterval: ((maxY + minY) / 2) * 0.5,
             verticalInterval: 1,
             getDrawingHorizontalLine: (value) {
               return FlLine(
@@ -449,7 +468,7 @@ class ExpenseChart extends StatelessWidget {
       //     LineChartData(
       //       lineTouchData: LineTouchData(
       //         touchTooltipData: LineTouchTooltipData(
-      //           tooltipBgColor: AppColors.white, 
+      //           tooltipBgColor: AppColors.white,
       //           tooltipBorder: BorderSide(color: AppColors.accent, width: 2),
       //           getTooltipItems: (List<LineBarSpot> touchedSpots) {
       //             TextStyle tooltipStyle = TextStyle(color: AppColors.accent);
@@ -501,7 +520,7 @@ class ExpenseChart extends StatelessWidget {
       //           spots: data,
       //           curveSmoothness: 0.3,
       //           dotData: FlDotData(
-      //             show: true, 
+      //             show: true,
       //             getDotPainter: (spot, percent, barData, index) =>  FlDotCirclePainter(
       //               radius: 3,
       //               color: AppColors.accent,
@@ -551,13 +570,18 @@ class ExpenseChart extends StatelessWidget {
 }
 
 class GoalsCard extends StatelessWidget {
-
   final double progress;
   final double? progressAmount;
   final double totalAmount;
   final String title;
 
-  const GoalsCard({required this.title, required this.progress, this.progressAmount, required this.totalAmount, Key? key}) : super(key: key);
+  const GoalsCard(
+      {required this.title,
+      required this.progress,
+      this.progressAmount,
+      required this.totalAmount,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -571,18 +595,20 @@ class GoalsCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  flex: 4, 
+                  flex: 4,
                   child: Text(title, style: TextStyle(color: AppColors.black)),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    progressAmount != null ?
-                    Text('${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toStringAsFixed(1)}% )', style: TextStyle(color: AppColors.grey, fontSize: 12),) 
-                    : 
-                    Text('0 / ${amountDoubleToString(totalAmount)} ( 0% )', style: TextStyle(color: AppColors.grey, fontSize: 12),),
-                  ]
-                ),
+                Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  progressAmount != null
+                      ? Text(
+                          '${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toStringAsFixed(1)}% )',
+                          style: TextStyle(color: AppColors.grey, fontSize: 12),
+                        )
+                      : Text(
+                          '0 / ${amountDoubleToString(totalAmount)} ( 0% )',
+                          style: TextStyle(color: AppColors.grey, fontSize: 12),
+                        ),
+                ]),
               ],
             ),
             const Divider(),
@@ -593,8 +619,9 @@ class GoalsCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     child: LinearProgressIndicator(
                       minHeight: 8,
-                      value: progress/100,
-                      color: progress >= 100 ? AppColors.green : AppColors.accent,
+                      value: progress / 100,
+                      color:
+                          progress >= 100 ? AppColors.green : AppColors.accent,
                       backgroundColor: AppColors.accent.withOpacity(0.2),
                     ),
                   ),
@@ -609,12 +636,17 @@ class GoalsCard extends StatelessWidget {
 }
 
 class Expenses extends StatelessWidget {
-
   final String text;
   final String? icon;
   final double amount, totalAmount;
 
-  const Expenses({required this.text, required this.amount, required this.totalAmount, this.icon, Key? key}) : super(key: key);
+  const Expenses(
+      {required this.text,
+      required this.amount,
+      required this.totalAmount,
+      this.icon,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -630,25 +662,35 @@ class Expenses extends StatelessWidget {
                     margin: const EdgeInsets.only(right: 12),
                     child: CircleAvatar(
                       backgroundColor: Colors.grey.shade200,
-                      child: icon != null ? 
-                          Icon(deserializeIcon(jsonDecode(icon!)), color: AppColors.main,) 
-                          : 
-                          Text(text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                      child: icon != null
+                          ? Icon(
+                              deserializeIcon(jsonDecode(icon!)),
+                              color: AppColors.main,
+                            )
+                          : Text(
+                              text.isNotEmpty
+                                  ? text
+                                      .split(" ")
+                                      .map((e) => e[0])
+                                      .take(2)
+                                      .join()
+                                      .toUpperCase()
+                                  : "",
+                              style: TextStyle(color: AppColors.main),
+                            ),
                     ),
                   ),
                   RichText(
                     text: TextSpan(
-                      text: text,
-                      style: const TextStyle(color: Colors.black)
-                    ),
+                        text: text,
+                        style: const TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
               RichText(
-                text:  TextSpan(
-                  text: 'Rp ${amountDoubleToString(amount)}',
-                  style: const TextStyle(color: Colors.red, fontSize: 12)
-                ),
+                text: TextSpan(
+                    text: 'Rp ${amountDoubleToString(amount)}',
+                    style: const TextStyle(color: Colors.red, fontSize: 12)),
               ),
             ],
           ),
@@ -657,7 +699,7 @@ class Expenses extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               minHeight: 4,
-              value: amount/totalAmount,
+              value: amount / totalAmount,
               color: AppColors.main,
               backgroundColor: AppColors.main.withOpacity(0.2),
             ),
@@ -669,7 +711,6 @@ class Expenses extends StatelessWidget {
 }
 
 class BalanceCard extends StatelessWidget {
-
   final double income;
   final double expense;
   final double balance;
@@ -686,17 +727,16 @@ class BalanceCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 24),
       decoration: BoxDecoration(
-        color: AppColors.neutralDark,
-        borderRadius: const BorderRadius.all(Radius.circular(20)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.5),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(2, 2), // changes position of shadow
-          ),
-        ]
-      ),
+          color: AppColors.neutralDark,
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.5),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(2, 2), // changes position of shadow
+            ),
+          ]),
       padding: const EdgeInsets.only(left: 24, right: 24, top: 32, bottom: 32),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -705,11 +745,22 @@ class BalanceCard extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RichText(text: TextSpan(text: 'Balance', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-              RichText(text: TextSpan(text: 'Rp ${amountDoubleToString(balance)}', style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold))),
+              RichText(
+                  text: TextSpan(
+                      text: 'Balance',
+                      style: TextStyle(color: AppColors.grey, fontSize: 12))),
+              RichText(
+                  text: TextSpan(
+                      text: 'Rp ${amountDoubleToString(balance)}',
+                      style: TextStyle(
+                          color: AppColors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold))),
             ],
           ),
-          Container(height: 24,),
+          Container(
+            height: 24,
+          ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -720,8 +771,16 @@ class BalanceCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RichText(text: TextSpan(text: 'Expense', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-                      RichText(text: TextSpan(text: 'Rp ${amountDoubleToString(expense)}', style: TextStyle(color: AppColors.white, fontSize: 14))),
+                      RichText(
+                          text: TextSpan(
+                              text: 'Expense',
+                              style: TextStyle(
+                                  color: AppColors.grey, fontSize: 12))),
+                      RichText(
+                          text: TextSpan(
+                              text: 'Rp ${amountDoubleToString(expense)}',
+                              style: TextStyle(
+                                  color: AppColors.white, fontSize: 14))),
                     ],
                   ),
                 ),
@@ -732,8 +791,16 @@ class BalanceCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RichText(text: TextSpan(text: 'Income', style: TextStyle(color: AppColors.grey, fontSize: 12))),
-                      RichText(text: TextSpan(text: 'Rp ${amountDoubleToString(income)}', style: TextStyle(color: AppColors.white, fontSize: 14))),
+                      RichText(
+                          text: TextSpan(
+                              text: 'Income',
+                              style: TextStyle(
+                                  color: AppColors.grey, fontSize: 12))),
+                      RichText(
+                          text: TextSpan(
+                              text: 'Rp ${amountDoubleToString(income)}',
+                              style: TextStyle(
+                                  color: AppColors.white, fontSize: 14))),
                     ],
                   ),
                 ),
@@ -747,26 +814,25 @@ class BalanceCard extends StatelessWidget {
 }
 
 class _WaveCustomPaint extends CustomPainter {
-
   Color backgroundColor;
   _WaveCustomPaint({required this.backgroundColor});
 
   @override
   void paint(Canvas canvas, Size size) {
-
     Path path = Path();
     Paint paint = Paint();
 
-    var height = size.height/5;
-    var lowestBottom = size.height/3;
+    var height = size.height / 5;
+    var lowestBottom = size.height / 3;
 
     path = Path();
     path.lineTo(0, height); //start
-    
-    var firstStart = Offset(size.width/2, lowestBottom); 
+
+    var firstStart = Offset(size.width / 2, lowestBottom);
     var firstEnd = Offset(size.width, height);
 
-    path.quadraticBezierTo(firstStart.dx, firstStart.dy, firstEnd.dx, firstEnd.dy);
+    path.quadraticBezierTo(
+        firstStart.dx, firstStart.dy, firstEnd.dx, firstEnd.dy);
 
     path.lineTo(size.width, 0); //end
     path.close();
@@ -779,15 +845,13 @@ class _WaveCustomPaint extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) {
     return oldDelegate != this;
   }
-
 }
 
-String valueToTitle(double value){
-
+String valueToTitle(double value) {
   String yearText = value.toInt().toString();
   String year = yearText.substring(yearText.length - 4);
 
-  int month = value~/10000;
+  int month = value ~/ 10000;
   String monthText = monthIntToString(month);
 
   String finalString = '$monthText\n$year';
@@ -796,10 +860,15 @@ String valueToTitle(double value){
 }
 
 Widget bottomTitleWidgets(double value, TitleMeta meta) {
-
   String title = valueToTitle(value);
-  
-  Widget text = Text(title, style: const TextStyle(fontSize: 12,), textAlign: TextAlign.center,);
+
+  Widget text = Text(
+    title,
+    style: const TextStyle(
+      fontSize: 12,
+    ),
+    textAlign: TextAlign.center,
+  );
 
   return SideTitleWidget(
     axisSide: meta.axisSide,
@@ -808,13 +877,14 @@ Widget bottomTitleWidgets(double value, TitleMeta meta) {
 }
 
 Widget leftTitleWidgets(double value, TitleMeta meta) {
-  
   const style = TextStyle(fontSize: 12);
 
   if (value >= 1000000) {
-    return Text('${(value / 1000000).toStringAsFixed(1)}M', style: style, textAlign: TextAlign.left);
+    return Text('${(value / 1000000).toStringAsFixed(1)}M',
+        style: style, textAlign: TextAlign.left);
   } else if (value >= 1000) {
-    return Text('${(value / 1000).toStringAsFixed(0)}K', style: style, textAlign: TextAlign.left);
+    return Text('${(value / 1000).toStringAsFixed(0)}K',
+        style: style, textAlign: TextAlign.left);
   } else {
     String text = value.toInt().toString();
     return Text(text, style: style, textAlign: TextAlign.left);

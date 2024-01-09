@@ -7,6 +7,7 @@ import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/forms/transaction.dart';
 import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/tag.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,6 @@ import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 
 class TransactionPage extends StatelessWidget {
-
   const TransactionPage({Key? key}) : super(key: key);
 
   @override
@@ -25,16 +25,13 @@ class TransactionPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 100),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TransactionsContainer()
-        ],
+        children: [TransactionsContainer()],
       ),
     );
   }
 }
 
 class TransactionsContainer extends StatefulWidget {
-
   const TransactionsContainer({Key? key}) : super(key: key);
 
   @override
@@ -42,15 +39,17 @@ class TransactionsContainer extends StatefulWidget {
 }
 
 class TransactionsContainerState extends State<TransactionsContainer> {
-
   bool datePicked = true;
   List<ExpenseCategory> categories = [];
-  
-  List<DateTime?> filterDateRange = [DateTime(DateTime.now().year, DateTime.now().month, 1), DateTime(DateTime.now().year, DateTime.now().month + 1, 0)];
+
+  List<DateTime?> filterDateRange = [
+    DateTime(DateTime.now().year, DateTime.now().month, 1),
+    DateTime(DateTime.now().year, DateTime.now().month + 1, 0)
+  ];
   String filterDateRangeText = 'This Month';
   String customDateRangeText = 'Custom';
 
-  List<DropdownMenuItem<String>> get dropdownDateRangeItems{
+  List<DropdownMenuItem<String>> get dropdownDateRangeItems {
     List<DropdownMenuItem<String>> menuItems = [
       const DropdownMenuItem(value: "All", child: Text("All")),
       const DropdownMenuItem(value: "This Month", child: Text("This Month")),
@@ -62,40 +61,37 @@ class TransactionsContainerState extends State<TransactionsContainer> {
 
   String filterCategoryName = 'All';
 
-  void setDateRange(String dateRange){
-
+  void setDateRange(String dateRange) {
     DateTime now = DateTime.now();
 
-    if(dateRange == 'This Month'){
+    if (dateRange == 'This Month') {
       DateTime startOfMonth = DateTime(now.year, now.month, 1);
       DateTime endOfMonth = DateTime(now.year, now.month + 1, 0);
       setState(() {
         filterDateRange = [startOfMonth, endOfMonth];
         datePicked = true;
       });
-    }
-    else if(dateRange == 'Last Month'){
+    } else if (dateRange == 'Last Month') {
       DateTime startOfMonth = DateTime(now.year, now.month - 1, 1);
       DateTime endOfMonth = DateTime(now.year, now.month, 0);
       setState(() {
         filterDateRange = [startOfMonth, endOfMonth];
         datePicked = true;
       });
-    }
-    else{
+    } else {
       setState(() {
         datePicked = false;
       });
     }
   }
-  
-  Future<void> _selectDateRange(BuildContext context) async {
 
-    var results  = await showCalendarDatePicker2Dialog(
+  Future<void> _selectDateRange(BuildContext context) async {
+    var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
         calendarType: CalendarDatePicker2Type.range,
-        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle:
+            TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -108,13 +104,12 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         filterDateRange = results;
         datePicked = true;
       });
-    }else if (results != null && results.length == 1){
+    } else if (results != null && results.length == 1) {
       setState(() {
         filterDateRange = List.from(results)..addAll(results);
         datePicked = true;
       });
-    }
-    else{
+    } else {
       setState(() {
         datePicked = false;
         filterDateRangeText = 'All';
@@ -124,7 +119,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   }
 
   List<Transaction> _sortTransactions(List<Transaction> transactionList) {
-
     List<Transaction> sortedTransactions = [];
 
     sortedTransactions = List.from(transactionList)
@@ -139,38 +133,43 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   }
 
   List<Transaction> _filterTransactions(List<Transaction> transactionList) {
-
     List<Transaction> results = [];
 
-    if(datePicked){
+    if (datePicked) {
       results = transactionList.where((t) {
         final tDate = DateTime(t.date.year, t.date.month, t.date.day);
-        final startDate = DateTime(filterDateRange[0]!.year, filterDateRange[0]!.month, filterDateRange[0]!.day);
-        final endDate = DateTime(filterDateRange[1]!.year, filterDateRange[1]!.month, filterDateRange[1]!.day);
-        return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) && ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
+        final startDate = DateTime(filterDateRange[0]!.year,
+            filterDateRange[0]!.month, filterDateRange[0]!.day);
+        final endDate = DateTime(filterDateRange[1]!.year,
+            filterDateRange[1]!.month, filterDateRange[1]!.day);
+        return (tDate.isAfter(startDate) ||
+                tDate.isAtSameMomentAs(startDate)) &&
+            ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
       }).toList();
-      if(filterCategoryName != 'All'){
+      if (filterCategoryName != 'All') {
         results = results.where((t) {
           return t.category.name == filterCategoryName;
         }).toList();
       }
-    }else{
-      if(filterCategoryName != 'All'){
+    } else {
+      if (filterCategoryName != 'All') {
         results = transactionList.where((t) {
           return t.category.name == filterCategoryName;
         }).toList();
-      }else{
+      } else {
         results = transactionList;
       }
     }
     return results;
   }
 
-  Map<String, List<Transaction>> _groupTransactionsByDate(List<Transaction> transactions) {
+  Map<String, List<Transaction>> _groupTransactionsByDate(
+      List<Transaction> transactions) {
     final Map<String, List<Transaction>> groupedTransactions = {};
 
     for (var transaction in transactions) {
-      final String date = DateFormat('dd MMM yyyy').format(transaction.date); // Replace 'formatDate' with your date formatting logic
+      final String date = DateFormat('dd MMM yyyy').format(transaction
+          .date); // Replace 'formatDate' with your date formatting logic
 
       if (groupedTransactions.containsKey(date)) {
         groupedTransactions[date]!.add(transaction);
@@ -200,16 +199,17 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-
         BlocBuilder<TransactionBloc, TransactionState>(
-          builder: (context, state) {
-            if (state is TransactionInitial) {
-              context.read<TransactionBloc>().add(const GetTransactions());
-            }
-            if (state is TransactionLoaded) {
-              if (state.transaction.isEmpty) {
-                return Container(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
+            builder: (context, state) {
+          if (state is TransactionInitial) {
+            context.read<TransactionBloc>().add(const GetTransactions());
+          }
+          if (state is TransactionLoaded) {
+            if (state.transaction.isEmpty) {
+              return Container(
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).viewPadding.top + 16,
+                      bottom: 16),
                   color: AppColors.main,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -217,146 +217,158 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                       Column(
                         children: [
                           Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: Text('Total', style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),)
-                          ),
-                          Text('Rp 0', style: TextStyle(color: AppColors.white)),
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: Text(
+                                'Total',
+                                style: TextStyle(
+                                    color: AppColors.white,
+                                    fontWeight: FontWeight.bold),
+                              )),
+                          Text('Rp 0',
+                              style: TextStyle(color: AppColors.white)),
                         ],
                       ),
                     ],
-                  )
-                );
-              }
-              final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
-              double totalAmount = 0;
-              for (Transaction transaction in transactions) {
-                totalAmount += transaction.amount;
-              }
-              return Container(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
-                color: AppColors.main,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Column(
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: Text('Total', style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),)
-                        ),
-                        Text('Rp -${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.white)),
-                      ],
-                    ),
-                  ],
-                ),
-              );
+                  ));
             }
-            return Text('Rp -', style: TextStyle(color: AppColors.white));
+            final List<Transaction> transactions =
+                _sortTransactions(_filterTransactions(state.transaction));
+            double totalAmount = 0;
+            for (Transaction transaction in transactions) {
+              totalAmount += transaction.amount;
+            }
+            return Container(
+              padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
+              color: AppColors.main,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            'Total',
+                            style: TextStyle(
+                                color: AppColors.white,
+                                fontWeight: FontWeight.bold),
+                          )),
+                      Text('Rp -${amountDoubleToString(totalAmount)}',
+                          style: TextStyle(color: AppColors.white)),
+                    ],
+                  ),
+                ],
+              ),
+            );
           }
-        ),
-
+          return Text('Rp -', style: TextStyle(color: AppColors.white));
+        }),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-        
               Container(
                 margin: const EdgeInsets.only(bottom: 8, top: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-        
-                    BlocBuilder<CategoryBloc, CategoryState>(
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  BlocBuilder<CategoryBloc, CategoryState>(
                       builder: (context, state) {
-                        if (state is CategoryInitial) {
-                          context.read<CategoryBloc>().add(const GetExpenseCategories());
-                        }
-                        if (state is CategoryLoaded) {
-                          // Get list of categories
-                          final categories = state.category.map((category) => category.name).toList();
-                          // Add "All" to the list
-                          categories.insert(0, "All");
-                          // Create DropdownMenuItem from the list
-                          final dropdownItems = categories.map((category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(category),
-                          )).toList();
-                          return Container(
-                            padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.cardBorder),
-                              borderRadius: BorderRadius.circular(4),
-                              color: AppColors.white,
-                            ),
-                            child: DropdownButton(
-                              onChanged: (String? newValue){
-                                setState(() {
-                                  filterCategoryName = newValue!;
-                                });
-                              },
-                              value: filterCategoryName,
-                              items: dropdownItems,
-                              style: TextStyle(color: AppColors.main, fontSize: 12),
-                              underline: const SizedBox(),
-                              isDense: true,
-                            ),
-                          );
-                        }
-                        return const NoDataWidget();
-                      }
-                    ),
-        
-                    Container(
-                      padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.cardBorder),
-                        borderRadius: BorderRadius.circular(4),
-                        color: AppColors.white,
-                      ),
-                      child: DropdownButton(
-                        onChanged: (String? newValue){
-                          if(newValue == 'Custom'){
-                            _selectDateRange(context);
+                    if (state is CategoryInitial) {
+                      context
+                          .read<CategoryBloc>()
+                          .add(const GetExpenseCategories());
+                    }
+                    if (state is CategoryLoaded) {
+                      // Get list of categories
+                      final categories = state.category
+                          .map((category) => category.name)
+                          .toList();
+                      // Add "All" to the list
+                      categories.insert(0, "All");
+                      // Create DropdownMenuItem from the list
+                      final dropdownItems = categories
+                          .map((category) => DropdownMenuItem(
+                                value: category,
+                                child: Text(category),
+                              ))
+                          .toList();
+                      return Container(
+                        padding:
+                            const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.cardBorder),
+                          borderRadius: BorderRadius.circular(4),
+                          color: AppColors.white,
+                        ),
+                        child: DropdownButton(
+                          onChanged: (String? newValue) {
                             setState(() {
-                              customDateRangeText = '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}';
+                              filterCategoryName = newValue!;
                             });
-                          }
-                          else{
-                            setDateRange(newValue!);
-                          }
+                          },
+                          value: filterCategoryName,
+                          items: dropdownItems,
+                          style: TextStyle(color: AppColors.main, fontSize: 12),
+                          underline: const SizedBox(),
+                          isDense: true,
+                        ),
+                      );
+                    }
+                    return const NoDataWidget();
+                  }),
+                  Container(
+                    padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.cardBorder),
+                      borderRadius: BorderRadius.circular(4),
+                      color: AppColors.white,
+                    ),
+                    child: DropdownButton(
+                      onChanged: (String? newValue) {
+                        if (newValue == 'Custom') {
+                          _selectDateRange(context);
                           setState(() {
-                            filterDateRangeText = newValue!;
+                            customDateRangeText =
+                                '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}';
                           });
-                        },
-                        value: filterDateRangeText,
-                        items: dropdownDateRangeItems,
-                        style: TextStyle(color: AppColors.main, fontSize: 12),
-                        underline: const SizedBox(),
-                        isDense: true,
-                      ),
-                    ),        
-                  ]
-                ),
+                        } else {
+                          setDateRange(newValue!);
+                        }
+                        setState(() {
+                          filterDateRangeText = newValue!;
+                        });
+                      },
+                      value: filterDateRangeText,
+                      items: dropdownDateRangeItems,
+                      style: TextStyle(color: AppColors.main, fontSize: 12),
+                      underline: const SizedBox(),
+                      isDense: true,
+                    ),
+                  ),
+                ]),
               ),
-                      
               BlocBuilder<TransactionBloc, TransactionState>(
                 builder: (context, state) {
                   if (state is TransactionInitial) {
-                    context.read<TransactionBloc>().add(const GetTransactions());
+                    context
+                        .read<TransactionBloc>()
+                        .add(const GetTransactions());
                   }
                   if (state is TransactionLoaded) {
                     if (state.transaction.isEmpty) {
                       return const NoDataWidget();
                     }
-        
-                    final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
-                    final Map<String, List<Transaction>> groupedTransactions = _groupTransactionsByDate(transactions);
-        
-                    if(transactions.isEmpty){
+
+                    final List<Transaction> transactions = _sortTransactions(
+                        _filterTransactions(state.transaction));
+                    final Map<String, List<Transaction>> groupedTransactions =
+                        _groupTransactionsByDate(transactions);
+
+                    if (transactions.isEmpty) {
                       return const NoDataWidget();
-                    }
-                    else{
+                    } else {
                       return SingleChildScrollView(
                         child: Column(
                           children: [
@@ -367,23 +379,22 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           entry.key,
                                           style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.normal,
-                                            color: AppColors.grey
-                                          ),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.normal,
+                                              color: AppColors.grey),
                                         ),
                                         Text(
                                           'Rp ${amountDoubleToString(_calculateTotalAmount(entry.value))}',
                                           style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.normal,
-                                            color: AppColors.grey
-                                          ),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.normal,
+                                              color: AppColors.grey),
                                         ),
                                       ],
                                     ),
@@ -404,7 +415,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                       );
                     }
                   }
-        
+
                   return const NoDataWidget();
                 },
               )
@@ -417,19 +428,25 @@ class TransactionsContainerState extends State<TransactionsContainer> {
 }
 
 class TransactionCard extends StatelessWidget {
-
   final ExpenseCategory category;
   final Transaction transaction;
 
-  const TransactionCard({required this.category, required this.transaction, Key? key}) : super(key: key);
-  
+  const TransactionCard(
+      {required this.category, required this.transaction, Key? key})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => TransactionForm(header1: 'Edit transaction', header2: 'Edit existing transaction', initialValues: transaction,)),
+          MaterialPageRoute(
+              builder: (context) => TransactionForm(
+                    header1: 'Edit transaction',
+                    header2: 'Edit existing transaction',
+                    initialValues: transaction,
+                  )),
         );
       },
       child: CardContainer(
@@ -443,55 +460,89 @@ class TransactionCard extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 12),
                   child: CircleAvatar(
                     backgroundColor: Colors.grey.shade200,
-                    child: category.icon != null ? 
-                      Icon(deserializeIcon(jsonDecode(category.icon!)), color: AppColors.main,) 
-                      : 
-                      Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                    child: category.icon != null
+                        ? Icon(
+                            deserializeIcon(jsonDecode(category.icon!)),
+                            color: AppColors.main,
+                          )
+                        : Text(
+                            category.name.isNotEmpty
+                                ? category.name
+                                    .split(" ")
+                                    .map((e) => e[0])
+                                    .take(2)
+                                    .join()
+                                    .toUpperCase()
+                                : "",
+                            style: TextStyle(color: AppColors.main),
+                          ),
                   ),
                 ),
                 Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        text: category.name,
-                        style: const TextStyle(color: Colors.black)
-                      ),
-                    ),
-                    // Padding(
-                    //   padding: const EdgeInsets.only(top: 2),
-                    //   child: RichText(
-                    //     text: TextSpan(
-                    //       text: DateFormat('dd MMM yyyy').format(transaction.date),
-                    //       style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 8)
-                    //     ),
-                    //   ),
-                    // ),
-                    (transaction.note != null && transaction.note!.isNotEmpty) 
-                    ? Container(
-                      margin: const EdgeInsets.only(top: 8),
-                      child: RichText(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RichText(
                         text: TextSpan(
-                          text: transaction.note != null && transaction.note!.length > 22 ? '${transaction.note?.substring(0, 22)}...' : transaction.note,
-                          style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 11),
-                        ),
+                            text: category.name,
+                            style: const TextStyle(color: Colors.black)),
                       ),
-                    )
-                    : Container(),
-                  ]
-                ),
+                      (transaction.note != null && transaction.note!.isNotEmpty)
+                          ? Container(
+                              margin: const EdgeInsets.only(top: 8),
+                              child: RichText(
+                                text: TextSpan(
+                                  text: transaction.note != null &&
+                                          transaction.note!.length > 22
+                                      ? '${transaction.note?.substring(0, 22)}...'
+                                      : transaction.note,
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: 11),
+                                ),
+                              ),
+                            )
+                          : Container(),
+                      Container(
+                        margin: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            for (var tag in transaction.tags ??
+                                [Tag(id: 0, name: 'nope', color: "#FFFFFF")])
+                              Container(
+                                margin: const EdgeInsets.only(right: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 2,
+                                  horizontal: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: hexToColor(tag.color),
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(4),
+                                  ),
+                                ),
+                                child: Text(
+                                  tag.name,
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      color: getTextColorForBackground(
+                                          hexToColor(tag.color))),
+                                ),
+                              ),
+                          ],
+                        ),
+                      )
+                    ]),
               ],
             ),
             RichText(
-              text:  TextSpan(
-                text: 'Rp ${amountDoubleToString(transaction.amount)}',
-                style: const TextStyle(color: Colors.red, fontSize: 12)
-              ),
+              text: TextSpan(
+                  text: 'Rp ${amountDoubleToString(transaction.amount)}',
+                  style: const TextStyle(color: Colors.red, fontSize: 12)),
             ),
           ],
         ),
-    
       ),
     );
   }

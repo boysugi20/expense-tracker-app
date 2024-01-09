@@ -2,20 +2,22 @@ import 'dart:convert';
 
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
+import 'package:expense_tracker/bloc/tag/tag_bloc.dart';
 import 'package:expense_tracker/forms/subscription.dart';
+import 'package:expense_tracker/forms/tag.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/categories.dart';
 import 'package:expense_tracker/forms/goals.dart';
 import 'package:expense_tracker/models/category.dart';
 import 'package:expense_tracker/models/goal.dart';
+import 'package:expense_tracker/models/tag.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 
 class ConfigurationPage extends StatefulWidget {
-  
   const ConfigurationPage({Key? key}) : super(key: key);
 
   @override
@@ -23,15 +25,17 @@ class ConfigurationPage extends StatefulWidget {
 }
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24, bottom: 140),
+      padding: EdgeInsets.only(
+          left: 32,
+          right: 32,
+          top: MediaQuery.of(context).viewPadding.top + 24,
+          bottom: 140),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           SectionTitle(
             text: 'Goals:',
             firstChild: true,
@@ -40,47 +44,93 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               onPressed: (context) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const GoalsForm(header1: 'Add Goal', header2: 'Add a new goal',)),
+                  MaterialPageRoute(
+                      builder: (context) => const GoalsForm(
+                            header1: 'Add Goal',
+                            header2: 'Add a new goal',
+                          )),
                 );
               },
             ),
           ),
-          
           BlocBuilder<GoalBloc, GoalState>(
             builder: (context, state) {
               if (state is GoalInitial) {
                 context.read<GoalBloc>().add(const GetGoals());
               }
               if (state is GoalLoaded) {
-                if(state.goal.isNotEmpty){
+                if (state.goal.isNotEmpty) {
                   return Column(
-                    children: state.goal.map((goalItem) => GoalsCard(goal: goalItem)).toList(),
+                    children: state.goal
+                        .map((goalItem) => GoalsCard(goal: goalItem))
+                        .toList(),
                   );
                 }
               }
               return const NoDataWidget();
             },
           ),
-
-          
           SectionTitle(
             text: 'Recurring Transaction:',
-            button: 
-            AddButton(
+            button: AddButton(
               text: 'Add +',
               onPressed: (context) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const SubscriptionForm(header1: 'Add Subcription', header2: 'Add a new subscription',)),
+                  MaterialPageRoute(
+                      builder: (context) => const SubscriptionForm(
+                            header1: 'Add Subcription',
+                            header2: 'Add a new subscription',
+                          )),
                 );
               },
             ),
           ),
-
-          const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
-          const SubscriptionCard(title: 'Netflix', amount: 75000, startDate: '01 Jan 2023', endDate: '01 Jan 2024',),
-          
-
+          const SubscriptionCard(
+            title: 'Netflix',
+            amount: 75000,
+            startDate: '01 Jan 2023',
+            endDate: '01 Jan 2024',
+          ),
+          const SubscriptionCard(
+            title: 'Netflix',
+            amount: 75000,
+            startDate: '01 Jan 2023',
+            endDate: '01 Jan 2024',
+          ),
+          SectionTitle(
+            text: 'Tags:',
+            button: AddButton(
+              text: 'Add +',
+              onPressed: (context) async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const TagsForm(
+                            header1: 'Add Tag',
+                            header2: 'Add a new tag',
+                          )),
+                );
+              },
+            ),
+          ),
+          BlocBuilder<TagBloc, TagState>(
+            builder: (context, state) {
+              if (state is TagInitial) {
+                context.read<TagBloc>().add(const GetTags());
+              }
+              if (state is TagLoaded) {
+                if (state.tag.isNotEmpty) {
+                  return Column(
+                    children: state.tag
+                        .map((tagItem) => TagCard(tag: tagItem))
+                        .toList(),
+                  );
+                }
+              }
+              return const NoDataWidget();
+            },
+          ),
           SectionTitle(
             text: 'Categories:',
             button: AddButton(
@@ -88,21 +138,27 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               onPressed: (context) async {
                 await Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const CategoriesForm(header1: 'Add Category', header2: 'Add a new category',)),
+                  MaterialPageRoute(
+                      builder: (context) => const CategoriesForm(
+                            header1: 'Add Category',
+                            header2: 'Add a new category',
+                          )),
                 );
               },
             ),
           ),
-
           BlocBuilder<CategoryBloc, CategoryState>(
             builder: (context, state) {
               if (state is CategoryInitial) {
                 context.read<CategoryBloc>().add(const GetExpenseCategories());
               }
               if (state is CategoryLoaded) {
-                if(state.category.isNotEmpty){
+                if (state.category.isNotEmpty) {
                   return Column(
-                    children: state.category.map((categoryItem) => CategoriesCard(category: categoryItem)).toList(),
+                    children: state.category
+                        .map((categoryItem) =>
+                            CategoriesCard(category: categoryItem))
+                        .toList(),
                   );
                 }
               }
@@ -113,11 +169,9 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
       ),
     );
   }
-
 }
 
 class CategoriesCard extends StatelessWidget {
-
   final ExpenseCategory category;
 
   const CategoriesCard({required this.category, Key? key}) : super(key: key);
@@ -128,7 +182,12 @@ class CategoriesCard extends StatelessWidget {
       onTap: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => CategoriesForm(header1: 'Edit Category', header2: 'Edit existing category', initialValues: category,)),
+          MaterialPageRoute(
+              builder: (context) => CategoriesForm(
+                    header1: 'Edit Category',
+                    header2: 'Edit existing category',
+                    initialValues: category,
+                  )),
         );
       },
       child: CardContainer(
@@ -141,17 +200,28 @@ class CategoriesCard extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 12),
                   child: CircleAvatar(
                     backgroundColor: Colors.grey.shade200,
-                    child: category.icon != null ? 
-                    Icon(deserializeIcon(jsonDecode(category.icon!)), color: AppColors.main,) 
-                    : 
-                    Text(category.name.isNotEmpty ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "", style: TextStyle(color: AppColors.main),),
+                    child: category.icon != null
+                        ? Icon(
+                            deserializeIcon(jsonDecode(category.icon!)),
+                            color: AppColors.main,
+                          )
+                        : Text(
+                            category.name.isNotEmpty
+                                ? category.name
+                                    .split(" ")
+                                    .map((e) => e[0])
+                                    .take(2)
+                                    .join()
+                                    .toUpperCase()
+                                : "",
+                            style: TextStyle(color: AppColors.main),
+                          ),
                   ),
                 ),
                 RichText(
                   text: TextSpan(
-                    text: category.name,
-                    style: const TextStyle(color: Colors.black)
-                  ),
+                      text: category.name,
+                      style: const TextStyle(color: Colors.black)),
                 ),
               ],
             ),
@@ -163,8 +233,50 @@ class CategoriesCard extends StatelessWidget {
   }
 }
 
-class GoalsCard extends StatelessWidget {
+class TagCard extends StatelessWidget {
+  final Tag tag;
 
+  const TagCard({required this.tag, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => TagsForm(
+                    header1: 'Edit Tag',
+                    header2: 'Edit existing tag',
+                    initialValues: tag,
+                  )),
+        );
+      },
+      child: CardContainer(
+        paddingBottom: 16,
+        paddingTop: 16,
+        useBorder: true,
+        borderColor: hexToColor(tag.color),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                RichText(
+                  text: TextSpan(
+                      text: tag.name,
+                      style: const TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class GoalsCard extends StatelessWidget {
   final Goal goal;
 
   const GoalsCard({required this.goal, Key? key}) : super(key: key);
@@ -175,7 +287,12 @@ class GoalsCard extends StatelessWidget {
       onTap: () async {
         await Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => GoalsForm(header1: 'Edit Goal', header2: 'Edit existing goal', initialValues: goal,)),
+          MaterialPageRoute(
+              builder: (context) => GoalsForm(
+                    header1: 'Edit Goal',
+                    header2: 'Edit existing goal',
+                    initialValues: goal,
+                  )),
         );
       },
       child: CardContainer(
@@ -190,9 +307,20 @@ class GoalsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(goal.name, style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),),
-                Container(height: 8,),
-                Text('Rp ${amountDoubleToString(goal.totalAmount)}', style: const TextStyle(color: Colors.white, fontSize: 16),),
+                Text(
+                  goal.name,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  height: 8,
+                ),
+                Text(
+                  'Rp ${amountDoubleToString(goal.totalAmount)}',
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
               ],
             ),
             // Icon(Icons.edit, color: AppColors.white, size: 16,)
@@ -204,7 +332,6 @@ class GoalsCard extends StatelessWidget {
 }
 
 class BudgetCard extends StatelessWidget {
-
   final double amount;
 
   const BudgetCard({required this.amount, Key? key}) : super(key: key);
@@ -212,39 +339,49 @@ class BudgetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardContainer(
-      color: AppColors.main,
-      paddingBottom: 16,
-      paddingTop: 16,
-      marginBottom: 6,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text('Rp ${amountDoubleToString(amount)}', style: const TextStyle(color: Colors.white, fontSize: 18),),
-          // Icon(Icons.edit, color: AppColors.white, size: 16,)
-        ],
-      )
-    );
+        color: AppColors.main,
+        paddingBottom: 16,
+        paddingTop: 16,
+        marginBottom: 6,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Rp ${amountDoubleToString(amount)}',
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            // Icon(Icons.edit, color: AppColors.white, size: 16,)
+          ],
+        ));
   }
 }
 
 class SubscriptionCard extends StatelessWidget {
-  
   final String title, startDate, endDate;
   final int amount;
 
-  const SubscriptionCard({required this.title, required this.startDate, required this.endDate, required this.amount, Key? key}) : super(key: key);
+  const SubscriptionCard(
+      {required this.title,
+      required this.startDate,
+      required this.endDate,
+      required this.amount,
+      Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SubscriptionForm(
-            header1: 'Edit Subsciprtion', 
-            header2: 'Edit existing subscription', 
-            initialValues: {'name': title,'price': amount.toString(),}
-          )),
+          MaterialPageRoute(
+              builder: (context) => SubscriptionForm(
+                      header1: 'Edit Subsciprtion',
+                      header2: 'Edit existing subscription',
+                      initialValues: {
+                        'name': title,
+                        'price': amount.toString(),
+                      })),
         );
       },
       child: CardContainer(
@@ -262,16 +399,31 @@ class SubscriptionCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
-                Container(height: 8,),
-                Text('Rp ${addThousandSeperatorToString(amount.toString())}', style: const TextStyle(color: Colors.white, fontSize: 14),),
+                Text(
+                  title,
+                  style: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  height: 8,
+                ),
+                Text(
+                  'Rp ${addThousandSeperatorToString(amount.toString())}',
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                ),
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text('Start: $startDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
-                Text('End: $endDate', style: const TextStyle(color: Colors.white, fontSize: 12),),
+                Text(
+                  'Start: $startDate',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+                Text(
+                  'End: $endDate',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
               ],
             ),
           ],
