@@ -16,6 +16,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
 import 'package:intl/intl.dart';
 
+import '../bloc/tag/tag_bloc.dart';
+
 class TransactionPage extends StatelessWidget {
   const TransactionPage({Key? key}) : super(key: key);
 
@@ -48,6 +50,8 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   ];
   String filterDateRangeText = 'This Month';
   String customDateRangeText = 'Custom';
+  String filterCategoryName = 'All Category';
+  String filterTagName = 'All Tag';
 
   List<DropdownMenuItem<String>> get dropdownDateRangeItems {
     List<DropdownMenuItem<String>> menuItems = [
@@ -58,8 +62,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     ];
     return menuItems;
   }
-
-  String filterCategoryName = 'All';
 
   void setDateRange(String dateRange) {
     DateTime now = DateTime.now();
@@ -142,18 +144,29 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) &&
             ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
       }).toList();
-      if (filterCategoryName != 'All') {
+      if (filterCategoryName != 'All Category') {
         results = results.where((t) {
           return t.category.name == filterCategoryName;
         }).toList();
       }
+      if (filterTagName != 'All Tag') {
+        results = results.where((t) {
+          return t.tags?.any((tag) => tag.name == filterTagName) ?? false;
+        }).toList();
+      }
     } else {
-      if (filterCategoryName != 'All') {
+      if (filterCategoryName != 'All Category') {
         results = transactionList.where((t) {
           return t.category.name == filterCategoryName;
         }).toList();
       } else {
-        results = transactionList;
+        if (filterTagName != 'All Tag') {
+          results = results.where((t) {
+            return t.tags?.any((tag) => tag.name == filterTagName) ?? false;
+          }).toList();
+        } else {
+          results = transactionList;
+        }
       }
     }
     return results;
@@ -195,10 +208,10 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     return Column(
       children: [
         BlocBuilder<TransactionBloc, TransactionState>(builder: (context, state) {
-          if (state is TransactionInitial || state is TransactionUpdated) {
-            context.read<TransactionBloc>().add(const GetTransactions());
-          }
           if (state is TransactionLoaded) {
+            if (state is TransactionInitial || state is TransactionUpdated) {
+              context.read<TransactionBloc>().add(const GetTransactions());
+            }
             if (state.transaction.isEmpty) {
               return Container(
                   padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
@@ -254,25 +267,11 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                margin: const EdgeInsets.only(bottom: 8, top: 12),
-                child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  BlocBuilder<CategoryBloc, CategoryState>(builder: (context, state) {
-                    if (state is CategoryInitial) {
-                      context.read<CategoryBloc>().add(const GetExpenseCategories());
-                    }
-                    if (state is CategoryLoaded) {
-                      // Get list of categories
-                      final categories = state.category.map((category) => category.name).toList();
-                      // Add "All" to the list
-                      categories.insert(0, "All");
-                      // Create DropdownMenuItem from the list
-                      final dropdownItems = categories
-                          .map((category) => DropdownMenuItem(
-                                value: category,
-                                child: Text(category),
-                              ))
-                          .toList();
-                      return Container(
+                  margin: const EdgeInsets.only(bottom: 8, top: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
                         padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
                         decoration: BoxDecoration(
                           border: Border.all(color: AppColors.cardBorder),
@@ -281,54 +280,106 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                         ),
                         child: DropdownButton(
                           onChanged: (String? newValue) {
+                            if (newValue == 'Custom') {
+                              _selectDateRange(context);
+                              setState(() {
+                                customDateRangeText =
+                                    '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}';
+                              });
+                            } else {
+                              setDateRange(newValue!);
+                            }
                             setState(() {
-                              filterCategoryName = newValue!;
+                              filterDateRangeText = newValue!;
                             });
                           },
-                          value: filterCategoryName,
-                          items: dropdownItems,
+                          value: filterDateRangeText,
+                          items: dropdownDateRangeItems,
                           style: TextStyle(color: AppColors.main, fontSize: 12),
                           underline: const SizedBox(),
                           isDense: true,
                         ),
-                      );
-                    }
-                    return const NoDataWidget();
-                  }),
-                  Container(
-                    padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.cardBorder),
-                      borderRadius: BorderRadius.circular(4),
-                      color: AppColors.white,
-                    ),
-                    child: DropdownButton(
-                      onChanged: (String? newValue) {
-                        if (newValue == 'Custom') {
-                          _selectDateRange(context);
-                          setState(() {
-                            customDateRangeText =
-                                '${DateFormat('dd MMM yyyy').format(filterDateRange[0]!)} - ${DateFormat('dd MMM yyyy').format(filterDateRange[1]!)}';
-                          });
-                        } else {
-                          setDateRange(newValue!);
-                        }
-                        setState(() {
-                          filterDateRangeText = newValue!;
-                        });
-                      },
-                      value: filterDateRangeText,
-                      items: dropdownDateRangeItems,
-                      style: TextStyle(color: AppColors.main, fontSize: 12),
-                      underline: const SizedBox(),
-                      isDense: true,
-                    ),
-                  ),
-                ]),
-              ),
+                      ),
+                      Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                        BlocBuilder<CategoryBloc, CategoryState>(builder: (context, state) {
+                          if (state is CategoryInitial) {
+                            context.read<CategoryBloc>().add(const GetExpenseCategories());
+                          }
+                          if (state is CategoryLoaded) {
+                            final categories =
+                                state.category.map((category) => category.name).toList(); // Get list of categories
+                            categories.insert(0, "All Category"); // Add "All" to the list
+                            final dropdownItems = categories // Create DropdownMenuItem from the list
+                                .map((category) => DropdownMenuItem(
+                                      value: category,
+                                      child: Text(category),
+                                    ))
+                                .toList();
+                            return Container(
+                              padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.cardBorder),
+                                borderRadius: BorderRadius.circular(4),
+                                color: AppColors.white,
+                              ),
+                              child: DropdownButton(
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    filterCategoryName = newValue!;
+                                  });
+                                },
+                                value: filterCategoryName,
+                                items: dropdownItems,
+                                style: TextStyle(color: AppColors.main, fontSize: 12),
+                                underline: const SizedBox(),
+                                isDense: true,
+                              ),
+                            );
+                          }
+                          return const NoDataWidget();
+                        }),
+                        BlocBuilder<TagBloc, TagState>(builder: (context, state) {
+                          if (state is TagInitial) {
+                            context.read<TagBloc>().add(const GetTags());
+                          }
+                          if (state is TagLoaded) {
+                            final tags = state.tag.map((tag) => tag.name).toList(); // Get list of categories
+                            tags.insert(0, "All Tag"); // Add "All" to the list
+                            final dropdownItems = tags // Create DropdownMenuItem from the list
+                                .map((tag) => DropdownMenuItem(
+                                      value: tag,
+                                      child: Text(tag),
+                                    ))
+                                .toList();
+                            return Container(
+                              padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                              decoration: BoxDecoration(
+                                border: Border.all(color: AppColors.cardBorder),
+                                borderRadius: BorderRadius.circular(4),
+                                color: AppColors.white,
+                              ),
+                              child: DropdownButton(
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    filterTagName = newValue!;
+                                  });
+                                },
+                                value: filterTagName,
+                                items: dropdownItems,
+                                style: TextStyle(color: AppColors.main, fontSize: 12),
+                                underline: const SizedBox(),
+                                isDense: true,
+                              ),
+                            );
+                          }
+                          return const NoDataWidget();
+                        }),
+                      ]),
+                    ],
+                  )),
               BlocBuilder<TransactionBloc, TransactionState>(
                 builder: (context, state) {
-                  if (state is TransactionInitial) {
+                  if (state is TransactionInitial || state is TransactionUpdated) {
                     context.read<TransactionBloc>().add(const GetTransactions());
                   }
                   if (state is TransactionLoaded) {

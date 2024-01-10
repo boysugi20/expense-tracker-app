@@ -13,12 +13,7 @@ class SectionTitle extends StatelessWidget {
   final bool useBottomMargin;
   final Widget? button;
 
-  const SectionTitle(
-      {required this.text,
-      this.firstChild = false,
-      this.useBottomMargin = true,
-      this.button,
-      Key? key})
+  const SectionTitle({required this.text, this.firstChild = false, this.useBottomMargin = true, this.button, Key? key})
       : super(key: key);
 
   @override
@@ -32,10 +27,7 @@ class SectionTitle extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           RichText(
-            text: TextSpan(
-                text: text,
-                style: const TextStyle(
-                    color: Colors.black, fontWeight: FontWeight.bold)),
+            text: TextSpan(text: text, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
           ),
           if (button != null) button!,
         ],
@@ -76,9 +68,7 @@ class AddButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             child: Center(
               child: RichText(
-                text: TextSpan(
-                    text: text,
-                    style: TextStyle(color: AppColors.accent, fontSize: 12)),
+                text: TextSpan(text: text, style: TextStyle(color: AppColors.accent, fontSize: 12)),
               ),
             ),
           ),
@@ -140,34 +130,27 @@ class _FormTextInputState extends State<FormTextInput> {
                   ? Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: RichText(
-                        text: const TextSpan(
-                            text: '*',
-                            style: TextStyle(color: Colors.red, fontSize: 14)),
+                        text: const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 14)),
                       ),
                     )
                   : const SizedBox(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: RichText(
-                  text: TextSpan(
-                      text: widget.title,
-                      style:
-                          const TextStyle(color: Colors.black, fontSize: 14)),
+                  text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
                 ),
               ),
             ],
           ),
           Material(
               child: TextFormField(
+            textCapitalization: TextCapitalization.words,
+            maxLength: 16,
             onSaved: widget.onSave,
             controller: _textController,
-            keyboardType:
-                widget.isKeypad ? TextInputType.number : TextInputType.text,
+            keyboardType: widget.isKeypad ? TextInputType.number : TextInputType.text,
             inputFormatters: widget.useThousandSeparator
-                ? [
-                    FilteringTextInputFormatter.digitsOnly,
-                    ThousandsSeparatorInputFormatter()
-                  ]
+                ? [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()]
                 : [],
             decoration: InputDecoration(
                 helperText: widget.helperText,
@@ -179,8 +162,7 @@ class _FormTextInputState extends State<FormTextInput> {
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: AppColors.accent),
                 ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 4, horizontal: 16)),
+                contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16)),
             validator: widget.validateText,
           )),
         ],
@@ -218,8 +200,7 @@ class _FormDateInputState extends State<FormDateInput> {
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
-        selectedDayTextStyle:
-            TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -259,19 +240,14 @@ class _FormDateInputState extends State<FormDateInput> {
                   ? Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: RichText(
-                        text: const TextSpan(
-                            text: '*',
-                            style: TextStyle(color: Colors.red, fontSize: 14)),
+                        text: const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 14)),
                       ),
                     )
                   : const SizedBox(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: RichText(
-                  text: TextSpan(
-                      text: widget.title,
-                      style:
-                          const TextStyle(color: Colors.black, fontSize: 14)),
+                  text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
                 ),
               ),
             ],
@@ -292,8 +268,7 @@ class _FormDateInputState extends State<FormDateInput> {
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.accent),
               ),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+              contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
               prefixIcon: Icon(
                 Icons.calendar_month,
                 color: AppColors.grey,
@@ -398,19 +373,14 @@ class _FormIconInputState extends State<FormIconInput> {
                   ? Padding(
                       padding: const EdgeInsets.only(bottom: 8),
                       child: RichText(
-                        text: const TextSpan(
-                            text: '*',
-                            style: TextStyle(color: Colors.red, fontSize: 14)),
+                        text: const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 14)),
                       ),
                     )
                   : const SizedBox(),
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: RichText(
-                  text: TextSpan(
-                      text: widget.title,
-                      style:
-                          const TextStyle(color: Colors.black, fontSize: 14)),
+                  text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
                 ),
               ),
             ],
@@ -427,21 +397,14 @@ class _FormIconInputState extends State<FormIconInput> {
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.cardBorder),
                     ),
-                    child: CircleAvatar(
-                        backgroundColor: Colors.grey.shade200,
-                        radius: 24,
-                        child: _icon),
+                    child: CircleAvatar(backgroundColor: Colors.grey.shade200, radius: 24, child: _icon),
                   ),
                   RichText(
                     text: iconText != null
                         ? TextSpan(
                             text: jsonDecode(iconText!)['key'].toString(),
-                            style: const TextStyle(
-                                color: Colors.black, fontSize: 11))
-                        : const TextSpan(
-                            text: '_',
-                            style:
-                                TextStyle(color: Colors.black, fontSize: 11)),
+                            style: const TextStyle(color: Colors.black, fontSize: 11))
+                        : const TextSpan(text: '_', style: TextStyle(color: Colors.black, fontSize: 11)),
                   ),
                 ],
               ),
@@ -451,10 +414,8 @@ class _FormIconInputState extends State<FormIconInput> {
               ElevatedButton(
                 onPressed: _pickIcon,
                 style: ButtonStyle(
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(AppColors.main),
-                  overlayColor:
-                      MaterialStateProperty.all<Color>(Colors.transparent),
+                  backgroundColor: MaterialStateProperty.all<Color>(AppColors.main),
+                  overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
                   elevation: MaterialStateProperty.all<double>(0),
                 ),
                 child: const Text(
@@ -472,16 +433,13 @@ class _FormIconInputState extends State<FormIconInput> {
 
 class ThousandsSeparatorInputFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
     if (newValue.text.isEmpty) {
       return newValue.copyWith(text: '');
     }
     int value = int.parse(newValue.text.replaceAll(',', ''));
     String newText = NumberFormat('#,###').format(value);
-    return newValue.copyWith(
-        text: newText,
-        selection: TextSelection.collapsed(offset: newText.length));
+    return newValue.copyWith(text: newText, selection: TextSelection.collapsed(offset: newText.length));
   }
 }
 
@@ -538,20 +496,10 @@ class CardContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      margin: EdgeInsets.only(
-          left: marginLeft,
-          right: marginRight,
-          top: marginTop,
-          bottom: marginBottom),
-      padding: EdgeInsets.only(
-          left: paddingLeft,
-          right: paddingRight,
-          top: paddingTop,
-          bottom: paddingBottom),
+      margin: EdgeInsets.only(left: marginLeft, right: marginRight, top: marginTop, bottom: marginBottom),
+      padding: EdgeInsets.only(left: paddingLeft, right: paddingRight, top: paddingTop, bottom: paddingBottom),
       decoration: BoxDecoration(
-          border: useBorder
-              ? Border.all(color: borderColor ?? AppColors.cardBorder)
-              : null,
+          border: useBorder ? Border.all(color: borderColor ?? AppColors.cardBorder) : null,
           borderRadius: const BorderRadius.all(Radius.circular(8)),
           color: color ?? AppColors.white),
       child: child,

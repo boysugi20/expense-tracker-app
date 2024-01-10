@@ -6,8 +6,8 @@ import 'package:expense_tracker/navbar.dart';
 import 'package:expense_tracker/notification.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:provider/provider.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
@@ -15,17 +15,23 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   NotificationService.initialize(flutterLocalNotificationsPlugin);
 
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<CategoryBloc>(create: (BuildContext context) => CategoryBloc()),
-        Provider<TransactionBloc>(create: (BuildContext context) => TransactionBloc()),
-        Provider<GoalBloc>(create: (BuildContext context) => GoalBloc()),
-        Provider<TagBloc>(create: (BuildContext context) => TagBloc()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(MultiBlocProvider(
+    providers: [
+      BlocProvider<CategoryBloc>(
+        create: (BuildContext context) => CategoryBloc(),
+      ),
+      BlocProvider<TransactionBloc>(
+        create: (BuildContext context) => TransactionBloc(),
+      ),
+      BlocProvider<GoalBloc>(
+        create: (BuildContext context) => GoalBloc(),
+      ),
+      BlocProvider<TagBloc>(
+        create: (BuildContext context) => TagBloc(),
+      ),
+    ],
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
