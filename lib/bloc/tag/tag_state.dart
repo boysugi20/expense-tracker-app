@@ -21,3 +21,16 @@ class TagLoaded extends TagState {
   @override
   bool get stringify => true;
 }
+
+class TagUpdated extends TagState {
+  final List<Tag> updatedTags;
+  final DateTime lastUpdated;
+
+  const TagUpdated({required this.updatedTags, required this.lastUpdated});
+
+  @override
+  List<Object> get props => [updatedTags, lastUpdated];
+
+  @override
+  bool get stringify => true;
+}

@@ -1,4 +1,3 @@
-
 import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CategoriesForm extends StatefulWidget {
-  
   final ExpenseCategory? initialValues;
   final String header1, header2;
 
@@ -18,20 +16,25 @@ class CategoriesForm extends StatefulWidget {
 }
 
 class _CategoriesFormState extends State<CategoriesForm> {
-  
   final _formKey = GlobalKey<FormState>();
-  ExpenseCategory category = ExpenseCategory(id: 0, name: '');
+  late ExpenseCategory category;
 
   @override
   void initState() {
     super.initState();
+    _initializeCategories();
+  }
+
+  void _initializeCategories() {
     if (widget.initialValues != null) {
       category = widget.initialValues!;
+    } else {
+      category = ExpenseCategory(id: 0, name: '');
     }
   }
 
   Future<void> insertExpenseCategory() async {
-    if(category.name.isNotEmpty){
+    if (category.name.isNotEmpty) {
       context.read<CategoryBloc>().add(AddExpenseCategory(category: category));
     }
   }
@@ -43,29 +46,31 @@ class _CategoriesFormState extends State<CategoriesForm> {
   Future<void> deleteExpenseCategory() async {
     context.read<CategoryBloc>().add(DeleteExpenseCategory(category: category));
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return FormTemplate(
       formKey: _formKey,
-      header1: widget.header1, 
+      header1: widget.header1,
       header2: widget.header2,
       buttonText: widget.initialValues == null ? null : '',
-      onSave: (){
+      onSave: () {
         widget.initialValues == null ? insertExpenseCategory() : updateExpenseCategory();
       },
-      onDelete: (){ deleteExpenseCategory(); },
+      onDelete: () {
+        deleteExpenseCategory();
+      },
       formInputs: Form(
         key: _formKey,
         child: Column(
           children: [
             FormTextInput(
-              title: 'Name', 
-              labelText: 'Category name', 
+              title: 'Name',
+              labelText: 'Category name',
               isRequired: true,
-              initalText: category.name, 
+              initalText: category.name,
               onSave: (value) {
-                category.name = value!; 
+                category.name = value!;
               },
               validateText: (value) {
                 if (value == null || value.isEmpty) {

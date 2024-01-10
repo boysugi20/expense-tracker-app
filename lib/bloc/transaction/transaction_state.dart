@@ -20,3 +20,16 @@ class TransactionLoaded extends TransactionState {
   @override
   bool get stringify => true;
 }
+
+class TransactionUpdated extends TransactionState {
+  final List<Transaction> updatedTransaction;
+  final DateTime lastUpdated;
+
+  const TransactionUpdated({required this.updatedTransaction, required this.lastUpdated});
+
+  @override
+  List<Object> get props => [updatedTransaction, lastUpdated];
+
+  @override
+  bool get stringify => true;
+}

@@ -19,28 +19,29 @@ class TagBloc extends Bloc<TagEvent, TagState> {
       final insertedId = await TagDAO.insertTag(event.tag);
       final updatedTag = event.tag.copyWith(id: insertedId);
       if (state is TagLoaded) {
-        final state = this.state as TagLoaded;
-        emit(TagLoaded(
-            tag: List.from(state.tag)..add(updatedTag),
-            lastUpdated: DateTime.now()));
+        final currentState = state as TagLoaded;
+        final updatedTags = List<Tag>.from(currentState.tag)..add(updatedTag);
+        emit(TagUpdated(updatedTags: updatedTags, lastUpdated: DateTime.now()));
       }
     });
 
     on<UpdateTag>((event, emit) async {
       await TagDAO.updateTag(event.tag);
       if (state is TagLoaded) {
-        final state = this.state as TagLoaded;
-        emit(TagLoaded(tag: List.from(state.tag), lastUpdated: DateTime.now()));
+        final currentState = state as TagLoaded;
+        final updatedTags = currentState.tag.map((tag) {
+          return tag.id == event.tag.id ? event.tag : tag;
+        }).toList();
+        emit(TagUpdated(updatedTags: updatedTags, lastUpdated: DateTime.now()));
       }
     });
 
     on<DeleteTag>((event, emit) async {
       await TagDAO.deleteTag(event.tag);
       if (state is TagLoaded) {
-        final state = this.state as TagLoaded;
-        emit(TagLoaded(
-            tag: List.from(state.tag)..remove(event.tag),
-            lastUpdated: DateTime.now()));
+        final currentState = state as TagLoaded;
+        final updatedTags = currentState.tag.where((tag) => tag.id != event.tag.id).toList();
+        emit(TagUpdated(updatedTags: updatedTags, lastUpdated: DateTime.now()));
       }
     });
   }

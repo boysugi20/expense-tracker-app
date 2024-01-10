@@ -12,9 +12,7 @@ class TagsForm extends StatefulWidget {
   final Tag? initialValues;
   final String header1, header2;
 
-  const TagsForm(
-      {required this.header1, this.header2 = '', this.initialValues, Key? key})
-      : super(key: key);
+  const TagsForm({required this.header1, this.header2 = '', this.initialValues, Key? key}) : super(key: key);
 
   @override
   State<TagsForm> createState() => _TagsFormState();
@@ -22,20 +20,23 @@ class TagsForm extends StatefulWidget {
 
 class _TagsFormState extends State<TagsForm> {
   final _formKey = GlobalKey<FormState>();
-
   final TagBloc tagBloc = TagBloc();
-  Tag tag = Tag(id: 0, name: '', color: '');
 
+  late Tag tag;
   Color currentColor = Colors.red;
 
   @override
   void initState() {
     super.initState();
+    _initializeTag();
+  }
+
+  void _initializeTag() {
     if (widget.initialValues != null) {
       tag = widget.initialValues!;
       currentColor = hexToColor(tag.color);
     } else {
-      tag.color = colorToHex(currentColor);
+      tag = Tag(id: 0, name: '', color: colorToHex(currentColor));
     }
   }
 
@@ -100,11 +101,11 @@ class _TagsFormState extends State<TagsForm> {
                         allowShades: false, // default true
                         onMainColorChange: (ColorSwatch? color) {
                           if (color != null) {
+                            String hexCode = colorToHex(color);
                             setState(() {
                               currentColor = color;
+                              tag.color = hexCode;
                             });
-                            String hexCode = colorToHex(color);
-                            tag.color = hexCode;
                           }
                         },
                         selectedColor: currentColor),

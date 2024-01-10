@@ -10,19 +10,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'transaction_event.dart';
 part 'transaction_state.dart';
 
-
 class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
-
-  final CategoryBloc categoryBloc;
-  StreamSubscription<CategoryState>? subscription;
-
-  TransactionBloc({required this.categoryBloc}) : super(TransactionInitial()) {
-    subscription = categoryBloc.stream.listen((state) {
-      if (state is CategoryLoaded) {
-        add(const GetTransactions());
-      }
-    });
-
+  TransactionBloc() : super(TransactionInitial()) {
     List<Transaction> transactions = [];
 
     on<GetTransactions>((event, emit) async {
@@ -32,29 +21,32 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
 
     on<AddTransaction>((event, emit) async {
       final insertedId = await TransactionDAO.insertTransaction(event.transaction);
-      final updatedTransaction = event.transaction.copyWith(id: insertedId);
+      final updatedTag = event.transaction.copyWith(id: insertedId);
       if (state is TransactionLoaded) {
-        final state = this.state as TransactionLoaded;
-        emit(TransactionLoaded(
-          transaction: List.from(state.transaction)..add(updatedTransaction),
-          lastUpdated: DateTime.now(),
-        ));
+        final currentState = state as TransactionLoaded;
+        final updatedTransaction = List<Transaction>.from(currentState.transaction)..add(updatedTag);
+        emit(TransactionUpdated(updatedTransaction: updatedTransaction, lastUpdated: DateTime.now()));
       }
     });
 
     on<UpdateTransaction>((event, emit) async {
       await TransactionDAO.updateTransaction(event.transaction, event.category);
-      if(state is TransactionLoaded){
-        final state = this.state as TransactionLoaded;
-        emit(TransactionLoaded(transaction: List.from(state.transaction), lastUpdated: DateTime.now()));
+      if (state is TransactionLoaded) {
+        final currentState = state as TransactionLoaded;
+        final updatedTransaction = currentState.transaction.map((transaction) {
+          return transaction.id == event.transaction.id ? event.transaction : transaction;
+        }).toList();
+        emit(TransactionUpdated(updatedTransaction: updatedTransaction, lastUpdated: DateTime.now()));
       }
     });
 
     on<DeleteTransaction>((event, emit) async {
       await TransactionDAO.deleteTransaction(event.transaction);
-      if(state is TransactionLoaded){
-        final state = this.state as TransactionLoaded;
-        emit(TransactionLoaded(transaction: List.from(state.transaction)..remove(event.transaction), lastUpdated: DateTime.now()));
+      if (state is TransactionLoaded) {
+        final currentState = state as TransactionLoaded;
+        final updatedTransaction =
+            currentState.transaction.where((transaction) => transaction.id != event.transaction.id).toList();
+        emit(TransactionUpdated(updatedTransaction: updatedTransaction, lastUpdated: DateTime.now()));
       }
     });
   }

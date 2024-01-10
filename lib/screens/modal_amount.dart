@@ -207,13 +207,13 @@ class _BottomModalamountState extends State<BottomModalamount> {
     });
   }
 
-  void showTagDialog(temp) {
+  void showTagDialog(tagsTemp) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Add Tags'),
-          content: temp.isNotEmpty
+          content: tagsTemp.isNotEmpty
               ? Container(
                   padding: const EdgeInsets.symmetric(vertical: 24),
                   child: MultiSelectContainer(
@@ -222,7 +222,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                         selectedTags = allSelectedItems.cast<Tag>().toList();
                       });
                     },
-                    items: temp,
+                    items: tagsTemp,
                     itemsDecoration: MultiSelectDecorations(
                       decoration: BoxDecoration(
                           border: Border.all(color: AppColors.accent),
@@ -253,8 +253,9 @@ class _BottomModalamountState extends State<BottomModalamount> {
   void openTagPopup(BuildContext context) async {
     final tags = await TagDAO.getTags();
 
-    List<MultiSelectCard> temp = tags.map((tag) {
+    List<MultiSelectCard> tagsTemp = tags.map((tag) {
       String? tagName = tag.name;
+      Color tagColor = hexToColor(tag.color);
       bool isTagSelected =
           selectedTags.any((selectedTag) => selectedTag.name == tagName);
 
@@ -262,10 +263,20 @@ class _BottomModalamountState extends State<BottomModalamount> {
         value: tag,
         label: tagName,
         selected: isTagSelected,
+        decorations: MultiSelectItemDecorations(
+          decoration: BoxDecoration(
+              color: tagColor.withOpacity(0.1),
+              border: Border.all(color: tagColor),
+              borderRadius: BorderRadius.circular(5)),
+          selectedDecoration: BoxDecoration(
+              color: tagColor, borderRadius: BorderRadius.circular(5)),
+        ),
+        highlightColor: hexToColor(tag.color),
+        splashColor: hexToColor(tag.color),
       );
     }).toList();
 
-    showTagDialog(temp);
+    showTagDialog(tagsTemp);
   }
 
   @override

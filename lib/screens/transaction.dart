@@ -90,8 +90,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
         calendarType: CalendarDatePicker2Type.range,
-        selectedDayTextStyle:
-            TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -138,12 +137,9 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     if (datePicked) {
       results = transactionList.where((t) {
         final tDate = DateTime(t.date.year, t.date.month, t.date.day);
-        final startDate = DateTime(filterDateRange[0]!.year,
-            filterDateRange[0]!.month, filterDateRange[0]!.day);
-        final endDate = DateTime(filterDateRange[1]!.year,
-            filterDateRange[1]!.month, filterDateRange[1]!.day);
-        return (tDate.isAfter(startDate) ||
-                tDate.isAtSameMomentAs(startDate)) &&
+        final startDate = DateTime(filterDateRange[0]!.year, filterDateRange[0]!.month, filterDateRange[0]!.day);
+        final endDate = DateTime(filterDateRange[1]!.year, filterDateRange[1]!.month, filterDateRange[1]!.day);
+        return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) &&
             ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
       }).toList();
       if (filterCategoryName != 'All') {
@@ -163,13 +159,12 @@ class TransactionsContainerState extends State<TransactionsContainer> {
     return results;
   }
 
-  Map<String, List<Transaction>> _groupTransactionsByDate(
-      List<Transaction> transactions) {
+  Map<String, List<Transaction>> _groupTransactionsByDate(List<Transaction> transactions) {
     final Map<String, List<Transaction>> groupedTransactions = {};
 
     for (var transaction in transactions) {
-      final String date = DateFormat('dd MMM yyyy').format(transaction
-          .date); // Replace 'formatDate' with your date formatting logic
+      final String date =
+          DateFormat('dd MMM yyyy').format(transaction.date); // Replace 'formatDate' with your date formatting logic
 
       if (groupedTransactions.containsKey(date)) {
         groupedTransactions[date]!.add(transaction);
@@ -199,17 +194,14 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        BlocBuilder<TransactionBloc, TransactionState>(
-            builder: (context, state) {
-          if (state is TransactionInitial) {
+        BlocBuilder<TransactionBloc, TransactionState>(builder: (context, state) {
+          if (state is TransactionInitial || state is TransactionUpdated) {
             context.read<TransactionBloc>().add(const GetTransactions());
           }
           if (state is TransactionLoaded) {
             if (state.transaction.isEmpty) {
               return Container(
-                  padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).viewPadding.top + 16,
-                      bottom: 16),
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
                   color: AppColors.main,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -220,26 +212,21 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                               margin: const EdgeInsets.only(bottom: 8),
                               child: Text(
                                 'Total',
-                                style: TextStyle(
-                                    color: AppColors.white,
-                                    fontWeight: FontWeight.bold),
+                                style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
                               )),
-                          Text('Rp 0',
-                              style: TextStyle(color: AppColors.white)),
+                          Text('Rp 0', style: TextStyle(color: AppColors.white)),
                         ],
                       ),
                     ],
                   ));
             }
-            final List<Transaction> transactions =
-                _sortTransactions(_filterTransactions(state.transaction));
+            final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
             double totalAmount = 0;
             for (Transaction transaction in transactions) {
               totalAmount += transaction.amount;
             }
             return Container(
-              padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
+              padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
               color: AppColors.main,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -250,12 +237,9 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                           margin: const EdgeInsets.only(bottom: 8),
                           child: Text(
                             'Total',
-                            style: TextStyle(
-                                color: AppColors.white,
-                                fontWeight: FontWeight.bold),
+                            style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
                           )),
-                      Text('Rp -${amountDoubleToString(totalAmount)}',
-                          style: TextStyle(color: AppColors.white)),
+                      Text('Rp -${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.white)),
                     ],
                   ),
                 ],
@@ -271,20 +255,14 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             children: [
               Container(
                 margin: const EdgeInsets.only(bottom: 8, top: 12),
-                child:
-                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                  BlocBuilder<CategoryBloc, CategoryState>(
-                      builder: (context, state) {
+                child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  BlocBuilder<CategoryBloc, CategoryState>(builder: (context, state) {
                     if (state is CategoryInitial) {
-                      context
-                          .read<CategoryBloc>()
-                          .add(const GetExpenseCategories());
+                      context.read<CategoryBloc>().add(const GetExpenseCategories());
                     }
                     if (state is CategoryLoaded) {
                       // Get list of categories
-                      final categories = state.category
-                          .map((category) => category.name)
-                          .toList();
+                      final categories = state.category.map((category) => category.name).toList();
                       // Add "All" to the list
                       categories.insert(0, "All");
                       // Create DropdownMenuItem from the list
@@ -295,8 +273,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                               ))
                           .toList();
                       return Container(
-                        padding:
-                            const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                        padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
                         decoration: BoxDecoration(
                           border: Border.all(color: AppColors.cardBorder),
                           borderRadius: BorderRadius.circular(4),
@@ -352,19 +329,15 @@ class TransactionsContainerState extends State<TransactionsContainer> {
               BlocBuilder<TransactionBloc, TransactionState>(
                 builder: (context, state) {
                   if (state is TransactionInitial) {
-                    context
-                        .read<TransactionBloc>()
-                        .add(const GetTransactions());
+                    context.read<TransactionBloc>().add(const GetTransactions());
                   }
                   if (state is TransactionLoaded) {
                     if (state.transaction.isEmpty) {
                       return const NoDataWidget();
                     }
 
-                    final List<Transaction> transactions = _sortTransactions(
-                        _filterTransactions(state.transaction));
-                    final Map<String, List<Transaction>> groupedTransactions =
-                        _groupTransactionsByDate(transactions);
+                    final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
+                    final Map<String, List<Transaction>> groupedTransactions = _groupTransactionsByDate(transactions);
 
                     if (transactions.isEmpty) {
                       return const NoDataWidget();
@@ -379,22 +352,17 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           entry.key,
                                           style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.normal,
-                                              color: AppColors.grey),
+                                              fontSize: 12, fontWeight: FontWeight.normal, color: AppColors.grey),
                                         ),
                                         Text(
                                           'Rp ${amountDoubleToString(_calculateTotalAmount(entry.value))}',
                                           style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.normal,
-                                              color: AppColors.grey),
+                                              fontSize: 12, fontWeight: FontWeight.normal, color: AppColors.grey),
                                         ),
                                       ],
                                     ),
@@ -431,9 +399,7 @@ class TransactionCard extends StatelessWidget {
   final ExpenseCategory category;
   final Transaction transaction;
 
-  const TransactionCard(
-      {required this.category, required this.transaction, Key? key})
-      : super(key: key);
+  const TransactionCard({required this.category, required this.transaction, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -467,12 +433,7 @@ class TransactionCard extends StatelessWidget {
                           )
                         : Text(
                             category.name.isNotEmpty
-                                ? category.name
-                                    .split(" ")
-                                    .map((e) => e[0])
-                                    .take(2)
-                                    .join()
-                                    .toUpperCase()
+                                ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
                                 : "",
                             style: TextStyle(color: AppColors.main),
                           ),
@@ -483,23 +444,18 @@ class TransactionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       RichText(
-                        text: TextSpan(
-                            text: category.name,
-                            style: const TextStyle(color: Colors.black)),
+                        text: TextSpan(text: category.name, style: const TextStyle(color: Colors.black)),
                       ),
                       (transaction.note != null && transaction.note!.isNotEmpty)
                           ? Container(
                               margin: const EdgeInsets.only(top: 8),
                               child: RichText(
                                 text: TextSpan(
-                                  text: transaction.note != null &&
-                                          transaction.note!.length > 22
+                                  text: transaction.note != null && transaction.note!.length > 22
                                       ? '${transaction.note?.substring(0, 22)}...'
                                       : transaction.note,
-                                  style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: 11),
+                                  style:
+                                      const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 11),
                                 ),
                               ),
                             )
@@ -508,8 +464,7 @@ class TransactionCard extends StatelessWidget {
                         margin: const EdgeInsets.only(top: 8),
                         child: Row(
                           children: [
-                            for (var tag in transaction.tags ??
-                                [Tag(id: 0, name: 'nope', color: "#FFFFFF")])
+                            for (var tag in transaction.tags ?? [Tag(id: 0, name: 'nope', color: "#FFFFFF")])
                               Container(
                                 margin: const EdgeInsets.only(right: 4),
                                 padding: const EdgeInsets.symmetric(
@@ -524,10 +479,8 @@ class TransactionCard extends StatelessWidget {
                                 ),
                                 child: Text(
                                   tag.name,
-                                  style: TextStyle(
-                                      fontSize: 11,
-                                      color: getTextColorForBackground(
-                                          hexToColor(tag.color))),
+                                  style:
+                                      TextStyle(fontSize: 11, color: getTextColorForBackground(hexToColor(tag.color))),
                                 ),
                               ),
                           ],

@@ -30,10 +30,7 @@ class FormTemplate extends StatelessWidget {
           minHeight: screenHeight,
         ),
         color: AppColors.neutralLight,
-        padding: EdgeInsets.only(
-            left: 16,
-            right: 16,
-            top: MediaQuery.of(context).viewPadding.top + 24),
+        padding: EdgeInsets.only(left: 16, right: 16, top: MediaQuery.of(context).viewPadding.top + 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,9 +41,7 @@ class FormTemplate extends StatelessWidget {
               },
               child: Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                    color: AppColors.accent,
-                    borderRadius: BorderRadius.circular(32)),
+                decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(32)),
                 child: Icon(
                   Icons.arrow_back,
                   color: AppColors.white,
@@ -81,11 +76,8 @@ class FormTemplate extends StatelessWidget {
                             }
                           },
                           child: buttonText != null
-                              ? FormSubmitButton(
-                                  buttonText: 'Delete', buttonColor: Colors.red)
-                              : FormSubmitButton(
-                                  buttonText: 'Cancel',
-                                  buttonColor: AppColors.grey),
+                              ? FormSubmitButton(buttonText: 'Delete', buttonColor: Colors.red)
+                              : FormSubmitButton(buttonText: 'Cancel', buttonColor: AppColors.grey),
                         ),
                       ),
                       Container(
@@ -96,20 +88,13 @@ class FormTemplate extends StatelessWidget {
                           onTap: () {
                             if (formKey.currentState!.validate()) {
                               formKey.currentState!.save();
-                              // ScaffoldMessenger.of(context).showSnackBar(
-                              //   const SnackBar(content: Text('Saving Data')),
-                              // );
                               onSave!();
                               Navigator.pop(context);
                             }
                           },
                           child: buttonText != null
-                              ? FormSubmitButton(
-                                  buttonText: 'Update',
-                                  buttonColor: AppColors.accent)
-                              : FormSubmitButton(
-                                  buttonText: 'Save',
-                                  buttonColor: AppColors.accent),
+                              ? FormSubmitButton(buttonText: 'Update', buttonColor: AppColors.accent)
+                              : FormSubmitButton(buttonText: 'Save', buttonColor: AppColors.accent),
                         ),
                       ),
                     ],
@@ -128,8 +113,7 @@ class FormTitle extends StatelessWidget {
   final String header1;
   final String? header2;
 
-  const FormTitle({required this.header1, this.header2, Key? key})
-      : super(key: key);
+  const FormTitle({required this.header1, this.header2, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -140,11 +124,7 @@ class FormTitle extends StatelessWidget {
         children: [
           RichText(
             text: TextSpan(
-                text: header1,
-                style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 24)),
+                text: header1, style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 24)),
           ),
           header2 != null
               ? Container(
@@ -152,10 +132,7 @@ class FormTitle extends StatelessWidget {
                   child: RichText(
                     text: TextSpan(
                         text: header2,
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.w300,
-                            fontSize: 14)),
+                        style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 14)),
                   ),
                 )
               : Container(),
@@ -180,14 +157,11 @@ class FormSubmitButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
       margin: const EdgeInsets.only(top: 64, bottom: 100),
-      decoration: BoxDecoration(
-          color: buttonColor, borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(color: buttonColor, borderRadius: BorderRadius.circular(8)),
       width: double.infinity,
       child: Center(
         child: RichText(
-          text: TextSpan(
-              text: buttonText,
-              style: const TextStyle(color: Colors.white, fontSize: 16)),
+          text: TextSpan(text: buttonText, style: const TextStyle(color: Colors.white, fontSize: 16)),
         ),
       ),
     );

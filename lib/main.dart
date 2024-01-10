@@ -9,8 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,11 +18,8 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        Provider<CategoryBloc>(
-            create: (BuildContext context) => CategoryBloc()),
-        Provider<TransactionBloc>(
-            create: (BuildContext context) =>
-                TransactionBloc(categoryBloc: CategoryBloc())),
+        Provider<CategoryBloc>(create: (BuildContext context) => CategoryBloc()),
+        Provider<TransactionBloc>(create: (BuildContext context) => TransactionBloc()),
         Provider<GoalBloc>(create: (BuildContext context) => GoalBloc()),
         Provider<TagBloc>(create: (BuildContext context) => TagBloc()),
       ],
@@ -41,8 +37,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: AppColors.main,
-        colorScheme:
-            ColorScheme.fromSwatch().copyWith(secondary: AppColors.accent),
+        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: AppColors.accent),
       ),
       debugShowCheckedModeBanner: false,
       home: const MyBottomNavigationBar(),

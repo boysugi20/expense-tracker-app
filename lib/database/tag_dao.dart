@@ -10,8 +10,7 @@ class TagDAO {
 
     final data = tag.toMap();
     data.remove('id');
-    final id = await db.insert('Tags', data,
-        conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    final id = await db.insert('Tags', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     return id;
   }
 
@@ -32,8 +31,7 @@ class TagDAO {
       'color': tag.color,
     };
 
-    final result =
-        await db.update('Tags', data, where: "id = ?", whereArgs: [tag.id]);
+    final result = await db.update('Tags', data, where: "id = ?", whereArgs: [tag.id]);
     return result;
   }
 

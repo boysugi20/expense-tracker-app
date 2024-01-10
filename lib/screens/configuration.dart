@@ -26,13 +26,14 @@ class ConfigurationPage extends StatefulWidget {
 
 class _ConfigurationPageState extends State<ConfigurationPage> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(
-          left: 32,
-          right: 32,
-          top: MediaQuery.of(context).viewPadding.top + 24,
-          bottom: 140),
+      padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24, bottom: 140),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,15 +56,13 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           ),
           BlocBuilder<GoalBloc, GoalState>(
             builder: (context, state) {
-              if (state is GoalInitial) {
+              if (state is GoalInitial || state is GoalUpdated) {
                 context.read<GoalBloc>().add(const GetGoals());
               }
               if (state is GoalLoaded) {
                 if (state.goal.isNotEmpty) {
                   return Column(
-                    children: state.goal
-                        .map((goalItem) => GoalsCard(goal: goalItem))
-                        .toList(),
+                    children: state.goal.map((goalItem) => GoalsCard(goal: goalItem)).toList(),
                   );
                 }
               }
@@ -116,15 +115,13 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           ),
           BlocBuilder<TagBloc, TagState>(
             builder: (context, state) {
-              if (state is TagInitial) {
+              if (state is TagInitial || state is TagUpdated) {
                 context.read<TagBloc>().add(const GetTags());
               }
               if (state is TagLoaded) {
                 if (state.tag.isNotEmpty) {
                   return Column(
-                    children: state.tag
-                        .map((tagItem) => TagCard(tag: tagItem))
-                        .toList(),
+                    children: state.tag.map((tagItem) => TagCard(tag: tagItem)).toList(),
                   );
                 }
               }
@@ -149,16 +146,13 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
           ),
           BlocBuilder<CategoryBloc, CategoryState>(
             builder: (context, state) {
-              if (state is CategoryInitial) {
+              if (state is CategoryInitial || state is CategoryUpdated) {
                 context.read<CategoryBloc>().add(const GetExpenseCategories());
               }
               if (state is CategoryLoaded) {
                 if (state.category.isNotEmpty) {
                   return Column(
-                    children: state.category
-                        .map((categoryItem) =>
-                            CategoriesCard(category: categoryItem))
-                        .toList(),
+                    children: state.category.map((categoryItem) => CategoriesCard(category: categoryItem)).toList(),
                   );
                 }
               }
@@ -186,7 +180,7 @@ class CategoriesCard extends StatelessWidget {
               builder: (context) => CategoriesForm(
                     header1: 'Edit Category',
                     header2: 'Edit existing category',
-                    initialValues: category,
+                    initialValues: category.copyWith(),
                   )),
         );
       },
@@ -207,21 +201,14 @@ class CategoriesCard extends StatelessWidget {
                           )
                         : Text(
                             category.name.isNotEmpty
-                                ? category.name
-                                    .split(" ")
-                                    .map((e) => e[0])
-                                    .take(2)
-                                    .join()
-                                    .toUpperCase()
+                                ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
                                 : "",
                             style: TextStyle(color: AppColors.main),
                           ),
                   ),
                 ),
                 RichText(
-                  text: TextSpan(
-                      text: category.name,
-                      style: const TextStyle(color: Colors.black)),
+                  text: TextSpan(text: category.name, style: const TextStyle(color: Colors.black)),
                 ),
               ],
             ),
@@ -248,26 +235,26 @@ class TagCard extends StatelessWidget {
               builder: (context) => TagsForm(
                     header1: 'Edit Tag',
                     header2: 'Edit existing tag',
-                    initialValues: tag,
+                    initialValues: tag.copyWith(),
                   )),
         );
       },
       child: CardContainer(
         paddingBottom: 16,
         paddingTop: 16,
-        useBorder: true,
-        borderColor: hexToColor(tag.color),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                RichText(
-                  text: TextSpan(
-                      text: tag.name,
-                      style: const TextStyle(color: Colors.black)),
-                ),
-              ],
+            RichText(
+              text: TextSpan(text: tag.name, style: const TextStyle(color: Colors.black)),
+            ),
+            Container(
+              width: 20.0,
+              height: 20.0,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: hexToColor(tag.color),
+              ),
             ),
           ],
         ),
@@ -291,7 +278,7 @@ class GoalsCard extends StatelessWidget {
               builder: (context) => GoalsForm(
                     header1: 'Edit Goal',
                     header2: 'Edit existing goal',
-                    initialValues: goal,
+                    initialValues: goal.copyWith(),
                   )),
         );
       },
@@ -309,10 +296,7 @@ class GoalsCard extends StatelessWidget {
               children: [
                 Text(
                   goal.name,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 Container(
                   height: 8,
@@ -361,11 +345,7 @@ class SubscriptionCard extends StatelessWidget {
   final int amount;
 
   const SubscriptionCard(
-      {required this.title,
-      required this.startDate,
-      required this.endDate,
-      required this.amount,
-      Key? key})
+      {required this.title, required this.startDate, required this.endDate, required this.amount, Key? key})
       : super(key: key);
 
   @override
@@ -375,13 +355,11 @@ class SubscriptionCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => SubscriptionForm(
-                      header1: 'Edit Subsciprtion',
-                      header2: 'Edit existing subscription',
-                      initialValues: {
-                        'name': title,
-                        'price': amount.toString(),
-                      })),
+              builder: (context) =>
+                  SubscriptionForm(header1: 'Edit Subsciprtion', header2: 'Edit existing subscription', initialValues: {
+                    'name': title,
+                    'price': amount.toString(),
+                  })),
         );
       },
       child: CardContainer(
@@ -401,8 +379,7 @@ class SubscriptionCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 Container(
                   height: 8,

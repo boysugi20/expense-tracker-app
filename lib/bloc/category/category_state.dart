@@ -20,3 +20,15 @@ class CategoryLoaded extends CategoryState {
   @override
   bool get stringify => true;
 }
+
+class CategoryUpdated extends CategoryState {
+  final List<ExpenseCategory> category;
+  final DateTime lastUpdated;
+
+  const CategoryUpdated({required this.category, required this.lastUpdated});
+  @override
+  List<Object> get props => [category, lastUpdated];
+
+  @override
+  bool get stringify => true;
+}

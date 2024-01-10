@@ -17,9 +17,7 @@ class TransactionForm extends StatefulWidget {
   final Transaction? initialValues;
   final String header1, header2;
 
-  const TransactionForm(
-      {required this.header1, this.header2 = '', this.initialValues, Key? key})
-      : super(key: key);
+  const TransactionForm({required this.header1, this.header2 = '', this.initialValues, Key? key}) : super(key: key);
 
   @override
   State<TransactionForm> createState() => _TransactionFormState();
@@ -36,24 +34,22 @@ class _TransactionFormState extends State<TransactionForm> {
   }
 
   Future<void> updateTransaction() async {
-    context.read<TransactionBloc>().add(UpdateTransaction(
-        transaction: widget.initialValues!,
-        category: widget.initialValues!.category));
+    context
+        .read<TransactionBloc>()
+        .add(UpdateTransaction(transaction: widget.initialValues!, category: widget.initialValues!.category));
   }
 
   Future<void> deleteTransaction() async {
-    context
-        .read<TransactionBloc>()
-        .add(DeleteTransaction(transaction: widget.initialValues!));
+    context.read<TransactionBloc>().add(DeleteTransaction(transaction: widget.initialValues!));
   }
 
-  void showTagDialog(temp) {
+  void showTagDialog(tagsTemp) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Add Tags'),
-          content: temp.isNotEmpty
+          content: tagsTemp.isNotEmpty
               ? Container(
                   padding: const EdgeInsets.symmetric(vertical: 24),
                   child: MultiSelectContainer(
@@ -63,14 +59,12 @@ class _TransactionFormState extends State<TransactionForm> {
                       });
                       widget.initialValues!.tags = selectedTags;
                     },
-                    items: temp,
+                    items: tagsTemp,
                     itemsDecoration: MultiSelectDecorations(
                       decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.accent),
-                          borderRadius: BorderRadius.circular(5)),
-                      selectedDecoration: BoxDecoration(
-                          color: AppColors.accent,
-                          borderRadius: BorderRadius.circular(5)),
+                          border: Border.all(color: AppColors.accent), borderRadius: BorderRadius.circular(5)),
+                      selectedDecoration:
+                          BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(5)),
                     ),
                   ),
                 )
@@ -94,19 +88,28 @@ class _TransactionFormState extends State<TransactionForm> {
   void openTagPopup(BuildContext context) async {
     final tags = await TagDAO.getTags();
 
-    List<MultiSelectCard> temp = tags.map((tag) {
+    List<MultiSelectCard> tagsTemp = tags.map((tag) {
       String? tagName = tag.name;
-      bool isTagSelected =
-          selectedTags.any((selectedTag) => selectedTag.name == tagName);
+      Color tagColor = hexToColor(tag.color);
+      bool isTagSelected = selectedTags.any((selectedTag) => selectedTag.name == tagName);
 
       return MultiSelectCard(
         value: tag,
         label: tagName,
         selected: isTagSelected,
+        decorations: MultiSelectItemDecorations(
+          decoration: BoxDecoration(
+              color: tagColor.withOpacity(0.1),
+              border: Border.all(color: tagColor),
+              borderRadius: BorderRadius.circular(5)),
+          selectedDecoration: BoxDecoration(color: tagColor, borderRadius: BorderRadius.circular(5)),
+        ),
+        highlightColor: hexToColor(tag.color),
+        splashColor: hexToColor(tag.color),
       );
     }).toList();
 
-    showTagDialog(temp);
+    showTagDialog(tagsTemp);
   }
 
   @override
@@ -130,11 +133,9 @@ class _TransactionFormState extends State<TransactionForm> {
               title: 'Date',
               labelText: 'Transaction date',
               isRequired: true,
-              initalText:
-                  DateFormat('dd MMM yyyy').format(widget.initialValues!.date),
+              initalText: DateFormat('dd MMM yyyy').format(widget.initialValues!.date),
               onSave: (value) {
-                widget.initialValues!.date =
-                    DateFormat('dd MMM yyyy').parse(value!);
+                widget.initialValues!.date = DateFormat('dd MMM yyyy').parse(value!);
               },
               validateText: (value) {
                 if (value == null || value.isEmpty) {
@@ -191,9 +192,7 @@ class _TransactionFormState extends State<TransactionForm> {
                             ),
                             child: Text(
                               tag.name,
-                              style: TextStyle(
-                                  color: getTextColorForBackground(
-                                      hexToColor(tag.color))),
+                              style: TextStyle(color: getTextColorForBackground(hexToColor(tag.color))),
                             ),
                           ),
                       ],
@@ -204,21 +203,16 @@ class _TransactionFormState extends State<TransactionForm> {
                       },
                       child: Container(
                         margin: const EdgeInsets.only(top: 14),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 2,
-                          horizontal: 6,
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
                         child: IntrinsicWidth(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Edit Tag',
-                                  style: TextStyle(
-                                      color: AppColors.black, fontSize: 12)),
+                              Text('Edit Tag', style: TextStyle(color: AppColors.accent)),
                               Container(
                                 width: 4,
                               ),
-                              Icon(Icons.edit, color: AppColors.black, size: 12)
+                              Icon(Icons.edit, color: AppColors.accent, size: 14)
                             ],
                           ),
                         ),
