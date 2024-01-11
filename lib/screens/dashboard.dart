@@ -60,9 +60,16 @@ class _DashboardPageState extends State<DashboardPage> {
       String currentMonth = DateFormat('yyyy-MM').format(now);
 
       transactions = await db.accessDatabase('''
-        SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon
-        FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
-        WHERE strftime('%Y-%m', date) = '$currentMonth'
+        SELECT 
+          A.*, 
+          B.id as expenseCategoryId, B.name as expenseCategoryName, B.icon as expenseCategoryIcon, 
+          C.id as incomeCategoryId, C.name as incomeCategoryName, C.icon as incomeCategoryIcon
+        FROM 
+          Transactions AS A 
+          LEFT JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id 
+          LEFT JOIN IncomeCategories AS C ON A.IncomeCategoryId = C.id
+        WHERE 
+          strftime('%Y-%m', date) = '$currentMonth'
       ''');
     } else if (dropdownText == 'Last Month') {
       DateTime now = DateTime.now();
@@ -70,14 +77,27 @@ class _DashboardPageState extends State<DashboardPage> {
       String previousMonth = DateFormat('yyyy-MM').format(previousMonthDate);
 
       transactions = await db.accessDatabase('''
-        SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon
-        FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
-        WHERE strftime('%Y-%m', date) = '$previousMonth'
+        SELECT 
+          A.*, 
+          B.id as expenseCategoryId, B.name as expenseCategoryName, B.icon as expenseCategoryIcon, 
+          C.id as incomeCategoryId, C.name as incomeCategoryName, C.icon as incomeCategoryIcon
+        FROM 
+          Transactions AS A 
+          LEFT JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id 
+          LEFT JOIN IncomeCategories AS C ON A.IncomeCategoryId = C.id
+        WHERE 
+          strftime('%Y-%m', date) = '$previousMonth'
       ''');
     } else {
       transactions = await db.accessDatabase('''
-        SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon
-        FROM Transactions AS A JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id
+        SELECT
+          A.*, 
+          B.id as expenseCategoryId, B.name as expenseCategoryName, B.icon as expenseCategoryIcon, 
+          C.id as incomeCategoryId, C.name as incomeCategoryName, C.icon as incomeCategoryIcon
+        FROM 
+          Transactions AS A 
+          LEFT JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id 
+          LEFT JOIN IncomeCategories AS C ON A.IncomeCategoryId = C.id
       ''');
     }
 
@@ -121,10 +141,7 @@ class _DashboardPageState extends State<DashboardPage> {
           size: MediaQuery.of(context).size,
         ),
         Container(
-          padding: EdgeInsets.only(
-              left: 32,
-              right: 32,
-              top: MediaQuery.of(context).viewPadding.top + 24),
+          padding: EdgeInsets.only(left: 32, right: 32, top: MediaQuery.of(context).viewPadding.top + 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,9 +154,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       text: 'Hello,\n',
                       style: TextStyle(color: Colors.white),
                       children: <TextSpan>[
-                        TextSpan(
-                            text: 'John Doe',
-                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: 'John Doe', style: TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
@@ -177,7 +192,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
                   for (var transaction in transactions) {
                     double amount = transaction['amount'] as double;
-                    if (amount > 0) {
+
+                    if (transaction['expenseCategoryId'] != null) {
                       expense += amount;
                     } else {
                       income += amount;
@@ -190,8 +206,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     balance = income - expense;
                   }
 
-                  return BalanceCard(
-                      balance: balance, income: income, expense: expense);
+                  return BalanceCard(balance: balance, income: income, expense: expense);
                 },
               ),
 
@@ -248,9 +263,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 totalAmount: goalItem.totalAmount,
                                 progress: goalItem.totalAmount != 0
                                     ? (goalItem.progressAmount != null
-                                        ? (goalItem.progressAmount! /
-                                                goalItem.totalAmount) *
-                                            100
+                                        ? (goalItem.progressAmount! / goalItem.totalAmount) * 100
                                         : 0)
                                     : 0,
                               )),
@@ -274,20 +287,21 @@ class _DashboardPageState extends State<DashboardPage> {
                   double totalAmount = 0;
 
                   for (var transaction in transactions) {
-                    final category = transaction['categoryName'].toString();
-                    final amount =
-                        double.parse(transaction['amount'].toString());
-                    final icon = transaction['categoryIcon'].toString();
+                    if (transaction['expenseCategoryId'] != null) {
+                      final category = transaction['expenseCategoryName'].toString();
+                      final amount = double.parse(transaction['amount'].toString());
+                      final icon = transaction['expenseCategoryIcon'].toString();
 
-                    totalAmount += amount;
+                      totalAmount += amount;
 
-                    if (!categoryTotalMap.containsKey(category)) {
-                      categoryTotalMap[category] = {
-                        'amount': amount,
-                        'icon': icon,
-                      };
-                    } else {
-                      categoryTotalMap[category]!['amount'] += amount;
+                      if (!categoryTotalMap.containsKey(category)) {
+                        categoryTotalMap[category] = {
+                          'amount': amount,
+                          'icon': icon,
+                        };
+                      } else {
+                        categoryTotalMap[category]!['amount'] += amount;
+                      }
                     }
                   }
 
@@ -297,11 +311,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     final amount = entry.value['amount'] as double;
                     final icon = entry.value['icon'] as String;
 
-                    return Expenses(
-                        text: category,
-                        amount: amount,
-                        icon: icon,
-                        totalAmount: totalAmount);
+                    return Expenses(text: category, amount: amount, icon: icon, totalAmount: totalAmount);
                   }).toList();
 
                   // Sort the expenseWidgets list by amount in descending order
@@ -344,17 +354,11 @@ class NotificationCard extends StatelessWidget {
             RichText(
               text: const TextSpan(
                 text: 'Warning\n',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.bold),
                 children: [
                   TextSpan(
                     text: 'Lorem ipsum dolor sit amet',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal),
+                    style: TextStyle(color: Colors.black, fontSize: 12, fontWeight: FontWeight.normal),
                   ),
                 ],
               ),
@@ -374,10 +378,8 @@ class ExpenseChart extends StatelessWidget {
 
   final List<FlSpot> data;
 
-  late final double maxY =
-      data.reduce((value, element) => value.y > element.y ? value : element).y;
-  late final double minY =
-      data.reduce((value, element) => value.y < element.y ? value : element).y;
+  late final double maxY = data.reduce((value, element) => value.y > element.y ? value : element).y;
+  late final double minY = data.reduce((value, element) => value.y < element.y ? value : element).y;
 
   @override
   Widget build(BuildContext context) {
@@ -576,11 +578,7 @@ class GoalsCard extends StatelessWidget {
   final String title;
 
   const GoalsCard(
-      {required this.title,
-      required this.progress,
-      this.progressAmount,
-      required this.totalAmount,
-      Key? key})
+      {required this.title, required this.progress, this.progressAmount, required this.totalAmount, Key? key})
       : super(key: key);
 
   @override
@@ -620,8 +618,7 @@ class GoalsCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       minHeight: 8,
                       value: progress / 100,
-                      color:
-                          progress >= 100 ? AppColors.green : AppColors.accent,
+                      color: progress >= 100 ? AppColors.green : AppColors.accent,
                       backgroundColor: AppColors.accent.withOpacity(0.2),
                     ),
                   ),
@@ -640,12 +637,7 @@ class Expenses extends StatelessWidget {
   final String? icon;
   final double amount, totalAmount;
 
-  const Expenses(
-      {required this.text,
-      required this.amount,
-      required this.totalAmount,
-      this.icon,
-      Key? key})
+  const Expenses({required this.text, required this.amount, required this.totalAmount, this.icon, Key? key})
       : super(key: key);
 
   @override
@@ -668,22 +660,13 @@ class Expenses extends StatelessWidget {
                               color: AppColors.main,
                             )
                           : Text(
-                              text.isNotEmpty
-                                  ? text
-                                      .split(" ")
-                                      .map((e) => e[0])
-                                      .take(2)
-                                      .join()
-                                      .toUpperCase()
-                                  : "",
+                              text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "",
                               style: TextStyle(color: AppColors.main),
                             ),
                     ),
                   ),
                   RichText(
-                    text: TextSpan(
-                        text: text,
-                        style: const TextStyle(color: Colors.black)),
+                    text: TextSpan(text: text, style: const TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
@@ -745,17 +728,11 @@ class BalanceCard extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RichText(
-                  text: TextSpan(
-                      text: 'Balance',
-                      style: TextStyle(color: AppColors.grey, fontSize: 12))),
+              RichText(text: TextSpan(text: 'Balance', style: TextStyle(color: AppColors.grey, fontSize: 12))),
               RichText(
                   text: TextSpan(
                       text: 'Rp ${amountDoubleToString(balance)}',
-                      style: TextStyle(
-                          color: AppColors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold))),
+                      style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold))),
             ],
           ),
           Container(
@@ -771,16 +748,11 @@ class BalanceCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RichText(
-                          text: TextSpan(
-                              text: 'Expense',
-                              style: TextStyle(
-                                  color: AppColors.grey, fontSize: 12))),
+                      RichText(text: TextSpan(text: 'Expense', style: TextStyle(color: AppColors.grey, fontSize: 12))),
                       RichText(
                           text: TextSpan(
                               text: 'Rp ${amountDoubleToString(expense)}',
-                              style: TextStyle(
-                                  color: AppColors.white, fontSize: 14))),
+                              style: TextStyle(color: AppColors.white, fontSize: 14))),
                     ],
                   ),
                 ),
@@ -791,16 +763,11 @@ class BalanceCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RichText(
-                          text: TextSpan(
-                              text: 'Income',
-                              style: TextStyle(
-                                  color: AppColors.grey, fontSize: 12))),
+                      RichText(text: TextSpan(text: 'Income', style: TextStyle(color: AppColors.grey, fontSize: 12))),
                       RichText(
                           text: TextSpan(
                               text: 'Rp ${amountDoubleToString(income)}',
-                              style: TextStyle(
-                                  color: AppColors.white, fontSize: 14))),
+                              style: TextStyle(color: AppColors.white, fontSize: 14))),
                     ],
                   ),
                 ),
@@ -831,8 +798,7 @@ class _WaveCustomPaint extends CustomPainter {
     var firstStart = Offset(size.width / 2, lowestBottom);
     var firstEnd = Offset(size.width, height);
 
-    path.quadraticBezierTo(
-        firstStart.dx, firstStart.dy, firstEnd.dx, firstEnd.dy);
+    path.quadraticBezierTo(firstStart.dx, firstStart.dy, firstEnd.dx, firstEnd.dy);
 
     path.lineTo(size.width, 0); //end
     path.close();
@@ -880,11 +846,9 @@ Widget leftTitleWidgets(double value, TitleMeta meta) {
   const style = TextStyle(fontSize: 12);
 
   if (value >= 1000000) {
-    return Text('${(value / 1000000).toStringAsFixed(1)}M',
-        style: style, textAlign: TextAlign.left);
+    return Text('${(value / 1000000).toStringAsFixed(1)}M', style: style, textAlign: TextAlign.left);
   } else if (value >= 1000) {
-    return Text('${(value / 1000).toStringAsFixed(0)}K',
-        style: style, textAlign: TextAlign.left);
+    return Text('${(value / 1000).toStringAsFixed(0)}K', style: style, textAlign: TextAlign.left);
   } else {
     String text = value.toInt().toString();
     return Text(text, style: style, textAlign: TextAlign.left);

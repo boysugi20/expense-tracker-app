@@ -239,10 +239,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                   ));
             }
             final List<Transaction> transactions = _sortTransactions(_filterTransactions(state.transaction));
-            double totalAmount = 0;
-            for (Transaction transaction in transactions) {
-              totalAmount += transaction.amount;
-            }
+            double totalAmount = _calculateTotalAmount(transactions);
             return Container(
               padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
               color: AppColors.main,
@@ -257,7 +254,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                             'Total',
                             style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
                           )),
-                      Text('Rp -${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.white)),
+                      Text('Rp ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.white)),
                     ],
                   ),
                 ],
@@ -568,7 +565,7 @@ class _TransactionCardState extends State<TransactionCard> {
               text: TextSpan(
                   text: 'Rp ${amountDoubleToString(widget.transaction.amount)}',
                   style: TextStyle(
-                      color: _objectType == 'ExpenseCategory' ? AppColors.red : AppColors.black, fontSize: 12)),
+                      color: _objectType == 'ExpenseCategory' ? AppColors.red : AppColors.green, fontSize: 12)),
             ),
           ],
         ),
