@@ -75,6 +75,7 @@ class _TagsFormState extends State<TagsForm> {
                 FormTextInput(
                   title: 'Name',
                   labelText: 'Tag name',
+                  charLimit: 16,
                   isRequired: true,
                   initalText: tag.name,
                   onSave: (value) {

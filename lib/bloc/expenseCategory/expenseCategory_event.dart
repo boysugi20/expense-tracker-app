@@ -1,35 +1,37 @@
-part of 'category_bloc.dart';
+part of 'expenseCategory_bloc.dart';
 
-abstract class CategoryEvent extends Equatable {
-  const CategoryEvent();
+abstract class ExpenseCategoryEvent extends Equatable {
+  const ExpenseCategoryEvent();
 }
 
-class GetExpenseCategories extends CategoryEvent {
+class GetExpenseCategories extends ExpenseCategoryEvent {
   const GetExpenseCategories();
   @override
   List<Object?> get props => [];
 }
 
-class AddExpenseCategory extends CategoryEvent {
+class AddExpenseCategory extends ExpenseCategoryEvent {
   final ExpenseCategory category;
-  const AddExpenseCategory({required this.category,});
+  const AddExpenseCategory({
+    required this.category,
+  });
 
   @override
   List<Object?> get props => [category];
 }
 
-class UpdateExpenseCategory extends CategoryEvent {
+class UpdateExpenseCategory extends ExpenseCategoryEvent {
   final ExpenseCategory category;
   const UpdateExpenseCategory({required this.category});
-  
+
   @override
   List<Object?> get props => [category];
 }
 
-class DeleteExpenseCategory extends CategoryEvent {
+class DeleteExpenseCategory extends ExpenseCategoryEvent {
   final ExpenseCategory category;
   const DeleteExpenseCategory({required this.category});
-  
+
   @override
   List<Object?> get props => [category];
 }

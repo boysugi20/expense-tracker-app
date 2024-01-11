@@ -6,8 +6,9 @@ import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/database/tag_dao.dart';
 import 'package:expense_tracker/general/functions.dart';
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/expenseCategory.dart';
 import 'package:expense_tracker/models/goal.dart';
+import 'package:expense_tracker/models/incomeCategory.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
@@ -21,15 +22,11 @@ import 'package:flutter_multi_select_items/flutter_multi_select_items.dart';
 import '../models/tag.dart';
 
 class BottomModalamount extends StatefulWidget {
-  final Object categoryOrGoal;
+  final Object category;
   final Function(int)? changeScreen;
   final Transaction? initialTransaction;
 
-  const BottomModalamount(
-      {required this.categoryOrGoal,
-      this.changeScreen,
-      this.initialTransaction,
-      Key? key})
+  const BottomModalamount({required this.category, this.changeScreen, this.initialTransaction, Key? key})
       : super(key: key);
 
   @override
@@ -50,33 +47,45 @@ class _BottomModalamountState extends State<BottomModalamount> {
   final TextEditingController _notesController = TextEditingController();
 
   String _title = '';
+  String? _icon = '';
   String _objectType = '';
-  ExpenseCategory category = ExpenseCategory(id: 0, name: '');
-  Goal goal = Goal(id: 0, name: '', totalAmount: 0);
   List<Tag> selectedTags = [];
+  late Object category;
+
+  ExpenseCategory expenseCategory = ExpenseCategory(id: 0, name: '');
+  IncomeCategory incomeCategory = IncomeCategory(id: 0, name: '');
+  Goal goal = Goal(id: 0, name: '', totalAmount: 0);
 
   @override
   void initState() {
     super.initState();
     // If edit transaction
     if (widget.initialTransaction != null) {
-      category = widget.initialTransaction!.category;
+      expenseCategory = widget.initialTransaction!.expenseCategory!;
+      incomeCategory = widget.initialTransaction!.incomeCategory!;
       _text = amountDoubleToString(widget.initialTransaction!.amount);
       _notesController.text = widget.initialTransaction!.note ?? '';
       selectedDate[0] = widget.initialTransaction!.date;
     }
     // Choose between expense or goal
-    if (widget.categoryOrGoal is ExpenseCategory) {
-      category = widget.categoryOrGoal as ExpenseCategory;
-      _title = category.name;
-      _objectType = 'Category';
-    } else if (widget.categoryOrGoal is Goal) {
-      goal = widget.categoryOrGoal as Goal;
+    if (widget.category is ExpenseCategory) {
+      expenseCategory = widget.category as ExpenseCategory;
+      _title = expenseCategory.name;
+      _icon = expenseCategory.icon;
+      _objectType = 'ExpenseCategory';
+      category = expenseCategory;
+    } else if (widget.category is IncomeCategory) {
+      incomeCategory = widget.category as IncomeCategory;
+      _title = incomeCategory.name;
+      _icon = incomeCategory.icon;
+      _objectType = 'IncomeCategory';
+      category = incomeCategory;
+    } else if (widget.category is Goal) {
+      goal = widget.category as Goal;
       _title = goal.name;
       _objectType = 'Goal';
     } else {
-      throw Exception(
-          'categoryOrGoal must be either a ExpenseCategory or a Goal');
+      throw Exception('Category must be either ExpenseCategory, IncomeCategory, or Goal');
     }
   }
 
@@ -84,8 +93,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
-        selectedDayTextStyle:
-            TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -101,14 +109,15 @@ class _BottomModalamountState extends State<BottomModalamount> {
   }
 
   Future<void> _addTransactionDB(category, date, amount, note, tags) async {
-    context.read<TransactionBloc>().add(AddTransaction(
-        transaction: Transaction(
-            id: 0,
-            category: category,
-            date: date,
-            amount: amount,
-            note: note,
-            tags: tags)));
+    if (category is ExpenseCategory) {
+      context.read<TransactionBloc>().add(AddTransaction(
+          transaction:
+              Transaction(id: 0, expenseCategory: category, date: date, amount: amount, note: note, tags: tags)));
+    } else {
+      context.read<TransactionBloc>().add(AddTransaction(
+          transaction:
+              Transaction(id: 0, incomeCategory: category, date: date, amount: amount, note: note, tags: tags)));
+    }
   }
 
   Future<void> _updateGoalDB(goal) async {
@@ -116,7 +125,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
   }
 
   void _addTransaction(
-      {required ExpenseCategory category,
+      {required Object category,
       required DateTime date,
       required double amount,
       required String note,
@@ -154,8 +163,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
       // If input is backspace
       else if (value == 'backspace') {
         if (_text.isNotEmpty) {
-          _text = addThousandSeperatorToString(
-              _text.substring(0, _text.length - 1));
+          _text = addThousandSeperatorToString(_text.substring(0, _text.length - 1));
         }
         if (_text.endsWith('.')) {
           _text = _text.replaceAll('.', '');
@@ -178,8 +186,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
         } else if (result.isInfinite) {
           _text = "0";
         } else {
-          _text = addThousandSeperatorToString(
-              result.toStringAsFixed(2).replaceAll(".00", ""));
+          _text = addThousandSeperatorToString(result.toStringAsFixed(2).replaceAll(".00", ""));
         }
       }
 
@@ -225,11 +232,9 @@ class _BottomModalamountState extends State<BottomModalamount> {
                     items: tagsTemp,
                     itemsDecoration: MultiSelectDecorations(
                       decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.accent),
-                          borderRadius: BorderRadius.circular(5)),
-                      selectedDecoration: BoxDecoration(
-                          color: AppColors.accent,
-                          borderRadius: BorderRadius.circular(5)),
+                          border: Border.all(color: AppColors.accent), borderRadius: BorderRadius.circular(5)),
+                      selectedDecoration:
+                          BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(5)),
                     ),
                   ),
                 )
@@ -256,8 +261,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
     List<MultiSelectCard> tagsTemp = tags.map((tag) {
       String? tagName = tag.name;
       Color tagColor = hexToColor(tag.color);
-      bool isTagSelected =
-          selectedTags.any((selectedTag) => selectedTag.name == tagName);
+      bool isTagSelected = selectedTags.any((selectedTag) => selectedTag.name == tagName);
 
       return MultiSelectCard(
         value: tag,
@@ -268,8 +272,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
               color: tagColor.withOpacity(0.1),
               border: Border.all(color: tagColor),
               borderRadius: BorderRadius.circular(5)),
-          selectedDecoration: BoxDecoration(
-              color: tagColor, borderRadius: BorderRadius.circular(5)),
+          selectedDecoration: BoxDecoration(color: tagColor, borderRadius: BorderRadius.circular(5)),
         ),
         highlightColor: hexToColor(tag.color),
         splashColor: hexToColor(tag.color),
@@ -284,8 +287,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
     return Wrap(children: [
       Container(
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
           color: AppColors.neutralDark,
         ),
         padding: const EdgeInsets.symmetric(vertical: 24),
@@ -303,21 +305,17 @@ class _BottomModalamountState extends State<BottomModalamount> {
                 children: [
                   for (var tag in selectedTags)
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 4, horizontal: 6),
+                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 6),
                       decoration: BoxDecoration(
                           border: Border.all(
                             color: hexToColor(tag.color),
                           ),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(4))),
+                          borderRadius: const BorderRadius.all(Radius.circular(4))),
                       child: IntrinsicWidth(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(tag.name,
-                                style: TextStyle(
-                                    color: AppColors.white, fontSize: 12)),
+                            Text(tag.name, style: TextStyle(color: AppColors.white, fontSize: 12)),
                             Container(
                               width: 2,
                             ),
@@ -334,15 +332,12 @@ class _BottomModalamountState extends State<BottomModalamount> {
                       borderType: BorderType.RRect,
                       radius: const Radius.circular(4),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 2, horizontal: 6),
+                        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 6),
                         child: IntrinsicWidth(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Edit Tag',
-                                  style: TextStyle(
-                                      color: AppColors.white, fontSize: 12)),
+                              Text('Edit Tag', style: TextStyle(color: AppColors.white, fontSize: 12)),
                               Container(
                                 width: 4,
                               ),
@@ -380,28 +375,18 @@ class _BottomModalamountState extends State<BottomModalamount> {
                     child: CircleAvatar(
                       backgroundColor: Colors.grey.shade200,
                       radius: 16,
-                      child: category.icon != null
+                      child: _icon != null
                           ? Icon(
-                              deserializeIcon(jsonDecode(category.icon!)),
+                              deserializeIcon(jsonDecode(_icon!)),
                               color: AppColors.main,
                             )
                           : Text(
-                              category.name.isNotEmpty
-                                  ? category.name
-                                      .split(" ")
-                                      .map((e) => e[0])
-                                      .take(2)
-                                      .join()
-                                      .toUpperCase()
-                                  : "",
+                              _title.isNotEmpty ? _title.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "",
                               style: TextStyle(color: AppColors.main),
                             ),
                     ),
                   ),
-                  RichText(
-                      text: TextSpan(
-                          text: _title,
-                          style: TextStyle(color: AppColors.white))),
+                  RichText(text: TextSpan(text: _title, style: TextStyle(color: AppColors.white))),
                 ],
               ),
             ),
@@ -416,7 +401,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
 
             // Date
             Builder(builder: (BuildContext context) {
-              if (_objectType == 'Category') {
+              if (_objectType == 'ExpenseCategory' || _objectType == 'IncomeCategory') {
                 return GestureDetector(
                   onTap: () {
                     _showDatePicker(context);
@@ -425,8 +410,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                     margin: const EdgeInsets.only(bottom: 16),
                     child: RichText(
                         text: TextSpan(
-                            text: DateFormat('dd MMM yyyy')
-                                .format(selectedDate[0]!),
+                            text: DateFormat('dd MMM yyyy').format(selectedDate[0]!),
                             style: TextStyle(color: AppColors.white))),
                   ),
                 );
@@ -441,27 +425,18 @@ class _BottomModalamountState extends State<BottomModalamount> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               margin: const EdgeInsets.symmetric(horizontal: 24),
-              decoration: BoxDecoration(
-                  color: AppColors.white,
-                  borderRadius: const BorderRadius.all(Radius.circular(8))),
+              decoration:
+                  BoxDecoration(color: AppColors.white, borderRadius: const BorderRadius.all(Radius.circular(8))),
               child: RichText(
-                  text: TextSpan(
-                      style: TextStyle(color: AppColors.black),
-                      children: [
-                    TextSpan(
-                        text: 'Rp ',
-                        style: TextStyle(
-                            color: AppColors.accent,
-                            fontWeight: FontWeight.bold)),
-                    TextSpan(
-                        text: _text.isNotEmpty ? _text : '0',
-                        style: TextStyle(color: AppColors.black)),
-                  ])),
+                  text: TextSpan(style: TextStyle(color: AppColors.black), children: [
+                TextSpan(text: 'Rp ', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
+                TextSpan(text: _text.isNotEmpty ? _text : '0', style: TextStyle(color: AppColors.black)),
+              ])),
             ),
 
             // Notes
             Builder(builder: (BuildContext context) {
-              if (_objectType == 'Category') {
+              if (_objectType == 'ExpenseCategory' || _objectType == 'IncomeCategory') {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 16, top: 12),
                   child: TextField(
@@ -493,50 +468,34 @@ class _BottomModalamountState extends State<BottomModalamount> {
                     children: [
                       TableRow(
                         children: [
-                          buildTextButton('+',
-                              onPressed: () => _updateText('+')),
-                          buildTextButton('7',
-                              onPressed: () => _updateText('7')),
-                          buildTextButton('8',
-                              onPressed: () => _updateText('8')),
-                          buildTextButton('9',
-                              onPressed: () => _updateText('9')),
+                          buildTextButton('+', onPressed: () => _updateText('+')),
+                          buildTextButton('7', onPressed: () => _updateText('7')),
+                          buildTextButton('8', onPressed: () => _updateText('8')),
+                          buildTextButton('9', onPressed: () => _updateText('9')),
                         ],
                       ),
                       TableRow(
                         children: [
-                          buildTextButton('-',
-                              onPressed: () => _updateText('-')),
-                          buildTextButton('4',
-                              onPressed: () => _updateText('4')),
-                          buildTextButton('5',
-                              onPressed: () => _updateText('5')),
-                          buildTextButton('6',
-                              onPressed: () => _updateText('6')),
+                          buildTextButton('-', onPressed: () => _updateText('-')),
+                          buildTextButton('4', onPressed: () => _updateText('4')),
+                          buildTextButton('5', onPressed: () => _updateText('5')),
+                          buildTextButton('6', onPressed: () => _updateText('6')),
                         ],
                       ),
                       TableRow(
                         children: [
-                          buildTextButton('x',
-                              onPressed: () => _updateText('x')),
-                          buildTextButton('1',
-                              onPressed: () => _updateText('1')),
-                          buildTextButton('2',
-                              onPressed: () => _updateText('2')),
-                          buildTextButton('3',
-                              onPressed: () => _updateText('3')),
+                          buildTextButton('x', onPressed: () => _updateText('x')),
+                          buildTextButton('1', onPressed: () => _updateText('1')),
+                          buildTextButton('2', onPressed: () => _updateText('2')),
+                          buildTextButton('3', onPressed: () => _updateText('3')),
                         ],
                       ),
                       TableRow(
                         children: [
-                          buildTextButton('/',
-                              onPressed: () => _updateText('/')),
-                          buildTextButton('.',
-                              onPressed: () => _updateText('.')),
-                          buildTextButton('0',
-                              onPressed: () => _updateText('0')),
-                          buildTextButton('000',
-                              onPressed: () => _updateText('000')),
+                          buildTextButton('/', onPressed: () => _updateText('/')),
+                          buildTextButton('.', onPressed: () => _updateText('.')),
+                          buildTextButton('0', onPressed: () => _updateText('0')),
+                          buildTextButton('000', onPressed: () => _updateText('000')),
                         ],
                       ),
                     ],
@@ -546,7 +505,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                     width: MediaQuery.of(context).size.width * 0.18,
                     child: Builder(
                       builder: (BuildContext context) {
-                        if (_objectType == 'Category') {
+                        if (_objectType == 'ExpenseCategory' || _objectType == 'IncomeCategory') {
                           return Table(
                             children: [
                               TableRow(children: [
@@ -565,18 +524,14 @@ class _BottomModalamountState extends State<BottomModalamount> {
                                         height: 2,
                                         color: AppColors.accent,
                                         iconcolor: AppColors.white)
-                                    : buildIconButton(Icons.check,
-                                        onPressed: () {
+                                    : buildIconButton(Icons.check, onPressed: () {
                                         _addTransaction(
                                             category: category,
                                             date: selectedDate[0]!,
                                             amount: amountStringToDouble(_text),
                                             note: _notesController.text,
                                             tags: selectedTags);
-                                      },
-                                        height: 2,
-                                        color: AppColors.accent,
-                                        iconcolor: AppColors.white),
+                                      }, height: 2, color: AppColors.accent, iconcolor: AppColors.white),
                               ]),
                             ],
                           );
@@ -596,12 +551,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                                         color: AppColors.accent,
                                         iconcolor: AppColors.white)
                                     : buildIconButton(Icons.check,
-                                        onPressed: () => {
-                                              _addGoal(
-                                                  goal: goal,
-                                                  amount: amountStringToDouble(
-                                                      _text))
-                                            },
+                                        onPressed: () => {_addGoal(goal: goal, amount: amountStringToDouble(_text))},
                                         height: 3,
                                         color: AppColors.accent,
                                         iconcolor: AppColors.white),

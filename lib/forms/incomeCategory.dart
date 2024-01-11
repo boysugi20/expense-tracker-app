@@ -1,23 +1,24 @@
-import 'package:expense_tracker/bloc/category/category_bloc.dart';
+import 'package:expense_tracker/bloc/incomeCategory/incomeCategory_bloc.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/incomeCategory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CategoriesForm extends StatefulWidget {
-  final ExpenseCategory? initialValues;
+class IncomeCategoriesForm extends StatefulWidget {
+  final IncomeCategory? initialValues;
   final String header1, header2;
 
-  const CategoriesForm({required this.header1, this.header2 = '', this.initialValues, Key? key}) : super(key: key);
+  const IncomeCategoriesForm({required this.header1, this.header2 = '', this.initialValues, Key? key})
+      : super(key: key);
 
   @override
-  State<CategoriesForm> createState() => _CategoriesFormState();
+  State<IncomeCategoriesForm> createState() => _IncomeCategoriesFormState();
 }
 
-class _CategoriesFormState extends State<CategoriesForm> {
+class _IncomeCategoriesFormState extends State<IncomeCategoriesForm> {
   final _formKey = GlobalKey<FormState>();
-  late ExpenseCategory category;
+  late IncomeCategory category;
 
   @override
   void initState() {
@@ -29,22 +30,22 @@ class _CategoriesFormState extends State<CategoriesForm> {
     if (widget.initialValues != null) {
       category = widget.initialValues!;
     } else {
-      category = ExpenseCategory(id: 0, name: '');
+      category = IncomeCategory(id: 0, name: '');
     }
   }
 
-  Future<void> insertExpenseCategory() async {
+  Future<void> insertIncomeCategory() async {
     if (category.name.isNotEmpty) {
-      context.read<CategoryBloc>().add(AddExpenseCategory(category: category));
+      context.read<IncomeCategoryBloc>().add(AddIncomeCategory(category: category));
     }
   }
 
-  Future<void> updateExpenseCategory() async {
-    context.read<CategoryBloc>().add(UpdateExpenseCategory(category: category));
+  Future<void> updateIncomeCategory() async {
+    context.read<IncomeCategoryBloc>().add(UpdateIncomeCategory(category: category));
   }
 
-  Future<void> deleteExpenseCategory() async {
-    context.read<CategoryBloc>().add(DeleteExpenseCategory(category: category));
+  Future<void> deleteIncomeCategory() async {
+    context.read<IncomeCategoryBloc>().add(DeleteIncomeCategory(category: category));
   }
 
   @override
@@ -55,10 +56,10 @@ class _CategoriesFormState extends State<CategoriesForm> {
       header2: widget.header2,
       buttonText: widget.initialValues == null ? null : '',
       onSave: () {
-        widget.initialValues == null ? insertExpenseCategory() : updateExpenseCategory();
+        widget.initialValues == null ? insertIncomeCategory() : updateIncomeCategory();
       },
       onDelete: () {
-        deleteExpenseCategory();
+        deleteIncomeCategory();
       },
       formInputs: Form(
         key: _formKey,
@@ -66,7 +67,8 @@ class _CategoriesFormState extends State<CategoriesForm> {
           children: [
             FormTextInput(
               title: 'Name',
-              labelText: 'Category name',
+              labelText: 'Expense Category name',
+              charLimit: 16,
               isRequired: true,
               initalText: category.name,
               onSave: (value) {

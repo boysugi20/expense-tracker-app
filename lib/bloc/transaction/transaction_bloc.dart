@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:expense_tracker/bloc/category/category_bloc.dart';
 import 'package:expense_tracker/database/transaction_dao.dart';
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/expenseCategory.dart';
+import 'package:expense_tracker/models/incomeCategory.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +30,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     });
 
     on<UpdateTransaction>((event, emit) async {
-      await TransactionDAO.updateTransaction(event.transaction, event.category);
+      await TransactionDAO.updateTransaction(event.transaction, event.expenseCategory, event.incomeCategory);
       if (state is TransactionLoaded) {
         final currentState = state as TransactionLoaded;
         final updatedTransaction = currentState.transaction.map((transaction) {

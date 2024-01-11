@@ -1,21 +1,25 @@
 import 'dart:convert';
 
-import 'package:expense_tracker/bloc/category/category_bloc.dart';
+import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/tag/tag_bloc.dart';
 import 'package:expense_tracker/forms/subscription.dart';
 import 'package:expense_tracker/forms/tag.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
-import 'package:expense_tracker/forms/categories.dart';
+import 'package:expense_tracker/forms/expenseCategory.dart';
 import 'package:expense_tracker/forms/goals.dart';
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/expenseCategory.dart';
 import 'package:expense_tracker/models/goal.dart';
 import 'package:expense_tracker/models/tag.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_iconpicker/Serialization/iconDataSerialization.dart';
+
+import '../bloc/incomeCategory/incomeCategory_bloc.dart';
+import '../forms/incomeCategory.dart';
+import '../models/incomeCategory.dart';
 
 class ConfigurationPage extends StatefulWidget {
   const ConfigurationPage({Key? key}) : super(key: key);
@@ -129,30 +133,63 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
             },
           ),
           SectionTitle(
-            text: 'Categories:',
+            text: 'Expense Categories:',
             button: AddButton(
               text: 'Add +',
               onPressed: (context) async {
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const CategoriesForm(
-                            header1: 'Add Category',
-                            header2: 'Add a new category',
+                      builder: (context) => const ExpenseCategoriesForm(
+                            header1: 'Add Expense Category',
+                            header2: 'Add a new expense category',
                           )),
                 );
               },
             ),
           ),
-          BlocBuilder<CategoryBloc, CategoryState>(
+          BlocBuilder<ExpenseCategoryBloc, ExpenseCategoryState>(
             builder: (context, state) {
-              if (state is CategoryInitial || state is CategoryUpdated) {
-                context.read<CategoryBloc>().add(const GetExpenseCategories());
+              if (state is ExpenseCategoryInitial || state is ExpenseCategoryUpdated) {
+                context.read<ExpenseCategoryBloc>().add(const GetExpenseCategories());
               }
-              if (state is CategoryLoaded) {
+              if (state is ExpenseCategoryLoaded) {
                 if (state.category.isNotEmpty) {
                   return Column(
-                    children: state.category.map((categoryItem) => CategoriesCard(category: categoryItem)).toList(),
+                    children:
+                        state.category.map((categoryItem) => ExpenseCategoriesCard(category: categoryItem)).toList(),
+                  );
+                }
+              }
+              return const NoDataWidget();
+            },
+          ),
+          SectionTitle(
+            text: 'Income Categories:',
+            button: AddButton(
+              text: 'Add +',
+              onPressed: (context) async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const IncomeCategoriesForm(
+                            header1: 'Add Income Category',
+                            header2: 'Add a new income category',
+                          )),
+                );
+              },
+            ),
+          ),
+          BlocBuilder<IncomeCategoryBloc, IncomeCategoryState>(
+            builder: (context, state) {
+              if (state is IncomeCategoryInitial || state is IncomeCategoryUpdated) {
+                context.read<IncomeCategoryBloc>().add(const GetIncomeCategories());
+              }
+              if (state is IncomeCategoryLoaded) {
+                if (state.category.isNotEmpty) {
+                  return Column(
+                    children:
+                        state.category.map((categoryItem) => IncomeCategoriesCard(category: categoryItem)).toList(),
                   );
                 }
               }
@@ -165,10 +202,10 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
   }
 }
 
-class CategoriesCard extends StatelessWidget {
+class ExpenseCategoriesCard extends StatelessWidget {
   final ExpenseCategory category;
 
-  const CategoriesCard({required this.category, Key? key}) : super(key: key);
+  const ExpenseCategoriesCard({required this.category, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -177,9 +214,64 @@ class CategoriesCard extends StatelessWidget {
         await Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) => CategoriesForm(
-                    header1: 'Edit Category',
-                    header2: 'Edit existing category',
+              builder: (context) => ExpenseCategoriesForm(
+                    header1: 'Edit Expense Category',
+                    header2: 'Edit existing expense category',
+                    initialValues: category.copyWith(),
+                  )),
+        );
+      },
+      child: CardContainer(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey.shade200,
+                    child: category.icon != null
+                        ? Icon(
+                            deserializeIcon(jsonDecode(category.icon!)),
+                            color: AppColors.main,
+                          )
+                        : Text(
+                            category.name.isNotEmpty
+                                ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
+                                : "",
+                            style: TextStyle(color: AppColors.main),
+                          ),
+                  ),
+                ),
+                RichText(
+                  text: TextSpan(text: category.name, style: const TextStyle(color: Colors.black)),
+                ),
+              ],
+            ),
+            // Icon(Icons.edit, color: AppColors.black, size: 16,)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class IncomeCategoriesCard extends StatelessWidget {
+  final IncomeCategory category;
+
+  const IncomeCategoriesCard({required this.category, Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => IncomeCategoriesForm(
+                    header1: 'Edit Income Category',
+                    header2: 'Edit existing income category',
                     initialValues: category.copyWith(),
                   )),
         );

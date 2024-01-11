@@ -1,5 +1,6 @@
 import 'package:expense_tracker/database/connection.dart';
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/expenseCategory.dart';
+import 'package:expense_tracker/models/incomeCategory.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:sqflite/sqflite.dart' as sql;
 import 'package:intl/intl.dart';
@@ -8,15 +9,6 @@ import '../models/tag.dart';
 
 // Data Access Object
 class TransactionDAO {
-  // static Future<int> insertTransaction(Transaction transaction) async {
-  //   final db = await DatabaseHelper.initializeDB();
-  //   final data = transaction.toMap();
-  //   data.remove('id');
-  //   final id = await db.insert('Transactions', data,
-  //       conflictAlgorithm: sql.ConflictAlgorithm.replace);
-  //   return id;
-  // }
-
   static Future<int> insertTransaction(Transaction transaction) async {
     final db = await DatabaseHelper.initializeDB();
     final transactionData = transaction.toMap();
@@ -33,8 +25,8 @@ class TransactionDAO {
     transactionData.remove('tags');
 
     // Insert into Transactions table
-    final int transactionId = await db.insert('Transactions', transactionData,
-        conflictAlgorithm: sql.ConflictAlgorithm.replace);
+    final int transactionId =
+        await db.insert('Transactions', transactionData, conflictAlgorithm: sql.ConflictAlgorithm.replace);
 
     // Update the 'transactionId' field in the tagsData list with the actual transaction ID
     for (var tagData in tagsData) {
@@ -43,8 +35,7 @@ class TransactionDAO {
 
     // Insert into TransactionTags table
     for (var tag in tagsData) {
-      await db.insert('TransactionTags', tag,
-          conflictAlgorithm: sql.ConflictAlgorithm.replace);
+      await db.insert('TransactionTags', tag, conflictAlgorithm: sql.ConflictAlgorithm.replace);
     }
 
     return transactionId;
@@ -54,23 +45,41 @@ class TransactionDAO {
     final db = await DatabaseHelper.initializeDB();
 
     final List<Map<String, Object?>> queryResult = await db.rawQuery("""
-      SELECT A.*, B.id as categoryId, B.name as categoryName, B.icon as categoryIcon, C.id as tagId, C.name as tagName, C.color as tagColor
+      SELECT 
+        A.*, 
+        B.id as expenseCategoryId, B.name as expenseCategoryName, B.icon as expenseCategoryIcon, 
+        C.id as incomeCategoryId, C.name as incomeCategoryName, C.icon as incomeCategoryIcon, 
+        D.id as tagId, D.name as tagName, D.color as tagColor
       FROM Transactions AS A 
-        JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id 
+        LEFT JOIN ExpenseCategories AS B ON A.ExpenseCategoryId = B.id 
+        LEFT JOIN IncomeCategories AS C ON A.IncomeCategoryId = C.id 
         LEFT JOIN TransactionTags AS X ON A.id = X.transactionId
-        LEFT JOIN Tags AS C ON C.id = X.tagId
+        LEFT JOIN Tags AS D ON D.id = X.tagId
       ORDER BY A.date DESC
     """);
 
     final Map<int, Transaction> transactionsMap = {};
 
     for (var e in queryResult) {
-      var categoryMap = {
-        'id': e['categoryId'],
-        'name': e['categoryName'],
-        'icon': e['categoryIcon']
-      };
-      final expenseCategory = ExpenseCategory.fromMap(categoryMap);
+      ExpenseCategory? expenseCategory;
+      if (e['expenseCategoryId'] != null) {
+        var expenseCategoryMap = {
+          'id': e['expenseCategoryId'],
+          'name': e['expenseCategoryName'],
+          'icon': e['expenseCategoryIcon']
+        };
+        expenseCategory = ExpenseCategory.fromMap(expenseCategoryMap);
+      }
+
+      IncomeCategory? incomeCategory;
+      if (e['incomeCategoryId'] != null) {
+        var incomeCategoryMap = {
+          'id': e['incomeCategoryId'],
+          'name': e['incomeCategoryName'],
+          'icon': e['incomeCategoryIcon']
+        };
+        incomeCategory = IncomeCategory.fromMap(incomeCategoryMap);
+      }
 
       final transactionId = e['id'] as int;
       final tagId = e['tagId'] as int?;
@@ -78,8 +87,7 @@ class TransactionDAO {
       final tagColor = e['tagColor'] as String?;
 
       // Format the date without the time
-      final formattedDate =
-          DateFormat('dd MM yyyy').format(DateTime.parse(e['date'] as String));
+      final formattedDate = DateFormat('dd MM yyyy').format(DateTime.parse(e['date'] as String));
       final dateWithoutTime = DateFormat('dd MM yyyy').parse(formattedDate);
 
       // Check if the transaction is already in the map
@@ -93,7 +101,8 @@ class TransactionDAO {
         }
       } else {
         // If not, create a new Transaction object
-        final transaction = Transaction.fromMap(e, expenseCategory, tags: [
+        final transaction =
+            Transaction.fromMap(e, expenseCategory: expenseCategory, incomeCategory: incomeCategory, tags: [
           if (tagId != null && tagName != null && tagColor != null)
             Tag.fromMap({
               'id': tagId,
@@ -111,12 +120,13 @@ class TransactionDAO {
   }
 
   static Future<int> updateTransaction(
-      Transaction transaction, ExpenseCategory category) async {
+      Transaction transaction, ExpenseCategory? expenseCategory, IncomeCategory? incomeCategory) async {
     final db = await DatabaseHelper.initializeDB();
 
     // Prepare the data for the update
     final data = {
-      'expenseCategoryId': category.id,
+      'expenseCategoryId': expenseCategory?.id,
+      'incomeCategoryId': incomeCategory?.id,
       'date': transaction.date.toIso8601String(),
       'amount': transaction.amount,
       'note': transaction.note,
@@ -124,8 +134,7 @@ class TransactionDAO {
     };
 
     // Update the main transaction data
-    final result = await db.update('Transactions', data,
-        where: "id = ?", whereArgs: [transaction.id]);
+    final result = await db.update('Transactions', data, where: "id = ?", whereArgs: [transaction.id]);
 
     // Update tags separately
     await _updateTransactionTags(db, transaction);
@@ -135,8 +144,7 @@ class TransactionDAO {
 
   static Future<void> _updateTransactionTags(db, transaction) async {
     // Delete existing tags for the transaction
-    await db.delete('TransactionTags',
-        where: 'transactionId = ?', whereArgs: [transaction.id]);
+    await db.delete('TransactionTags', where: 'transactionId = ?', whereArgs: [transaction.id]);
 
     // Insert new tags for the transaction
     for (var tag in transaction.tags) {
@@ -148,16 +156,13 @@ class TransactionDAO {
     }
   }
 
-  // Delete
   static Future<void> deleteTransaction(Transaction transaction) async {
     final db = await DatabaseHelper.initializeDB();
 
     // Delete the main transaction
-    await db
-        .delete("Transactions", where: "id = ?", whereArgs: [transaction.id]);
+    await db.delete("Transactions", where: "id = ?", whereArgs: [transaction.id]);
 
     // Delete the associated tags
-    await db.delete("TransactionTags",
-        where: "transactionId = ?", whereArgs: [transaction.id]);
+    await db.delete("TransactionTags", where: "transactionId = ?", whereArgs: [transaction.id]);
   }
 }

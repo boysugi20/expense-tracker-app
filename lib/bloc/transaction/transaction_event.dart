@@ -12,7 +12,9 @@ class GetTransactions extends TransactionEvent {
 
 class AddTransaction extends TransactionEvent {
   final Transaction transaction;
-  const AddTransaction({required this.transaction,});
+  const AddTransaction({
+    required this.transaction,
+  });
 
   @override
   List<Object?> get props => [transaction];
@@ -20,10 +22,12 @@ class AddTransaction extends TransactionEvent {
 
 class UpdateTransaction extends TransactionEvent {
   final Transaction transaction;
-  final ExpenseCategory category;
-  
-  const UpdateTransaction({required this.transaction, required this.category});
-  
+
+  final ExpenseCategory? expenseCategory;
+  final IncomeCategory? incomeCategory;
+
+  const UpdateTransaction({required this.transaction, this.expenseCategory, this.incomeCategory});
+
   @override
   List<Object?> get props => [transaction];
 }
@@ -31,7 +35,7 @@ class UpdateTransaction extends TransactionEvent {
 class DeleteTransaction extends TransactionEvent {
   final Transaction transaction;
   const DeleteTransaction({required this.transaction});
-  
+
   @override
   List<Object?> get props => [transaction];
 }

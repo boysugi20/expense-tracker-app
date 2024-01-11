@@ -8,15 +8,14 @@ import 'dart:io' show Directory, Platform;
 
 import '../screens/modal_amount.dart';
 
-void openBottomModalCategory(
-    BuildContext context, Function(int index) changeScreen) {
+void openBottomModalCategory(BuildContext context, Function(int index) changeScreen) {
   showMaterialModalBottomSheet(
       backgroundColor: Colors.transparent,
       context: context,
       builder: (context) => BottomModalCategory(changeScreen: changeScreen));
 }
 
-void openBottomModalAmount(BuildContext context, Object categoryOrGoal,
+void openBottomModalAmount(BuildContext context, Object category,
     {Function(int index)? changeScreen, Transaction? initialTransaction}) {
   showModalBottomSheet(
     backgroundColor: Colors.transparent,
@@ -24,7 +23,7 @@ void openBottomModalAmount(BuildContext context, Object categoryOrGoal,
     context: context,
     builder: (context) {
       return BottomModalamount(
-        categoryOrGoal: categoryOrGoal,
+        category: category,
         changeScreen: changeScreen ?? (int index) {},
         initialTransaction: initialTransaction,
       );
@@ -35,8 +34,7 @@ void openBottomModalAmount(BuildContext context, Object categoryOrGoal,
 String addThousandSeperatorToString(String string) {
   String result;
 
-  result = string.replaceAll(",", "").replaceAllMapped(
-      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+  result = string.replaceAll(",", "").replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
 
   return result;
 }
@@ -72,8 +70,7 @@ String monthIntToString(int value) {
 }
 
 String amountDoubleToString(double value) {
-  final finalString = addThousandSeperatorToString(
-      value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1));
+  final finalString = addThousandSeperatorToString(value.toStringAsFixed(value.truncateToDouble() == value ? 0 : 1));
 
   return finalString;
 }
@@ -98,8 +95,7 @@ Future<String> getDownloadPath() async {
     final directorytemp = await getDownloadsDirectory();
     directory = directorytemp!.path;
   } else {
-    dirDownloadExists =
-        await Directory("/storage/emulated/0/Download/").exists();
+    dirDownloadExists = await Directory("/storage/emulated/0/Download/").exists();
     if (dirDownloadExists) {
       directory = "/storage/emulated/0/Download/";
     } else {

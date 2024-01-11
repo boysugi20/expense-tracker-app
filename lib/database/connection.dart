@@ -4,7 +4,7 @@ class DatabaseHelper {
   static Future<void> createTables(sql.Database db) async {
     await db.execute("""
 
-      CREATE TABLE ExpenseCategories(
+      CREATE TABLE IF NOT EXISTS ExpenseCategories(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         name TEXT,
         icon TEXT,
@@ -15,21 +15,34 @@ class DatabaseHelper {
 
     await db.execute("""
 
-      CREATE TABLE Transactions (
+      CREATE TABLE IF NOT EXISTS IncomeCategories(
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-        expenseCategoryId INTEGER,
-        amount REAL,
-        date DATETIME,
-        note TEXT,
-        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (expenseCategoryId) REFERENCES ExpenseCategories(id)
+        name TEXT,
+        icon TEXT,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
 
       """);
 
     await db.execute("""
 
-      CREATE TABLE Goals (
+      CREATE TABLE IF NOT EXISTS Transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        expenseCategoryId INTEGER,
+        incomeCategoryId INTEGER,
+        amount REAL,
+        date DATETIME,
+        note TEXT,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (expenseCategoryId) REFERENCES ExpenseCategories(id)
+        FOREIGN KEY (incomeCategoryId) REFERENCES IncomeCategories(id)
+      );
+
+      """);
+
+    await db.execute("""
+
+      CREATE TABLE IF NOT EXISTS Goals (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         name TEXT,
         totalAmount REAL,
@@ -41,7 +54,7 @@ class DatabaseHelper {
 
     await db.execute("""
 
-      CREATE TABLE Tags (
+      CREATE TABLE IF NOT EXISTS Tags (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         name TEXT,
         color TEXT,
@@ -52,7 +65,7 @@ class DatabaseHelper {
 
     await db.execute("""
 
-      CREATE TABLE TransactionTags (
+      CREATE TABLE IF NOT EXISTS TransactionTags (
         id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
         transactionId INTEGER,
         tagId INTEGER,
@@ -72,66 +85,43 @@ class DatabaseHelper {
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Food',
-        'icon': '{"pack": "material", "key": "fastfood_outlined"}'
-      },
+      {'name': 'Food', 'icon': '{"pack": "material", "key": "fastfood_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Groceries',
-        'icon': '{"pack": "material", "key": "local_grocery_store_outlined"}'
-      },
+      {'name': 'Groceries', 'icon': '{"pack": "material", "key": "local_grocery_store_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Transportation',
-        'icon': '{"pack": "material", "key": "directions_transit_outlined"}'
-      },
+      {'name': 'Transportation', 'icon': '{"pack": "material", "key": "directions_transit_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Utilities',
-        'icon': '{"pack": "material", "key": "build_outlined"}'
-      },
+      {'name': 'Utilities', 'icon': '{"pack": "material", "key": "build_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Clothing',
-        'icon': '{"pack": "material", "key": "dry_cleaning_outlined"}'
-      },
+      {'name': 'Clothing', 'icon': '{"pack": "material", "key": "dry_cleaning_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Self Care',
-        'icon': '{"pack": "material", "key": "health_and_safety_outlined"}'
-      },
+      {'name': 'Self Care', 'icon': '{"pack": "material", "key": "health_and_safety_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Entertainment',
-        'icon': '{"pack": "material", "key": "live_tv_outlined"}'
-      },
+      {'name': 'Entertainment', 'icon': '{"pack": "material", "key": "live_tv_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Investment',
-        'icon': '{"pack": "material", "key": "candlestick_chart_outlined"}'
-      },
+      {'name': 'Investment', 'icon': '{"pack": "material", "key": "candlestick_chart_outlined"}'},
     );
     batch.insert(
       'ExpenseCategories',
-      {
-        'name': 'Other',
-        'icon': '{"pack": "material", "key": "auto_fix_high_outlined"}'
-      },
+      {'name': 'Other', 'icon': '{"pack": "material", "key": "auto_fix_high_outlined"}'},
+    );
+    batch.insert(
+      'IncomeCategories',
+      {'name': 'Salary', 'icon': '{"pack": "material", "key": "attach_money"}'},
     );
     await batch.commit();
   }
@@ -144,6 +134,9 @@ class DatabaseHelper {
         await createTables(database);
         await onCreate(database);
       },
+      onUpgrade: (sql.Database database, int oldVersion, int newVersion) async {
+        await createTables(database);
+      },
     );
   }
 
@@ -154,36 +147,3 @@ class DatabaseHelper {
     return result;
   }
 }
-
-  // // Get a single item by id
-  // //We dont use this method, it is for you if you want it.
-  // static Future<List<Map<String, dynamic>>> getItem(int id) async {
-  //   final db = await DatabaseHelper.initializeDB();
-  //   return db.query('items', where: "id = ?", whereArgs: [id], limit: 1);
-  // }
-
-  // // Update an item by id
-  // static Future<int> updateExpenseCategory(
-  //     int id, String title, String? descrption) async {
-  //   final db = await DatabaseHelper.initializeDB();
-
-  //   final data = {
-  //     'title': title,
-  //     'description': descrption,
-  //     'createdAt': DateTime.now().toString()
-  //   };
-
-  //   final result =
-  //       await db.update('items', data, where: "id = ?", whereArgs: [id]);
-  //   return result;
-  // }
-
-  // // Delete
-  // static Future<void> deleteItem(int id) async {
-  //   final db = await DatabaseHelper.initializeDB();
-  //   try {
-  //     await db.delete("items", where: "id = ?", whereArgs: [id]);
-  //   } catch (err) {
-  //     debugPrint("Something went wrong when deleting an item: $err");
-  //   }
-  // }

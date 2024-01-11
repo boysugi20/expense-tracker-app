@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
-import 'package:expense_tracker/bloc/category/category_bloc.dart';
+import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/forms/transaction.dart';
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/expenseCategory.dart';
+import 'package:expense_tracker/models/incomeCategory.dart';
 import 'package:expense_tracker/models/tag.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
@@ -50,7 +51,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   ];
   String filterDateRangeText = 'This Month';
   String customDateRangeText = 'Custom';
-  String filterCategoryName = 'All Category';
+  String filterCategoryName = 'All Expense';
   String filterTagName = 'All Tag';
 
   List<DropdownMenuItem<String>> get dropdownDateRangeItems {
@@ -144,9 +145,9 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) &&
             ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
       }).toList();
-      if (filterCategoryName != 'All Category') {
+      if (filterCategoryName != 'All Expense') {
         results = results.where((t) {
-          return t.category.name == filterCategoryName;
+          return t.expenseCategory?.name == filterCategoryName;
         }).toList();
       }
       if (filterTagName != 'All Tag') {
@@ -155,9 +156,9 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         }).toList();
       }
     } else {
-      if (filterCategoryName != 'All Category') {
+      if (filterCategoryName != 'All Expense') {
         results = transactionList.where((t) {
-          return t.category.name == filterCategoryName;
+          return t.expenseCategory?.name == filterCategoryName;
         }).toList();
       } else {
         if (filterTagName != 'All Tag') {
@@ -192,7 +193,11 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   double _calculateTotalAmount(List<Transaction> transactions) {
     double total = 0.0;
     for (final transaction in transactions) {
-      total += transaction.amount;
+      if (transaction.expenseCategory != null) {
+        total -= transaction.amount;
+      } else {
+        total += transaction.amount;
+      }
     }
     return total;
   }
@@ -301,14 +306,14 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                         ),
                       ),
                       Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                        BlocBuilder<CategoryBloc, CategoryState>(builder: (context, state) {
-                          if (state is CategoryInitial) {
-                            context.read<CategoryBloc>().add(const GetExpenseCategories());
+                        BlocBuilder<ExpenseCategoryBloc, ExpenseCategoryState>(builder: (context, state) {
+                          if (state is ExpenseCategoryInitial || state is ExpenseCategoryUpdated) {
+                            context.read<ExpenseCategoryBloc>().add(const GetExpenseCategories());
                           }
-                          if (state is CategoryLoaded) {
+                          if (state is ExpenseCategoryLoaded) {
                             final categories =
                                 state.category.map((category) => category.name).toList(); // Get list of categories
-                            categories.insert(0, "All Category"); // Add "All" to the list
+                            categories.insert(0, "All Expense"); // Add "All" to the list
                             final dropdownItems = categories // Create DropdownMenuItem from the list
                                 .map((category) => DropdownMenuItem(
                                       value: category,
@@ -422,7 +427,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                                     children: [
                                       for (final transaction in entry.value)
                                         TransactionCard(
-                                          category: transaction.category,
                                           transaction: transaction,
                                         ),
                                     ],
@@ -446,11 +450,33 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   }
 }
 
-class TransactionCard extends StatelessWidget {
-  final ExpenseCategory category;
+class TransactionCard extends StatefulWidget {
   final Transaction transaction;
 
-  const TransactionCard({required this.category, required this.transaction, Key? key}) : super(key: key);
+  const TransactionCard({required this.transaction, Key? key}) : super(key: key);
+
+  @override
+  State<TransactionCard> createState() => _TransactionCardState();
+}
+
+class _TransactionCardState extends State<TransactionCard> {
+  String _title = '';
+  String? _icon = '';
+  String _objectType = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.transaction.expenseCategory != null) {
+      _title = widget.transaction.expenseCategory!.name;
+      _icon = widget.transaction.expenseCategory?.icon;
+      _objectType = 'ExpenseCategory';
+    } else {
+      _title = widget.transaction.incomeCategory!.name;
+      _icon = widget.transaction.incomeCategory?.icon;
+      _objectType = 'IncomeCategory';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -462,7 +488,7 @@ class TransactionCard extends StatelessWidget {
               builder: (context) => TransactionForm(
                     header1: 'Edit transaction',
                     header2: 'Edit existing transaction',
-                    initialValues: transaction,
+                    initialValues: widget.transaction,
                   )),
         );
       },
@@ -477,15 +503,13 @@ class TransactionCard extends StatelessWidget {
                   margin: const EdgeInsets.only(right: 12),
                   child: CircleAvatar(
                     backgroundColor: Colors.grey.shade200,
-                    child: category.icon != null
+                    child: _icon != null
                         ? Icon(
-                            deserializeIcon(jsonDecode(category.icon!)),
+                            deserializeIcon(jsonDecode(_icon!)),
                             color: AppColors.main,
                           )
                         : Text(
-                            category.name.isNotEmpty
-                                ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
-                                : "",
+                            _title.isNotEmpty ? _title.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "",
                             style: TextStyle(color: AppColors.main),
                           ),
                   ),
@@ -495,16 +519,16 @@ class TransactionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       RichText(
-                        text: TextSpan(text: category.name, style: const TextStyle(color: Colors.black)),
+                        text: TextSpan(text: _title, style: const TextStyle(color: Colors.black)),
                       ),
-                      (transaction.note != null && transaction.note!.isNotEmpty)
+                      (widget.transaction.note != null && widget.transaction.note!.isNotEmpty)
                           ? Container(
                               margin: const EdgeInsets.only(top: 8),
                               child: RichText(
                                 text: TextSpan(
-                                  text: transaction.note != null && transaction.note!.length > 22
-                                      ? '${transaction.note?.substring(0, 22)}...'
-                                      : transaction.note,
+                                  text: widget.transaction.note != null && widget.transaction.note!.length > 22
+                                      ? '${widget.transaction.note?.substring(0, 22)}...'
+                                      : widget.transaction.note,
                                   style:
                                       const TextStyle(color: Colors.black, fontWeight: FontWeight.w300, fontSize: 11),
                                 ),
@@ -515,7 +539,7 @@ class TransactionCard extends StatelessWidget {
                         margin: const EdgeInsets.only(top: 8),
                         child: Row(
                           children: [
-                            for (var tag in transaction.tags ?? [Tag(id: 0, name: 'nope', color: "#FFFFFF")])
+                            for (var tag in widget.transaction.tags ?? [Tag(id: 0, name: 'nope', color: "#FFFFFF")])
                               Container(
                                 margin: const EdgeInsets.only(right: 4),
                                 padding: const EdgeInsets.symmetric(
@@ -542,8 +566,9 @@ class TransactionCard extends StatelessWidget {
             ),
             RichText(
               text: TextSpan(
-                  text: 'Rp ${amountDoubleToString(transaction.amount)}',
-                  style: const TextStyle(color: Colors.red, fontSize: 12)),
+                  text: 'Rp ${amountDoubleToString(widget.transaction.amount)}',
+                  style: TextStyle(
+                      color: _objectType == 'ExpenseCategory' ? AppColors.red : AppColors.black, fontSize: 12)),
             ),
           ],
         ),

@@ -84,6 +84,7 @@ class FormTextInput extends StatefulWidget {
   final bool isKeypad, useThousandSeparator, isRequired;
   final void Function(String?)? onSave;
   final String? Function(String?)? validateText;
+  final int? charLimit;
 
   const FormTextInput(
       {required this.title,
@@ -95,6 +96,7 @@ class FormTextInput extends StatefulWidget {
       this.initalText = '',
       this.validateText,
       this.isRequired = false,
+      this.charLimit,
       Key? key})
       : super(key: key);
 
@@ -143,28 +145,31 @@ class _FormTextInputState extends State<FormTextInput> {
             ],
           ),
           Material(
+              color: Colors.transparent,
               child: TextFormField(
-            textCapitalization: TextCapitalization.words,
-            maxLength: 16,
-            onSaved: widget.onSave,
-            controller: _textController,
-            keyboardType: widget.isKeypad ? TextInputType.number : TextInputType.text,
-            inputFormatters: widget.useThousandSeparator
-                ? [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()]
-                : [],
-            decoration: InputDecoration(
-                helperText: widget.helperText,
-                hintText: widget.labelText,
-                hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.cardBorder),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: AppColors.accent),
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16)),
-            validator: widget.validateText,
-          )),
+                textCapitalization: TextCapitalization.words,
+                maxLength: widget.charLimit,
+                onSaved: widget.onSave,
+                controller: _textController,
+                keyboardType: widget.isKeypad ? TextInputType.number : TextInputType.text,
+                inputFormatters: widget.useThousandSeparator
+                    ? [FilteringTextInputFormatter.digitsOnly, ThousandsSeparatorInputFormatter()]
+                    : [],
+                decoration: InputDecoration(
+                    filled: true,
+                    fillColor: AppColors.white,
+                    helperText: widget.helperText,
+                    hintText: widget.labelText,
+                    hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.cardBorder),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: AppColors.accent),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16)),
+                validator: widget.validateText,
+              )),
         ],
       ),
     );

@@ -1,4 +1,5 @@
-import 'package:expense_tracker/models/category.dart';
+import 'package:expense_tracker/models/expenseCategory.dart';
+import 'package:expense_tracker/models/incomeCategory.dart';
 import 'package:expense_tracker/models/tag.dart';
 
 class Transaction {
@@ -6,14 +7,16 @@ class Transaction {
   double amount;
   DateTime date;
   String? note;
-  ExpenseCategory category;
+  ExpenseCategory? expenseCategory;
+  IncomeCategory? incomeCategory;
   List<Tag>? tags;
 
   Transaction({
     required this.id,
-    required this.category,
     required this.date,
     required this.amount,
+    this.expenseCategory,
+    this.incomeCategory,
     this.note,
     this.tags,
   });
@@ -21,7 +24,8 @@ class Transaction {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'expenseCategoryId': category.id,
+      'expenseCategoryId': expenseCategory?.id,
+      'incomeCategoryId': incomeCategory?.id,
       'amount': amount,
       'date': date.toIso8601String(),
       'note': note,
@@ -29,22 +33,23 @@ class Transaction {
     };
   }
 
-  factory Transaction.fromMap(
-      Map<String, dynamic> map, ExpenseCategory expenseCategory,
-      {List<Tag>? tags}) {
+  factory Transaction.fromMap(Map<String, dynamic> map,
+      {ExpenseCategory? expenseCategory, IncomeCategory? incomeCategory, List<Tag>? tags}) {
     return Transaction(
       id: map['id'],
       amount: map['amount'],
       date: DateTime.parse(map['date']),
       note: map['note'],
       tags: tags,
-      category: expenseCategory,
+      expenseCategory: expenseCategory,
+      incomeCategory: incomeCategory,
     );
   }
 
   Transaction copyWith({
     int? id,
-    ExpenseCategory? category,
+    ExpenseCategory? expenseCategory,
+    IncomeCategory? incomeCategory,
     DateTime? date,
     double? amount,
     String? note,
@@ -52,7 +57,8 @@ class Transaction {
   }) {
     return Transaction(
       id: id ?? this.id,
-      category: category ?? this.category,
+      expenseCategory: expenseCategory ?? this.expenseCategory,
+      incomeCategory: incomeCategory ?? this.incomeCategory,
       date: date ?? this.date,
       amount: amount ?? this.amount,
       note: note ?? this.note,

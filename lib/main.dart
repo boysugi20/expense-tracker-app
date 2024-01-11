@@ -1,5 +1,6 @@
-import 'package:expense_tracker/bloc/category/category_bloc.dart';
+import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
+import 'package:expense_tracker/bloc/incomeCategory/incomeCategory_bloc.dart';
 import 'package:expense_tracker/bloc/tag/tag_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/navbar.dart';
@@ -17,8 +18,11 @@ void main() {
 
   runApp(MultiBlocProvider(
     providers: [
-      BlocProvider<CategoryBloc>(
-        create: (BuildContext context) => CategoryBloc(),
+      BlocProvider<ExpenseCategoryBloc>(
+        create: (BuildContext context) => ExpenseCategoryBloc(),
+      ),
+      BlocProvider<IncomeCategoryBloc>(
+        create: (BuildContext context) => IncomeCategoryBloc(),
       ),
       BlocProvider<TransactionBloc>(
         create: (BuildContext context) => TransactionBloc(),

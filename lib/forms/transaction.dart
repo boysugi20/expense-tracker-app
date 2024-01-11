@@ -34,9 +34,10 @@ class _TransactionFormState extends State<TransactionForm> {
   }
 
   Future<void> updateTransaction() async {
-    context
-        .read<TransactionBloc>()
-        .add(UpdateTransaction(transaction: widget.initialValues!, category: widget.initialValues!.category));
+    context.read<TransactionBloc>().add(UpdateTransaction(
+        transaction: widget.initialValues!,
+        expenseCategory: widget.initialValues!.expenseCategory,
+        incomeCategory: widget.initialValues!.incomeCategory));
   }
 
   Future<void> deleteTransaction() async {
@@ -164,6 +165,7 @@ class _TransactionFormState extends State<TransactionForm> {
             FormTextInput(
               title: 'Notes',
               labelText: 'Transaction notes',
+              charLimit: 50,
               initalText: widget.initialValues!.note!,
               onSave: (value) {
                 widget.initialValues!.note = value!;
