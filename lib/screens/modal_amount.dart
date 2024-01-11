@@ -83,6 +83,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
     } else if (widget.category is Goal) {
       goal = widget.category as Goal;
       _title = goal.name;
+      _icon = null;
       _objectType = 'Goal';
     } else {
       throw Exception('Category must be either ExpenseCategory, IncomeCategory, or Goal');

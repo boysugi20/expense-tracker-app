@@ -1,6 +1,7 @@
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -181,4 +182,37 @@ Color getTextColorForBackground(Color backgroundColor) {
 
   // Use black or white text depending on the brightness of the background color
   return luminance > 0.5 ? Colors.black : Colors.white;
+}
+
+String dateRangeToString(List<DateTime?> dateTimeRange) {
+  if (dateTimeRange.length == 2 && dateTimeRange[0] != null && dateTimeRange[1] != null) {
+    DateFormat dateFormat = DateFormat('dd MMM yyyy');
+    String startDate = dateFormat.format(dateTimeRange[0]!);
+    String endDate = dateFormat.format(dateTimeRange[1]!);
+
+    return '$startDate - $endDate';
+  }
+
+  return '-';
+}
+
+DateTimeRange? stringToDateRange(String dateRangeString) {
+  List<String> dateParts = dateRangeString.split(' - ');
+
+  if (dateParts.length == 2) {
+    DateFormat dateFormat = DateFormat('dd MMM yyyy');
+    DateTime? startDate = dateFormat.parse(dateParts[0]);
+    DateTime? endDate = dateFormat.parse(dateParts[1]);
+
+    return DateTimeRange(start: startDate, end: endDate);
+  }
+
+  return null;
+}
+
+String dateToString(DateTime dateTime) {
+  DateFormat dateFormat = DateFormat('dd MMM yyyy');
+  String dateString = dateFormat.format(dateTime);
+
+  return dateString;
 }

@@ -1,6 +1,7 @@
 import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/incomeCategory/incomeCategory_bloc.dart';
+import 'package:expense_tracker/bloc/subscription/subscription_bloc.dart';
 import 'package:expense_tracker/bloc/tag/tag_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/navbar.dart';
@@ -32,6 +33,9 @@ void main() {
       ),
       BlocProvider<TagBloc>(
         create: (BuildContext context) => TagBloc(),
+      ),
+      BlocProvider<SubscriptionBloc>(
+        create: (BuildContext context) => SubscriptionBloc(),
       ),
     ],
     child: const MyApp(),

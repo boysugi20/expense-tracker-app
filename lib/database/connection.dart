@@ -75,10 +75,27 @@ class DatabaseHelper {
       );
 
       """);
+
+    await db.execute("""
+
+      CREATE TABLE IF NOT EXISTS Subscriptions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        name TEXT,
+        amount REAL,
+        startDate DATETIME,
+        endDate DATETIME,
+        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+
+      """);
   }
 
   static Future<void> onCreate(sql.Database db) async {
     var batch = db.batch();
+    batch.insert(
+      'Tags',
+      {'name': 'Pending', 'color': '#b2102f'},
+    );
     batch.insert(
       'ExpenseCategories',
       {'name': 'Home', 'icon': '{"pack": "material", "key": "home_outlined"}'},

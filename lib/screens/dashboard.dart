@@ -248,7 +248,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
               BlocBuilder<GoalBloc, GoalState>(
                 builder: (context, state) {
-                  if (state is GoalInitial) {
+                  if (state is GoalInitial || state is GoalUpdated) {
                     context.read<GoalBloc>().add(const GetGoals());
                   }
                   if (state is GoalLoaded) {

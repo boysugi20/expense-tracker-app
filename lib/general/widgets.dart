@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
+import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -261,6 +262,120 @@ class _FormDateInputState extends State<FormDateInput> {
               child: TextFormField(
             readOnly: true,
             onTap: () => {_showDatePicker(context)},
+            onSaved: widget.onSave,
+            controller: _textController,
+            decoration: InputDecoration(
+              helperText: widget.helperText,
+              hintText: widget.labelText,
+              hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColors.cardBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: AppColors.accent),
+              ),
+              contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+              prefixIcon: Icon(
+                Icons.calendar_month,
+                color: AppColors.grey,
+              ),
+            ),
+            validator: widget.validateText,
+          )),
+        ],
+      ),
+    );
+  }
+}
+
+class FormDateRangeInput extends StatefulWidget {
+  final String title, initalText;
+  final String? helperText, labelText;
+  final bool isRequired;
+  final void Function(String?)? onSave;
+  final String? Function(String?)? validateText;
+  final List<DateTime?> dateTimeRange;
+
+  const FormDateRangeInput(
+      {required this.title,
+      required this.dateTimeRange,
+      this.helperText,
+      this.labelText,
+      this.onSave,
+      this.initalText = '',
+      this.validateText,
+      this.isRequired = false,
+      Key? key})
+      : super(key: key);
+
+  @override
+  State<FormDateRangeInput> createState() => _FormDateRangeInput();
+}
+
+class _FormDateRangeInput extends State<FormDateRangeInput> {
+  final _textController = TextEditingController();
+
+  Future<void> _selectDateRange(BuildContext context) async {
+    var results = await showCalendarDatePicker2Dialog(
+      context: context,
+      config: CalendarDatePicker2WithActionButtonsConfig(
+        calendarType: CalendarDatePicker2Type.range,
+        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayHighlightColor: AppColors.accent,
+      ),
+      dialogSize: const Size(325, 400),
+      borderRadius: BorderRadius.circular(15),
+      value: widget.dateTimeRange,
+    );
+
+    if (results != null && results.length == 2) {
+      setState(() {
+        _textController.text = dateRangeToString(results);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _textController.text = widget.initalText;
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              widget.isRequired
+                  ? Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: RichText(
+                        text: const TextSpan(text: '*', style: TextStyle(color: Colors.red, fontSize: 14)),
+                      ),
+                    )
+                  : const SizedBox(),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: RichText(
+                  text: TextSpan(text: widget.title, style: const TextStyle(color: Colors.black, fontSize: 14)),
+                ),
+              ),
+            ],
+          ),
+          Material(
+              child: TextFormField(
+            readOnly: true,
+            onTap: () => {_selectDateRange(context)},
             onSaved: widget.onSave,
             controller: _textController,
             decoration: InputDecoration(

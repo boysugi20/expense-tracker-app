@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
+import 'package:expense_tracker/bloc/subscription/subscription_bloc.dart';
 import 'package:expense_tracker/bloc/tag/tag_bloc.dart';
 import 'package:expense_tracker/forms/subscription.dart';
 import 'package:expense_tracker/forms/tag.dart';
@@ -11,6 +12,7 @@ import 'package:expense_tracker/forms/expenseCategory.dart';
 import 'package:expense_tracker/forms/goals.dart';
 import 'package:expense_tracker/models/expenseCategory.dart';
 import 'package:expense_tracker/models/goal.dart';
+import 'package:expense_tracker/models/subscription.dart';
 import 'package:expense_tracker/models/tag.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
@@ -89,17 +91,22 @@ class _ConfigurationPageState extends State<ConfigurationPage> {
               },
             ),
           ),
-          const SubscriptionCard(
-            title: 'Netflix',
-            amount: 75000,
-            startDate: '01 Jan 2023',
-            endDate: '01 Jan 2024',
-          ),
-          const SubscriptionCard(
-            title: 'Netflix',
-            amount: 75000,
-            startDate: '01 Jan 2023',
-            endDate: '01 Jan 2024',
+          BlocBuilder<SubscriptionBloc, SubscriptionState>(
+            builder: (context, state) {
+              if (state is SubscriptionInitial || state is SubscriptionUpdated) {
+                context.read<SubscriptionBloc>().add(const GetSubscriptions());
+              }
+              if (state is SubscriptionLoaded) {
+                if (state.subscription.isNotEmpty) {
+                  return Column(
+                    children: state.subscription
+                        .map((subscriptionItem) => SubscriptionCard(subscription: subscriptionItem))
+                        .toList(),
+                  );
+                }
+              }
+              return const NoDataWidget();
+            },
           ),
           SectionTitle(
             text: 'Tags:',
@@ -433,12 +440,9 @@ class BudgetCard extends StatelessWidget {
 }
 
 class SubscriptionCard extends StatelessWidget {
-  final String title, startDate, endDate;
-  final int amount;
+  final Subscription subscription;
 
-  const SubscriptionCard(
-      {required this.title, required this.startDate, required this.endDate, required this.amount, Key? key})
-      : super(key: key);
+  const SubscriptionCard({required this.subscription, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -447,11 +451,8 @@ class SubscriptionCard extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(
-              builder: (context) =>
-                  SubscriptionForm(header1: 'Edit Subsciprtion', header2: 'Edit existing subscription', initialValues: {
-                    'name': title,
-                    'price': amount.toString(),
-                  })),
+              builder: (context) => SubscriptionForm(
+                  header1: 'Edit Subsciprtion', header2: 'Edit existing subscription', initialValues: subscription)),
         );
       },
       child: CardContainer(
@@ -470,28 +471,25 @@ class SubscriptionCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
+                  subscription.name,
                   style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 ),
                 Container(
                   height: 8,
                 ),
                 Text(
-                  'Rp ${addThousandSeperatorToString(amount.toString())}',
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  '${dateToString(subscription.startDate)} - ${dateToString(subscription.endDate)}',
+                  style: TextStyle(color: AppColors.white, fontSize: 11),
                 ),
               ],
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Start: $startDate',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
-                Text(
-                  'End: $endDate',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  'Rp ${amountDoubleToString(subscription.amount)}',
+                  style: TextStyle(color: AppColors.white),
                 ),
               ],
             ),
