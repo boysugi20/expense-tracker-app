@@ -6,13 +6,13 @@
 
 
 ## About
-Expense Tracker is an application designed to simplify the management of your budget. Whether you're tracking daily expenses, monitoring transactions, or configuring personalized settings, Expense Tracker provides a user-friendly interface to streamline your financial management experience.
+Expense Tracker is an application designed to simplify the management of your budget. Whether you're tracking daily expenses, monitoring transactions, or configuring personalized settings, Expense Tracker provides a user-friendly interface to streamline your financial management experience. Experience the convenience of Expense Tracker in managing your budget effectively.
 
 ## Features
 - Dashboard: Get an overview of your financial status at a glance
-- Budget mode: Show a balance based on your custom monthly budget
-- Add Transaction: Easily add a transaction based on category
-- Goal: Set a financial goal you want to achieve
+- Budget mode: Display a balance based on your custom monthly budget for better financial planning
+- Add Transaction: Easily record transactions with categorization for accurate expense tracking
+- Goal: Set and track financial goals to work towards achieving them
 
 ## Screenshots
 
