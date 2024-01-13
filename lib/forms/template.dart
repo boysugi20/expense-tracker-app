@@ -29,7 +29,7 @@ class FormTemplate extends StatelessWidget {
         constraints: BoxConstraints(
           minHeight: screenHeight,
         ),
-        color: AppColors.neutralLight,
+        color: AppColors.base200,
         padding: EdgeInsets.only(left: 16, right: 16, top: MediaQuery.of(context).viewPadding.top + 24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -41,10 +41,10 @@ class FormTemplate extends StatelessWidget {
               },
               child: Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(32)),
+                decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(32)),
                 child: Icon(
                   Icons.arrow_back,
-                  color: AppColors.white,
+                  color: AppColors.base100,
                 ),
               ),
             ),
@@ -76,8 +76,8 @@ class FormTemplate extends StatelessWidget {
                             }
                           },
                           child: buttonText != null
-                              ? FormSubmitButton(buttonText: 'Delete', buttonColor: Colors.red)
-                              : FormSubmitButton(buttonText: 'Cancel', buttonColor: AppColors.grey),
+                              ? FormSubmitButton(buttonText: 'Delete', buttonColor: AppColors.error)
+                              : FormSubmitButton(buttonText: 'Cancel', buttonColor: AppColors.base300),
                         ),
                       ),
                       Container(
@@ -93,8 +93,8 @@ class FormTemplate extends StatelessWidget {
                             }
                           },
                           child: buttonText != null
-                              ? FormSubmitButton(buttonText: 'Update', buttonColor: AppColors.accent)
-                              : FormSubmitButton(buttonText: 'Save', buttonColor: AppColors.accent),
+                              ? FormSubmitButton(buttonText: 'Update', buttonColor: AppColors.primary)
+                              : FormSubmitButton(buttonText: 'Save', buttonColor: AppColors.primary),
                         ),
                       ),
                     ],

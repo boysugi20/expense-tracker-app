@@ -49,7 +49,7 @@ class _TransactionFormState extends State<TransactionForm> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add Tags'),
+          title: const Text('Edit Tags'),
           content: tagsTemp.isNotEmpty
               ? Container(
                   padding: const EdgeInsets.symmetric(vertical: 24),
@@ -63,9 +63,9 @@ class _TransactionFormState extends State<TransactionForm> {
                     items: tagsTemp,
                     itemsDecoration: MultiSelectDecorations(
                       decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.accent), borderRadius: BorderRadius.circular(5)),
+                          border: Border.all(color: AppColors.primary), borderRadius: BorderRadius.circular(5)),
                       selectedDecoration:
-                          BoxDecoration(color: AppColors.accent, borderRadius: BorderRadius.circular(5)),
+                          BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(5)),
                     ),
                   ),
                 )
@@ -77,7 +77,7 @@ class _TransactionFormState extends State<TransactionForm> {
               },
               child: Text(
                 'Close',
-                style: TextStyle(color: AppColors.accent),
+                style: TextStyle(color: AppColors.primary),
               ),
             ),
           ],
@@ -210,11 +210,11 @@ class _TransactionFormState extends State<TransactionForm> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Edit Tag', style: TextStyle(color: AppColors.accent)),
+                              Text('Edit Tag', style: TextStyle(color: AppColors.primary)),
                               Container(
                                 width: 4,
                               ),
-                              Icon(Icons.edit, color: AppColors.accent, size: 14)
+                              Icon(Icons.edit, color: AppColors.primary, size: 14)
                             ],
                           ),
                         ),

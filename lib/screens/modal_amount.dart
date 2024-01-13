@@ -94,7 +94,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
-        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle: TextStyle(color: AppColors.base100, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -114,7 +114,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
       context.read<TransactionBloc>().add(AddTransaction(
           transaction:
               Transaction(id: 0, expenseCategory: category, date: date, amount: amount, note: note, tags: tags)));
-    } else {
+    } else if (category is IncomeCategory) {
       context.read<TransactionBloc>().add(AddTransaction(
           transaction:
               Transaction(id: 0, incomeCategory: category, date: date, amount: amount, note: note, tags: tags)));
@@ -289,7 +289,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
       Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-          color: AppColors.neutralDark,
+          color: AppColors.neutral,
         ),
         padding: const EdgeInsets.symmetric(vertical: 24),
         child: Column(
@@ -316,7 +316,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(tag.name, style: TextStyle(color: AppColors.white, fontSize: 12)),
+                            Text(tag.name, style: TextStyle(color: AppColors.base100, fontSize: 12)),
                             Container(
                               width: 2,
                             ),
@@ -329,7 +329,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                       openTagPopup(context);
                     },
                     child: DottedBorder(
-                      color: AppColors.white,
+                      color: AppColors.base100,
                       borderType: BorderType.RRect,
                       radius: const Radius.circular(4),
                       child: Container(
@@ -338,11 +338,11 @@ class _BottomModalamountState extends State<BottomModalamount> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Edit Tag', style: TextStyle(color: AppColors.white, fontSize: 12)),
+                              Text('Edit Tag', style: TextStyle(color: AppColors.base100, fontSize: 12)),
                               Container(
                                 width: 4,
                               ),
-                              Icon(Icons.edit, color: AppColors.white, size: 12)
+                              Icon(Icons.edit, color: AppColors.base100, size: 12)
                             ],
                           ),
                         ),
@@ -355,7 +355,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
 
             // Divider
             Divider(
-              color: AppColors.white,
+              color: AppColors.base100,
               indent: 20,
               endIndent: 20,
               height: 36,
@@ -379,22 +379,22 @@ class _BottomModalamountState extends State<BottomModalamount> {
                       child: _icon != null
                           ? Icon(
                               deserializeIcon(jsonDecode(_icon!)),
-                              color: AppColors.main,
+                              color: AppColors.primary,
                             )
                           : Text(
                               _title.isNotEmpty ? _title.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "",
-                              style: TextStyle(color: AppColors.main),
+                              style: TextStyle(color: AppColors.primary),
                             ),
                     ),
                   ),
-                  RichText(text: TextSpan(text: _title, style: TextStyle(color: AppColors.white))),
+                  RichText(text: TextSpan(text: _title, style: TextStyle(color: AppColors.base100))),
                 ],
               ),
             ),
 
             // Divider
             Divider(
-              color: AppColors.white,
+              color: AppColors.base100,
               indent: 20,
               endIndent: 20,
               height: 36,
@@ -412,7 +412,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                     child: RichText(
                         text: TextSpan(
                             text: DateFormat('dd MMM yyyy').format(selectedDate[0]!),
-                            style: TextStyle(color: AppColors.white))),
+                            style: TextStyle(color: AppColors.base100))),
                   ),
                 );
               } else {
@@ -427,11 +427,11 @@ class _BottomModalamountState extends State<BottomModalamount> {
               padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               margin: const EdgeInsets.symmetric(horizontal: 24),
               decoration:
-                  BoxDecoration(color: AppColors.white, borderRadius: const BorderRadius.all(Radius.circular(8))),
+                  BoxDecoration(color: AppColors.base100, borderRadius: const BorderRadius.all(Radius.circular(8))),
               child: RichText(
-                  text: TextSpan(style: TextStyle(color: AppColors.black), children: [
-                TextSpan(text: 'Rp ', style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.bold)),
-                TextSpan(text: _text.isNotEmpty ? _text : '0', style: TextStyle(color: AppColors.black)),
+                  text: TextSpan(style: TextStyle(color: AppColors.neutral), children: [
+                TextSpan(text: 'Rp ', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                TextSpan(text: _text.isNotEmpty ? _text : '0', style: TextStyle(color: AppColors.neutral)),
               ])),
             ),
 
@@ -443,11 +443,11 @@ class _BottomModalamountState extends State<BottomModalamount> {
                   child: TextField(
                     controller: _notesController,
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.grey),
+                    style: TextStyle(color: AppColors.base300),
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       isDense: true,
-                      hintStyle: TextStyle(color: AppColors.grey, fontSize: 14),
+                      hintStyle: TextStyle(color: AppColors.base300, fontSize: 14),
                       hintText: "Notes...",
                     ),
                   ),
@@ -511,11 +511,15 @@ class _BottomModalamountState extends State<BottomModalamount> {
                             children: [
                               TableRow(children: [
                                 buildIconButton(Icons.backspace_outlined,
+                                    color: AppColors.error,
+                                    iconcolor: AppColors.base100,
                                     onLongPressed: () => _updateText('clear'),
                                     onPressed: () => _updateText('backspace'))
                               ]),
                               TableRow(children: [
                                 buildIconButton(Icons.calendar_month_outlined,
+                                    color: AppColors.info,
+                                    iconcolor: AppColors.base100,
                                     onPressed: () => _showDatePicker(context)),
                               ]),
                               TableRow(children: [
@@ -523,8 +527,8 @@ class _BottomModalamountState extends State<BottomModalamount> {
                                     ? buildIconButton(Icons.calculate,
                                         onPressed: () => _updateText('equals'),
                                         height: 2,
-                                        color: AppColors.accent,
-                                        iconcolor: AppColors.white)
+                                        color: AppColors.primary,
+                                        iconcolor: AppColors.base100)
                                     : buildIconButton(Icons.check, onPressed: () {
                                         _addTransaction(
                                             category: category,
@@ -532,7 +536,7 @@ class _BottomModalamountState extends State<BottomModalamount> {
                                             amount: amountStringToDouble(_text),
                                             note: _notesController.text,
                                             tags: selectedTags);
-                                      }, height: 2, color: AppColors.accent, iconcolor: AppColors.white),
+                                      }, height: 2, color: AppColors.primary, iconcolor: AppColors.base100),
                               ]),
                             ],
                           );
@@ -541,6 +545,8 @@ class _BottomModalamountState extends State<BottomModalamount> {
                             children: [
                               TableRow(children: [
                                 buildIconButton(Icons.backspace_outlined,
+                                    color: AppColors.error,
+                                    iconcolor: AppColors.base100,
                                     onLongPressed: () => _updateText('clear'),
                                     onPressed: () => _updateText('backspace'))
                               ]),
@@ -550,12 +556,12 @@ class _BottomModalamountState extends State<BottomModalamount> {
                                         onPressed: () => _updateText('equals'),
                                         height: 3,
                                         color: AppColors.accent,
-                                        iconcolor: AppColors.white)
+                                        iconcolor: AppColors.base100)
                                     : buildIconButton(Icons.check,
                                         onPressed: () => {_addGoal(goal: goal, amount: amountStringToDouble(_text))},
                                         height: 3,
-                                        color: AppColors.accent,
-                                        iconcolor: AppColors.white),
+                                        color: AppColors.primary,
+                                        iconcolor: AppColors.base100),
                               ]),
                             ],
                           );
@@ -575,15 +581,15 @@ Widget buildTextButton(String text, {required VoidCallback onPressed}) {
   return Container(
     margin: const EdgeInsets.all(4),
     child: Material(
-      color: AppColors.white,
-      borderRadius: BorderRadius.circular(4),
+      color: AppColors.base100,
+      borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onTap: () {
           onPressed();
           HapticFeedback.lightImpact();
         },
-        splashColor: AppColors.main.withOpacity(0.3),
-        highlightColor: AppColors.main.withOpacity(0.3),
+        splashColor: AppColors.primary.withOpacity(0.3),
+        highlightColor: AppColors.primary.withOpacity(0.3),
         child: SizedBox(
           height: 64,
           width: 64,
@@ -614,15 +620,15 @@ Widget buildIconButton(
     margin: const EdgeInsets.all(4),
     child: Material(
       color: color,
-      borderRadius: BorderRadius.circular(4),
+      borderRadius: BorderRadius.circular(8),
       child: InkWell(
         onLongPress: onLongPressed,
         onTap: () {
           onPressed();
           HapticFeedback.mediumImpact();
         },
-        splashColor: AppColors.main.withOpacity(0.3),
-        highlightColor: AppColors.main.withOpacity(0.3),
+        splashColor: AppColors.primary.withOpacity(0.3),
+        highlightColor: AppColors.primary.withOpacity(0.3),
         child: SizedBox(
           height: 64 * height + ((height - 1) * 8),
           width: 64,

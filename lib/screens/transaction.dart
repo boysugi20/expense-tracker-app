@@ -3,11 +3,13 @@ import 'dart:convert';
 
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
+import 'package:expense_tracker/bloc/subscription/subscription_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/forms/transaction.dart';
 import 'package:expense_tracker/models/expenseCategory.dart';
 import 'package:expense_tracker/models/incomeCategory.dart';
+import 'package:expense_tracker/models/subscription.dart';
 import 'package:expense_tracker/models/tag.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
@@ -51,7 +53,6 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   ];
   String filterDateRangeText = 'This Month';
   String customDateRangeText = 'Custom';
-  String filterCategoryName = 'All Expense';
   String filterTagName = 'All Tag';
 
   List<DropdownMenuItem<String>> get dropdownDateRangeItems {
@@ -93,7 +94,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
         calendarType: CalendarDatePicker2Type.range,
-        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle: TextStyle(color: AppColors.base100, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -131,6 +132,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         }
         return b.id.compareTo(a.id);
       });
+
     return sortedTransactions;
   }
 
@@ -145,29 +147,18 @@ class TransactionsContainerState extends State<TransactionsContainer> {
         return (tDate.isAfter(startDate) || tDate.isAtSameMomentAs(startDate)) &&
             ((tDate.isBefore(endDate) || tDate.isAtSameMomentAs(endDate)));
       }).toList();
-      if (filterCategoryName != 'All Expense') {
-        results = results.where((t) {
-          return t.expenseCategory?.name == filterCategoryName;
-        }).toList();
-      }
       if (filterTagName != 'All Tag') {
         results = results.where((t) {
           return t.tags?.any((tag) => tag.name == filterTagName) ?? false;
         }).toList();
       }
     } else {
-      if (filterCategoryName != 'All Expense') {
-        results = transactionList.where((t) {
-          return t.expenseCategory?.name == filterCategoryName;
+      if (filterTagName != 'All Tag') {
+        results = results.where((t) {
+          return t.tags?.any((tag) => tag.name == filterTagName) ?? false;
         }).toList();
       } else {
-        if (filterTagName != 'All Tag') {
-          results = results.where((t) {
-            return t.tags?.any((tag) => tag.name == filterTagName) ?? false;
-          }).toList();
-        } else {
-          results = transactionList;
-        }
+        results = transactionList;
       }
     }
     return results;
@@ -206,6 +197,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
   void initState() {
     super.initState();
     context.read<TransactionBloc>().add(const GetTransactions());
+    context.read<SubscriptionBloc>().add(const GetSubscriptions());
   }
 
   @override
@@ -220,7 +212,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             if (state.transaction.isEmpty) {
               return Container(
                   padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
-                  color: AppColors.main,
+                  color: AppColors.primary,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -230,9 +222,9 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                               margin: const EdgeInsets.only(bottom: 8),
                               child: Text(
                                 'Total',
-                                style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+                                style: TextStyle(color: AppColors.base100, fontWeight: FontWeight.bold),
                               )),
-                          Text('Rp 0', style: TextStyle(color: AppColors.white)),
+                          Text('Rp 0', style: TextStyle(color: AppColors.base100)),
                         ],
                       ),
                     ],
@@ -242,7 +234,7 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             double totalAmount = _calculateTotalAmount(transactions);
             return Container(
               padding: EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top + 16, bottom: 16),
-              color: AppColors.main,
+              color: AppColors.primary,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -252,16 +244,16 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                           margin: const EdgeInsets.only(bottom: 8),
                           child: Text(
                             'Total',
-                            style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: AppColors.base100, fontWeight: FontWeight.bold),
                           )),
-                      Text('Rp ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.white)),
+                      Text('Rp ${amountDoubleToString(totalAmount)}', style: TextStyle(color: AppColors.base100)),
                     ],
                   ),
                 ],
               ),
             );
           }
-          return Text('Rp -', style: TextStyle(color: AppColors.white));
+          return Text('Rp -', style: TextStyle(color: AppColors.base100));
         }),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -270,15 +262,15 @@ class TransactionsContainerState extends State<TransactionsContainer> {
             children: [
               Container(
                   margin: const EdgeInsets.only(bottom: 8, top: 12),
-                  child: Column(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
                         decoration: BoxDecoration(
-                          border: Border.all(color: AppColors.cardBorder),
+                          border: Border.all(color: AppColors.base200),
                           borderRadius: BorderRadius.circular(4),
-                          color: AppColors.white,
+                          color: AppColors.base100,
                         ),
                         child: DropdownButton(
                           onChanged: (String? newValue) {
@@ -297,86 +289,47 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                           },
                           value: filterDateRangeText,
                           items: dropdownDateRangeItems,
-                          style: TextStyle(color: AppColors.main, fontSize: 12),
+                          style: TextStyle(color: AppColors.primary, fontSize: 12),
                           underline: const SizedBox(),
                           isDense: true,
                         ),
                       ),
-                      Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                        BlocBuilder<ExpenseCategoryBloc, ExpenseCategoryState>(builder: (context, state) {
-                          if (state is ExpenseCategoryInitial || state is ExpenseCategoryUpdated) {
-                            context.read<ExpenseCategoryBloc>().add(const GetExpenseCategories());
-                          }
-                          if (state is ExpenseCategoryLoaded) {
-                            final categories =
-                                state.category.map((category) => category.name).toList(); // Get list of categories
-                            categories.insert(0, "All Expense"); // Add "All" to the list
-                            final dropdownItems = categories // Create DropdownMenuItem from the list
-                                .map((category) => DropdownMenuItem(
-                                      value: category,
-                                      child: Text(category),
-                                    ))
-                                .toList();
-                            return Container(
-                              padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.cardBorder),
-                                borderRadius: BorderRadius.circular(4),
-                                color: AppColors.white,
-                              ),
-                              child: DropdownButton(
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    filterCategoryName = newValue!;
-                                  });
-                                },
-                                value: filterCategoryName,
-                                items: dropdownItems,
-                                style: TextStyle(color: AppColors.main, fontSize: 12),
-                                underline: const SizedBox(),
-                                isDense: true,
-                              ),
-                            );
-                          }
-                          return const NoDataWidget();
-                        }),
-                        BlocBuilder<TagBloc, TagState>(builder: (context, state) {
-                          if (state is TagInitial) {
-                            context.read<TagBloc>().add(const GetTags());
-                          }
-                          if (state is TagLoaded) {
-                            final tags = state.tag.map((tag) => tag.name).toList(); // Get list of categories
-                            tags.insert(0, "All Tag"); // Add "All" to the list
-                            final dropdownItems = tags // Create DropdownMenuItem from the list
-                                .map((tag) => DropdownMenuItem(
-                                      value: tag,
-                                      child: Text(tag),
-                                    ))
-                                .toList();
-                            return Container(
-                              padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.cardBorder),
-                                borderRadius: BorderRadius.circular(4),
-                                color: AppColors.white,
-                              ),
-                              child: DropdownButton(
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    filterTagName = newValue!;
-                                  });
-                                },
-                                value: filterTagName,
-                                items: dropdownItems,
-                                style: TextStyle(color: AppColors.main, fontSize: 12),
-                                underline: const SizedBox(),
-                                isDense: true,
-                              ),
-                            );
-                          }
-                          return const NoDataWidget();
-                        }),
-                      ]),
+                      BlocBuilder<TagBloc, TagState>(builder: (context, state) {
+                        if (state is TagInitial) {
+                          context.read<TagBloc>().add(const GetTags());
+                        }
+                        if (state is TagLoaded) {
+                          final tags = state.tag.map((tag) => tag.name).toList(); // Get list of categories
+                          tags.insert(0, "All Tag"); // Add "All" to the list
+                          final dropdownItems = tags // Create DropdownMenuItem from the list
+                              .map((tag) => DropdownMenuItem(
+                                    value: tag,
+                                    child: Text(tag),
+                                  ))
+                              .toList();
+                          return Container(
+                            padding: const EdgeInsets.only(left: 12, top: 3, bottom: 3),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.base200),
+                              borderRadius: BorderRadius.circular(4),
+                              color: AppColors.base100,
+                            ),
+                            child: DropdownButton(
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  filterTagName = newValue!;
+                                });
+                              },
+                              value: filterTagName,
+                              items: dropdownItems,
+                              style: TextStyle(color: AppColors.primary, fontSize: 12),
+                              underline: const SizedBox(),
+                              isDense: true,
+                            ),
+                          );
+                        }
+                        return const NoDataWidget();
+                      }),
                     ],
                   )),
               BlocBuilder<TransactionBloc, TransactionState>(
@@ -410,12 +363,16 @@ class TransactionsContainerState extends State<TransactionsContainer> {
                                         Text(
                                           entry.key,
                                           style: TextStyle(
-                                              fontSize: 12, fontWeight: FontWeight.normal, color: AppColors.grey),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.normal,
+                                              color: AppColors.neutral.withOpacity(0.6)),
                                         ),
                                         Text(
                                           'Rp ${amountDoubleToString(_calculateTotalAmount(entry.value))}',
                                           style: TextStyle(
-                                              fontSize: 12, fontWeight: FontWeight.normal, color: AppColors.grey),
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.normal,
+                                              color: AppColors.neutral.withOpacity(0.6)),
                                         ),
                                       ],
                                     ),
@@ -503,11 +460,11 @@ class _TransactionCardState extends State<TransactionCard> {
                     child: _icon != null
                         ? Icon(
                             deserializeIcon(jsonDecode(_icon!)),
-                            color: AppColors.main,
+                            color: AppColors.primary,
                           )
                         : Text(
                             _title.isNotEmpty ? _title.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "",
-                            style: TextStyle(color: AppColors.main),
+                            style: TextStyle(color: AppColors.primary),
                           ),
                   ),
                 ),
@@ -565,7 +522,7 @@ class _TransactionCardState extends State<TransactionCard> {
               text: TextSpan(
                   text: 'Rp ${amountDoubleToString(widget.transaction.amount)}',
                   style: TextStyle(
-                      color: _objectType == 'ExpenseCategory' ? AppColors.red : AppColors.green, fontSize: 12)),
+                      color: _objectType == 'ExpenseCategory' ? AppColors.error : AppColors.success, fontSize: 12)),
             ),
           ],
         ),

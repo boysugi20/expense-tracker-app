@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/general/functions.dart';
+import 'package:expense_tracker/screens/login.dart';
 
 import 'package:expense_tracker/styles/color.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -22,6 +23,10 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   DatabaseHelper db = DatabaseHelper();
+
+  bool budgetMode = true;
+  double budgetAmount = 0;
+  String userName = '';
 
   String dropdownText = 'This Month';
   List<DropdownMenuItem<String>> get dropdownItems {
@@ -112,16 +117,26 @@ class _DashboardPageState extends State<DashboardPage> {
     return (((month) * 10000) + year).toDouble();
   }
 
-  bool budgetMode = true;
-  double budgetAmount = 0;
+  void _redirectToLogin(userName) {
+    if (userName == null || userName.isEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+      );
+    }
+  }
 
   void initializeValues() async {
     bool? budgetModeValue = await getConfigurationBool('budget_mode');
     double? budgetAmountValue = await getConfigurationDouble('budget_amount');
+    String? fetchedUserName = await getConfigurationString('user_name');
+
+    _redirectToLogin(fetchedUserName);
 
     setState(() {
       budgetMode = budgetModeValue ?? true;
       budgetAmount = budgetAmountValue ?? 0;
+      userName = fetchedUserName ?? '';
     });
   }
 
@@ -137,7 +152,7 @@ class _DashboardPageState extends State<DashboardPage> {
       padding: const EdgeInsets.only(bottom: 100),
       child: Stack(children: [
         CustomPaint(
-          painter: _WaveCustomPaint(backgroundColor: AppColors.main),
+          painter: _WaveCustomPaint(backgroundColor: AppColors.primary),
           size: MediaQuery.of(context).size,
         ),
         Container(
@@ -150,20 +165,20 @@ class _DashboardPageState extends State<DashboardPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   RichText(
-                    text: const TextSpan(
+                    text: TextSpan(
                       text: 'Hello,\n',
-                      style: TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white),
                       children: <TextSpan>[
-                        TextSpan(text: 'John Doe', style: TextStyle(fontWeight: FontWeight.bold)),
+                        TextSpan(text: userName, style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.only(left: 8),
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.cardBorder),
+                      border: Border.all(color: AppColors.base200),
                       borderRadius: BorderRadius.circular(4),
-                      color: AppColors.white,
+                      color: AppColors.base100,
                     ),
                     child: DropdownButton(
                       onChanged: (String? newValue) {
@@ -173,7 +188,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       },
                       value: dropdownText,
                       items: dropdownItems,
-                      style: TextStyle(color: AppColors.main, fontSize: 12),
+                      style: TextStyle(color: AppColors.primary, fontSize: 12),
                       underline: const SizedBox(),
                       isDense: true,
                     ),
@@ -348,7 +363,7 @@ class NotificationCard extends StatelessWidget {
             Container(
               margin: const EdgeInsets.only(right: 12),
               child: CircleAvatar(
-                backgroundColor: AppColors.grey,
+                backgroundColor: AppColors.base300,
               ),
             ),
             RichText(
@@ -393,13 +408,13 @@ class ExpenseChart extends StatelessWidget {
         BarChartData(
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
-              tooltipBgColor: AppColors.white,
-              tooltipBorder: BorderSide(color: AppColors.main, width: 1),
+              tooltipBgColor: AppColors.base100,
+              tooltipBorder: BorderSide(color: AppColors.primary, width: 1),
               tooltipPadding: const EdgeInsets.all(8),
               tooltipRoundedRadius: 2,
               tooltipMargin: 2,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                TextStyle textStyle = TextStyle(color: AppColors.black);
+                TextStyle textStyle = TextStyle(color: AppColors.neutral);
                 return BarTooltipItem(
                   '${valueToTitle(group.x.toDouble())}\nRp ${addThousandSeperatorToString((rod.toY).toInt().toString())}',
                   textStyle,
@@ -443,7 +458,7 @@ class ExpenseChart extends StatelessWidget {
               barRods: [
                 BarChartRodData(
                   toY: item.y,
-                  color: AppColors.main,
+                  color: AppColors.primary,
                   width: 18,
                   borderRadius: BorderRadius.circular(2),
                 ),
@@ -457,7 +472,7 @@ class ExpenseChart extends StatelessWidget {
             verticalInterval: 1,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: AppColors.cardBorder,
+                color: AppColors.base200,
                 strokeWidth: 1,
               );
             },
@@ -470,7 +485,7 @@ class ExpenseChart extends StatelessWidget {
       //     LineChartData(
       //       lineTouchData: LineTouchData(
       //         touchTooltipData: LineTouchTooltipData(
-      //           tooltipBgColor: AppColors.white,
+      //           tooltipBgColor: AppColors.base100,
       //           tooltipBorder: BorderSide(color: AppColors.accent, width: 2),
       //           getTooltipItems: (List<LineBarSpot> touchedSpots) {
       //             TextStyle tooltipStyle = TextStyle(color: AppColors.accent);
@@ -534,13 +549,13 @@ class ExpenseChart extends StatelessWidget {
       //           belowBarData: BarAreaData(
       //             show: true,
       //             gradient: LinearGradient(
-      //               colors: [AppColors.main,AppColors.accent].map((color) => color.withOpacity(0.3)).toList(),
+      //               colors: [AppColors.primary,AppColors.accent].map((color) => color.withOpacity(0.3)).toList(),
       //             ),
       //           ),
       //           gradient: LinearGradient(
       //             colors: [
-      //               ColorTween(begin: AppColors.main, end: AppColors.accent).lerp(0.2)!,
-      //               ColorTween(begin: AppColors.main, end: AppColors.accent).lerp(0.2)!,
+      //               ColorTween(begin: AppColors.primary, end: AppColors.accent).lerp(0.2)!,
+      //               ColorTween(begin: AppColors.primary, end: AppColors.accent).lerp(0.2)!,
       //             ],
       //           ),
       //         ),
@@ -552,13 +567,13 @@ class ExpenseChart extends StatelessWidget {
       //         verticalInterval: 1,
       //         getDrawingHorizontalLine: (value) {
       //           return FlLine(
-      //             color: AppColors.cardBorder,
+      //             color: AppColors.base200,
       //             strokeWidth: 1,
       //           );
       //         },
       //         getDrawingVerticalLine: (value) {
       //           return FlLine(
-      //             color: AppColors.cardBorder,
+      //             color: AppColors.base200,
       //             strokeWidth: 1,
       //           );
       //         },
@@ -594,17 +609,17 @@ class GoalsCard extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 4,
-                  child: Text(title, style: TextStyle(color: AppColors.black)),
+                  child: Text(title, style: TextStyle(color: AppColors.neutral)),
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                   progressAmount != null
                       ? Text(
                           '${amountDoubleToString(progressAmount!)} / ${amountDoubleToString(totalAmount)} ( ${progress.toStringAsFixed(1)}% )',
-                          style: TextStyle(color: AppColors.grey, fontSize: 12),
+                          style: TextStyle(color: AppColors.base300, fontSize: 12),
                         )
                       : Text(
                           '0 / ${amountDoubleToString(totalAmount)} ( 0% )',
-                          style: TextStyle(color: AppColors.grey, fontSize: 12),
+                          style: TextStyle(color: AppColors.base300, fontSize: 12),
                         ),
                 ]),
               ],
@@ -618,8 +633,8 @@ class GoalsCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       minHeight: 8,
                       value: progress / 100,
-                      color: progress >= 100 ? AppColors.green : AppColors.accent,
-                      backgroundColor: AppColors.accent.withOpacity(0.2),
+                      color: progress >= 100 ? AppColors.success : AppColors.primary,
+                      backgroundColor: AppColors.primary.withOpacity(0.2),
                     ),
                   ),
                 )
@@ -657,11 +672,11 @@ class Expenses extends StatelessWidget {
                       child: icon != null
                           ? Icon(
                               deserializeIcon(jsonDecode(icon!)),
-                              color: AppColors.main,
+                              color: AppColors.primary,
                             )
                           : Text(
                               text.isNotEmpty ? text.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "",
-                              style: TextStyle(color: AppColors.main),
+                              style: TextStyle(color: AppColors.primary),
                             ),
                     ),
                   ),
@@ -681,10 +696,10 @@ class Expenses extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              minHeight: 4,
+              minHeight: 8,
               value: amount / totalAmount,
-              color: AppColors.main,
-              backgroundColor: AppColors.main.withOpacity(0.2),
+              color: AppColors.primary,
+              backgroundColor: AppColors.primary.withOpacity(0.2),
             ),
           ),
         ],
@@ -710,7 +725,7 @@ class BalanceCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 24),
       decoration: BoxDecoration(
-          color: AppColors.neutralDark,
+          color: AppColors.neutral,
           borderRadius: const BorderRadius.all(Radius.circular(20)),
           boxShadow: [
             BoxShadow(
@@ -728,11 +743,11 @@ class BalanceCard extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              RichText(text: TextSpan(text: 'Balance', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+              RichText(text: TextSpan(text: 'Balance', style: TextStyle(color: AppColors.base300, fontSize: 12))),
               RichText(
                   text: TextSpan(
                       text: 'Rp ${amountDoubleToString(balance)}',
-                      style: TextStyle(color: AppColors.white, fontSize: 20, fontWeight: FontWeight.bold))),
+                      style: TextStyle(color: AppColors.base100, fontSize: 20, fontWeight: FontWeight.bold))),
             ],
           ),
           Container(
@@ -748,11 +763,12 @@ class BalanceCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RichText(text: TextSpan(text: 'Expense', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+                      RichText(
+                          text: TextSpan(text: 'Expense', style: TextStyle(color: AppColors.base300, fontSize: 12))),
                       RichText(
                           text: TextSpan(
                               text: 'Rp ${amountDoubleToString(expense)}',
-                              style: TextStyle(color: AppColors.white, fontSize: 14))),
+                              style: TextStyle(color: AppColors.base100, fontSize: 14))),
                     ],
                   ),
                 ),
@@ -763,11 +779,12 @@ class BalanceCard extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      RichText(text: TextSpan(text: 'Income', style: TextStyle(color: AppColors.grey, fontSize: 12))),
+                      RichText(
+                          text: TextSpan(text: 'Income', style: TextStyle(color: AppColors.base300, fontSize: 12))),
                       RichText(
                           text: TextSpan(
                               text: 'Rp ${amountDoubleToString(income)}',
-                              style: TextStyle(color: AppColors.white, fontSize: 14))),
+                              style: TextStyle(color: AppColors.base100, fontSize: 14))),
                     ],
                   ),
                 ),

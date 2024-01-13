@@ -241,13 +241,13 @@ class ExpenseCategoriesCard extends StatelessWidget {
                     child: category.icon != null
                         ? Icon(
                             deserializeIcon(jsonDecode(category.icon!)),
-                            color: AppColors.main,
+                            color: AppColors.primary,
                           )
                         : Text(
                             category.name.isNotEmpty
                                 ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
                                 : "",
-                            style: TextStyle(color: AppColors.main),
+                            style: TextStyle(color: AppColors.primary),
                           ),
                   ),
                 ),
@@ -256,7 +256,7 @@ class ExpenseCategoriesCard extends StatelessWidget {
                 ),
               ],
             ),
-            // Icon(Icons.edit, color: AppColors.black, size: 16,)
+            // Icon(Icons.edit, color: AppColors.neutral, size: 16,)
           ],
         ),
       ),
@@ -296,13 +296,13 @@ class IncomeCategoriesCard extends StatelessWidget {
                     child: category.icon != null
                         ? Icon(
                             deserializeIcon(jsonDecode(category.icon!)),
-                            color: AppColors.main,
+                            color: AppColors.primary,
                           )
                         : Text(
                             category.name.isNotEmpty
                                 ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
                                 : "",
-                            style: TextStyle(color: AppColors.main),
+                            style: TextStyle(color: AppColors.primary),
                           ),
                   ),
                 ),
@@ -311,7 +311,7 @@ class IncomeCategoriesCard extends StatelessWidget {
                 ),
               ],
             ),
-            // Icon(Icons.edit, color: AppColors.black, size: 16,)
+            // Icon(Icons.edit, color: AppColors.neutral, size: 16,)
           ],
         ),
       ),
@@ -382,7 +382,7 @@ class GoalsCard extends StatelessWidget {
         );
       },
       child: CardContainer(
-        color: AppColors.main,
+        color: AppColors.primary,
         paddingBottom: 16,
         paddingTop: 16,
         marginBottom: 6,
@@ -406,7 +406,7 @@ class GoalsCard extends StatelessWidget {
                 ),
               ],
             ),
-            // Icon(Icons.edit, color: AppColors.white, size: 16,)
+            // Icon(Icons.edit, color: AppColors.base100, size: 16,)
           ],
         ),
       ),
@@ -422,7 +422,7 @@ class BudgetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardContainer(
-        color: AppColors.main,
+        color: AppColors.primary,
         paddingBottom: 16,
         paddingTop: 16,
         marginBottom: 6,
@@ -433,7 +433,7 @@ class BudgetCard extends StatelessWidget {
               'Rp ${amountDoubleToString(amount)}',
               style: const TextStyle(color: Colors.white, fontSize: 18),
             ),
-            // Icon(Icons.edit, color: AppColors.white, size: 16,)
+            // Icon(Icons.edit, color: AppColors.base100, size: 16,)
           ],
         ));
   }
@@ -456,7 +456,7 @@ class SubscriptionCard extends StatelessWidget {
         );
       },
       child: CardContainer(
-        color: AppColors.main,
+        color: AppColors.primary,
         paddingBottom: 18,
         paddingTop: 18,
         paddingLeft: 16,
@@ -479,7 +479,7 @@ class SubscriptionCard extends StatelessWidget {
                 ),
                 Text(
                   '${dateToString(subscription.startDate)} - ${dateToString(subscription.endDate)}',
-                  style: TextStyle(color: AppColors.white, fontSize: 11),
+                  style: TextStyle(color: AppColors.base100, fontSize: 11),
                 ),
               ],
             ),
@@ -489,7 +489,7 @@ class SubscriptionCard extends StatelessWidget {
               children: [
                 Text(
                   'Rp ${amountDoubleToString(subscription.amount)}',
-                  style: TextStyle(color: AppColors.white),
+                  style: TextStyle(color: AppColors.base100),
                 ),
               ],
             ),

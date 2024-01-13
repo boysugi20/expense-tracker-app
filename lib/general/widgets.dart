@@ -62,14 +62,14 @@ class AddButton extends StatelessWidget {
         children: [
           Container(
             decoration: BoxDecoration(
-                border: Border.all(width: 1, color: AppColors.cardBorder),
-                color: AppColors.white,
+                border: Border.all(width: 1, color: AppColors.base200),
+                color: AppColors.base100,
                 borderRadius: BorderRadius.circular(2)),
             margin: const EdgeInsets.only(top: 8),
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             child: Center(
               child: RichText(
-                text: TextSpan(text: text, style: TextStyle(color: AppColors.accent, fontSize: 12)),
+                text: TextSpan(text: text, style: TextStyle(color: AppColors.primary, fontSize: 12)),
               ),
             ),
           ),
@@ -158,12 +158,12 @@ class _FormTextInputState extends State<FormTextInput> {
                     : [],
                 decoration: InputDecoration(
                     filled: true,
-                    fillColor: AppColors.white,
+                    fillColor: AppColors.base100,
                     helperText: widget.helperText,
                     hintText: widget.labelText,
-                    hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+                    hintStyle: TextStyle(color: AppColors.base300, fontSize: 12),
                     enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: AppColors.cardBorder),
+                      borderSide: BorderSide(color: AppColors.base300.withOpacity(0.5)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: AppColors.accent),
@@ -206,7 +206,7 @@ class _FormDateInputState extends State<FormDateInput> {
     var results = await showCalendarDatePicker2Dialog(
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
-        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle: TextStyle(color: AppColors.base100, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -267,9 +267,9 @@ class _FormDateInputState extends State<FormDateInput> {
             decoration: InputDecoration(
               helperText: widget.helperText,
               hintText: widget.labelText,
-              hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+              hintStyle: TextStyle(color: AppColors.base300, fontSize: 12),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: AppColors.cardBorder),
+                borderSide: BorderSide(color: AppColors.base300.withOpacity(0.5)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.accent),
@@ -277,7 +277,7 @@ class _FormDateInputState extends State<FormDateInput> {
               contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
               prefixIcon: Icon(
                 Icons.calendar_month,
-                color: AppColors.grey,
+                color: AppColors.base300,
               ),
             ),
             validator: widget.validateText,
@@ -320,7 +320,7 @@ class _FormDateRangeInput extends State<FormDateRangeInput> {
       context: context,
       config: CalendarDatePicker2WithActionButtonsConfig(
         calendarType: CalendarDatePicker2Type.range,
-        selectedDayTextStyle: TextStyle(color: AppColors.white, fontWeight: FontWeight.w700),
+        selectedDayTextStyle: TextStyle(color: AppColors.base100, fontWeight: FontWeight.w700),
         selectedDayHighlightColor: AppColors.accent,
       ),
       dialogSize: const Size(325, 400),
@@ -379,11 +379,13 @@ class _FormDateRangeInput extends State<FormDateRangeInput> {
             onSaved: widget.onSave,
             controller: _textController,
             decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.base100,
               helperText: widget.helperText,
               hintText: widget.labelText,
-              hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+              hintStyle: TextStyle(color: AppColors.base300, fontSize: 12),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: AppColors.cardBorder),
+                borderSide: BorderSide(color: AppColors.base300.withOpacity(0.5)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: AppColors.accent),
@@ -391,7 +393,7 @@ class _FormDateRangeInput extends State<FormDateRangeInput> {
               contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
               prefixIcon: Icon(
                 Icons.calendar_month,
-                color: AppColors.grey,
+                color: AppColors.base300,
               ),
             ),
             validator: widget.validateText,
@@ -450,7 +452,7 @@ class _FormIconInputState extends State<FormIconInput> {
         ));
     _icon = Icon(
       icon,
-      color: AppColors.main,
+      color: AppColors.primary,
       size: 32,
     );
 
@@ -473,7 +475,7 @@ class _FormIconInputState extends State<FormIconInput> {
       setState(() {
         _icon = Icon(
           deserializeIcon(jsonDecode(widget.initialIcon!)),
-          color: AppColors.main,
+          color: AppColors.primary,
         );
         iconText = widget.initialIcon;
       });
@@ -515,7 +517,7 @@ class _FormIconInputState extends State<FormIconInput> {
                     margin: const EdgeInsets.only(bottom: 8),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.cardBorder),
+                      border: Border.all(color: AppColors.base200),
                     ),
                     child: CircleAvatar(backgroundColor: Colors.grey.shade200, radius: 24, child: _icon),
                   ),
@@ -534,7 +536,7 @@ class _FormIconInputState extends State<FormIconInput> {
               ElevatedButton(
                 onPressed: _pickIcon,
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all<Color>(AppColors.main),
+                  backgroundColor: MaterialStateProperty.all<Color>(AppColors.primary),
                   overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
                   elevation: MaterialStateProperty.all<double>(0),
                 ),
@@ -576,11 +578,11 @@ class NoDataWidget extends StatelessWidget {
         child: text == ''
             ? Text(
                 'No Data',
-                style: TextStyle(color: AppColors.grey),
+                style: TextStyle(color: AppColors.base300),
               )
             : Text(
                 text,
-                style: TextStyle(color: AppColors.grey),
+                style: TextStyle(color: AppColors.base300),
               ),
       ),
     );
@@ -619,9 +621,9 @@ class CardContainer extends StatelessWidget {
       margin: EdgeInsets.only(left: marginLeft, right: marginRight, top: marginTop, bottom: marginBottom),
       padding: EdgeInsets.only(left: paddingLeft, right: paddingRight, top: paddingTop, bottom: paddingBottom),
       decoration: BoxDecoration(
-          border: useBorder ? Border.all(color: borderColor ?? AppColors.cardBorder) : null,
+          border: useBorder ? Border.all(color: borderColor ?? AppColors.base300.withOpacity(0.5)) : null,
           borderRadius: const BorderRadius.all(Radius.circular(8)),
-          color: color ?? AppColors.white),
+          color: color ?? AppColors.base100),
       child: child,
     );
   }

@@ -2,12 +2,15 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
+import 'package:expense_tracker/bloc/incomeCategory/incomeCategory_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/database/expenseCategory_dao.dart';
 import 'package:expense_tracker/database/connection.dart';
+import 'package:expense_tracker/database/incomeCategory_dao.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/models/expenseCategory.dart';
+import 'package:expense_tracker/models/incomeCategory.dart';
 import 'package:expense_tracker/models/transaction.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:file_picker/file_picker.dart';
@@ -25,9 +28,15 @@ class MoreSettingPage extends StatefulWidget {
 }
 
 class _MoreSettingPageState extends State<MoreSettingPage> {
-  void _addTransactionDB(ExpenseCategory expenseCategory, DateTime date, double amount, String note) {
-    context.read<TransactionBloc>().add(AddTransaction(
-        transaction: Transaction(id: 0, expenseCategory: expenseCategory, date: date, amount: amount, note: note)));
+  void _addTransactionDB(Object category, DateTime date, double amount, String note) {
+    if (category is ExpenseCategory) {
+      context.read<TransactionBloc>().add(AddTransaction(
+          transaction:
+              Transaction(id: 0, expenseCategory: category, date: date, amount: amount, note: note, tags: [])));
+    } else if (category is IncomeCategory) {
+      context.read<TransactionBloc>().add(AddTransaction(
+          transaction: Transaction(id: 0, incomeCategory: category, date: date, amount: amount, note: note, tags: [])));
+    }
   }
 
   Future<void> _insertExpenseCategory(ExpenseCategory expenseCategory, void Function(ExpenseCategory) callback) async {
@@ -40,6 +49,24 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
         final updatedCategory = expenseCategory.copyWith(id: insertedId);
         if (context.mounted) {
           context.read<ExpenseCategoryBloc>().add(AddExpenseCategory(category: updatedCategory));
+        }
+        callback(updatedCategory);
+      } else {
+        callback(existingCategory);
+      }
+    }
+  }
+
+  Future<void> _insertIncomeCategory(IncomeCategory incomeCategory, void Function(IncomeCategory) callback) async {
+    final categoryState = context.read<IncomeCategoryBloc>().state;
+    if (categoryState is IncomeCategoryLoaded) {
+      final List<IncomeCategory> categories = categoryState.category;
+      final existingCategory = categories.firstWhereOrNull((category) => category.name == incomeCategory.name);
+      if (existingCategory == null) {
+        final insertedId = await IncomeCategoryDAO.insertIncomeCategory(incomeCategory);
+        final updatedCategory = incomeCategory.copyWith(id: insertedId);
+        if (context.mounted) {
+          context.read<IncomeCategoryBloc>().add(AddIncomeCategory(category: updatedCategory));
         }
         callback(updatedCategory);
       } else {
@@ -71,8 +98,21 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
       String? saveDirectory = await FilePicker.platform.getDirectoryPath();
       if (saveDirectory != null) {
         DatabaseHelper db = DatabaseHelper();
-        var queryResult = await db.accessDatabase(
-            'SELECT A.amount, strftime("%Y-%m-%d %H:%M:%S", A.date) AS date, A.note, B.name FROM Transactions AS A JOIN ExpenseCategories AS B ON A.expenseCategoryID = B.id');
+        var queryResult = await db.accessDatabase('''
+              SELECT 
+                A.amount, strftime("%Y-%m-%d %H:%M:%S", A.date) AS date, A.note, 
+                COALESCE(B.name, C.name) AS category,
+                CASE
+                  WHEN B.name IS NOT NULL THEN 'Expense'
+                  ELSE 'Income'
+                END AS type
+              FROM 
+                Transactions AS A 
+                LEFT JOIN ExpenseCategories AS B 
+                  ON A.expenseCategoryID = B.id
+                LEFT JOIN IncomeCategories AS C 
+                  ON A.incomeCategoryID = C.id
+            ''');
 
         List<String> csvData = [];
         // Add headers to the CSV data
@@ -146,38 +186,64 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
           for (var j = 0; j < header.length; j++) {
             map[header[j]] = values[j];
           }
-          listOfMap.add(map);
+
+          if (map['category'] != null && map['date'] != null && map['amount'] != null && map['note'] != null) {
+            listOfMap.add(map);
+          }
         }
 
         try {
-          if (context.mounted) {
-            final categoryState = context.read<ExpenseCategoryBloc>().state;
-            if (categoryState is ExpenseCategoryLoaded) {
-              final List<ExpenseCategory> categories = categoryState.category;
-              for (var i = 0; i < listOfMap.length; i++) {
-                var map = listOfMap[i];
+          // Expense
+          final List<ExpenseCategory> expenseCategories = await ExpenseCategoryDAO.getExpenseCategories();
+          for (var i = 0; i < listOfMap.length; i++) {
+            var map = listOfMap[i];
 
-                ExpenseCategory? category;
-                for (ExpenseCategory temp in categories) {
-                  if (temp.name == map['name']) {
-                    category = temp;
-                    break;
-                  }
-                }
-
-                // If category exists
-                if (category != null) {
-                  _addTransactionDB(category, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
-                } else {
-                  ExpenseCategory newCategory = ExpenseCategory(id: 0, name: map['name']);
-
-                  _insertExpenseCategory(newCategory, (newCategory) {
-                    _addTransactionDB(
-                        newCategory, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
-                  });
-                }
+            ExpenseCategory? expenseCategory;
+            for (ExpenseCategory temp in expenseCategories) {
+              if (temp.name == map['category'] && map['type'] == 'Expense') {
+                expenseCategory = temp;
+                break;
               }
             }
+
+            // If category exists
+            if (expenseCategory != null) {
+              _addTransactionDB(expenseCategory, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
+            } else {
+              ExpenseCategory newCategory = ExpenseCategory(id: 0, name: map['name']);
+              _insertExpenseCategory(newCategory, (newCategory) {
+                _addTransactionDB(newCategory, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
+              });
+            }
+          }
+
+          // Income
+          final List<IncomeCategory> incomeCategories = await IncomeCategoryDAO.getIncomeCategories();
+          for (var i = 0; i < listOfMap.length; i++) {
+            var map = listOfMap[i];
+
+            IncomeCategory? incomeCategory;
+            for (IncomeCategory temp in incomeCategories) {
+              if (temp.name == map['category'] && map['type'] == 'Income') {
+                incomeCategory = temp;
+                break;
+              }
+            }
+
+            // If category exists
+            if (incomeCategory != null) {
+              _addTransactionDB(incomeCategory, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
+            } else {
+              IncomeCategory newCategory = IncomeCategory(id: 0, name: map['name']);
+
+              _insertIncomeCategory(newCategory, (newCategory) {
+                _addTransactionDB(newCategory, DateTime.parse(map['date']), double.parse(map['amount']), map['note']);
+              });
+            }
+          }
+
+          // Show notification
+          if (context.mounted) {
             _showPopup(context, 'Import Success', 'Transaction data imported');
           }
         } catch (e) {
@@ -210,6 +276,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
   }
 
   final budgetTextController = TextEditingController();
+  final userNameController = TextEditingController();
 
   bool budgetMode = true;
   double budgetAmount = 0;
@@ -229,10 +296,13 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
     String? weekDropdownValue = await getConfigurationString('first_day_week');
     int? dayDropdownValue = await getConfigurationInt('first_day_month');
 
+    String? userName = await getConfigurationString('user_name');
+
     setState(() {
       budgetMode = budgetModeValue ?? true;
       budgetAmount = budgetAmountValue ?? 0;
       budgetTextController.text = budgetAmountValue != null ? amountDoubleToString(budgetAmount) : '0';
+      userNameController.text = userName ?? '';
       carryOver = carryOverValue ?? true;
       weekDropdown = weekDropdownValue ?? 'Sunday';
       dayDropdown = dayDropdownValue ?? 1;
@@ -305,7 +375,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
                     ),
                     Switch(
                       value: budgetMode,
-                      activeColor: AppColors.accent,
+                      activeColor: AppColors.primary,
                       onChanged: (bool value) {
                         saveConfiguration('budget_mode', !budgetMode);
                         setState(() {
@@ -334,7 +404,7 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
                                     saveConfiguration('budget_amount', amountStringToDouble(text));
                                   },
                                   textAlign: TextAlign.end,
-                                  style: TextStyle(color: AppColors.accent),
+                                  style: TextStyle(color: AppColors.primary),
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
                                     ThousandsSeparatorInputFormatter()
@@ -342,9 +412,9 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
                                   decoration: InputDecoration(
                                     prefixText: 'Rp',
                                     isDense: true,
-                                    hintStyle: TextStyle(color: AppColors.grey, fontSize: 12),
+                                    hintStyle: TextStyle(color: AppColors.base300, fontSize: 12),
                                     focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(color: AppColors.accent),
+                                      borderSide: BorderSide(color: AppColors.primary),
                                     ),
                                   ),
                                 ),
@@ -363,83 +433,118 @@ class _MoreSettingPageState extends State<MoreSettingPage> {
               children: [
                 Row(
                   children: [
-                    const Text('Carry over'),
+                    const Text('User name'),
                     Container(
                       width: 8,
                     ),
-                    const Tooltip(
-                        message: 'Enable this to carryover\nremaining balance each month',
-                        child: Icon(
-                          Icons.info,
-                          size: 16,
-                        )),
                   ],
                 ),
-                Switch(
-                  value: carryOver,
-                  activeColor: AppColors.accent,
-                  onChanged: (bool value) {
-                    saveConfiguration('carry_over', !carryOver);
-                    setState(() {
-                      carryOver = !carryOver;
-                    });
-                  },
+                Container(
+                  width: 80,
+                ),
+                Expanded(
+                  child: TextFormField(
+                    controller: userNameController,
+                    onFieldSubmitted: (text) {
+                      saveConfiguration('user_name', text);
+                    },
+                    textAlign: TextAlign.end,
+                    style: TextStyle(color: AppColors.primary),
+                    inputFormatters: [FilteringTextInputFormatter.singleLineFormatter],
+                    decoration: InputDecoration(
+                      isDense: true,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: AppColors.primary),
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          CardContainer(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('First day of the week'),
-                DropdownButton<String>(
-                  value: weekDropdown,
-                  icon: const Icon(Icons.arrow_drop_down),
-                  elevation: 16,
-                  style: TextStyle(color: AppColors.accent),
-                  onChanged: (String? value) {
-                    saveConfiguration('first_day_week', value!);
-                    setState(() {
-                      weekDropdown = value;
-                    });
-                  },
-                  items: weekList.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
-          CardContainer(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('First day of the month'),
-                DropdownButton<int>(
-                  value: dayDropdown,
-                  icon: const Icon(Icons.arrow_drop_down),
-                  elevation: 16,
-                  style: TextStyle(color: AppColors.accent),
-                  onChanged: (int? value) {
-                    saveConfiguration('first_day_month', value!);
-                    setState(() {
-                      dayDropdown = value;
-                    });
-                  },
-                  items: dayList.map<DropdownMenuItem<int>>((int value) {
-                    return DropdownMenuItem<int>(
-                      value: value,
-                      child: Text(value.toString()),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          ),
+          // CardContainer(
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       Row(
+          //         children: [
+          //           const Text('Carry over'),
+          //           Container(
+          //             width: 8,
+          //           ),
+          //           const Tooltip(
+          //               message: 'Enable this to carryover\nremaining balance each month',
+          //               child: Icon(
+          //                 Icons.info,
+          //                 size: 16,
+          //               )),
+          //         ],
+          //       ),
+          //       Switch(
+          //         value: carryOver,
+          //         activeColor: AppColors.primary,
+          //         onChanged: (bool value) {
+          //           saveConfiguration('carry_over', !carryOver);
+          //           setState(() {
+          //             carryOver = !carryOver;
+          //           });
+          //         },
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // CardContainer(
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       const Text('First day of the week'),
+          //       DropdownButton<String>(
+          //         value: weekDropdown,
+          //         icon: const Icon(Icons.arrow_drop_down),
+          //         elevation: 16,
+          //         style: TextStyle(color: AppColors.primary),
+          //         onChanged: (String? value) {
+          //           saveConfiguration('first_day_week', value!);
+          //           setState(() {
+          //             weekDropdown = value;
+          //           });
+          //         },
+          //         items: weekList.map<DropdownMenuItem<String>>((String value) {
+          //           return DropdownMenuItem<String>(
+          //             value: value,
+          //             child: Text(value),
+          //           );
+          //         }).toList(),
+          //       ),
+          //     ],
+          //   ),
+          // ),
+          // CardContainer(
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //     children: [
+          //       const Text('First day of the month'),
+          //       DropdownButton<int>(
+          //         value: dayDropdown,
+          //         icon: const Icon(Icons.arrow_drop_down),
+          //         elevation: 16,
+          //         style: TextStyle(color: AppColors.primary),
+          //         onChanged: (int? value) {
+          //           saveConfiguration('first_day_month', value!);
+          //           setState(() {
+          //             dayDropdown = value;
+          //           });
+          //         },
+          //         items: dayList.map<DropdownMenuItem<int>>((int value) {
+          //           return DropdownMenuItem<int>(
+          //             value: value,
+          //             child: Text(value.toString()),
+          //           );
+          //         }).toList(),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );

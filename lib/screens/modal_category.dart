@@ -49,7 +49,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
     return Container(
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-          color: AppColors.neutralDark,
+          color: AppColors.neutral,
         ),
         padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
         child: Column(
@@ -60,7 +60,7 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
               width: 280,
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                border: Border.all(width: 1, color: AppColors.grey),
+                border: Border.all(width: 1, color: AppColors.base300),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TabBar(
@@ -69,8 +69,8 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(width: 2, color: AppColors.accent),
                       color: AppColors.accent),
-                  labelColor: AppColors.white,
-                  unselectedLabelColor: AppColors.grey,
+                  labelColor: AppColors.base100,
+                  unselectedLabelColor: AppColors.base300,
                   tabs: myTabs),
             ),
             SizedBox(
@@ -179,7 +179,7 @@ class GoalButton extends StatelessWidget {
             radius: 24,
             child: Text(
               goal.name.isNotEmpty ? goal.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase() : "",
-              style: TextStyle(color: AppColors.main),
+              style: TextStyle(color: AppColors.primary),
             ),
           ),
         ],
@@ -217,13 +217,13 @@ class ExpenseCategoryButton extends StatelessWidget {
             child: category.icon != null
                 ? Icon(
                     deserializeIcon(jsonDecode(category.icon!)),
-                    color: AppColors.main,
+                    color: AppColors.primary,
                   )
                 : Text(
                     category.name.isNotEmpty
                         ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
                         : "",
-                    style: TextStyle(color: AppColors.main),
+                    style: TextStyle(color: AppColors.primary),
                   ),
           ),
         ],
@@ -261,13 +261,13 @@ class IncomeCategoryButton extends StatelessWidget {
             child: category.icon != null
                 ? Icon(
                     deserializeIcon(jsonDecode(category.icon!)),
-                    color: AppColors.main,
+                    color: AppColors.primary,
                   )
                 : Text(
                     category.name.isNotEmpty
                         ? category.name.split(" ").map((e) => e[0]).take(2).join().toUpperCase()
                         : "",
-                    style: TextStyle(color: AppColors.main),
+                    style: TextStyle(color: AppColors.primary),
                   ),
           ),
         ],

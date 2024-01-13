@@ -6,6 +6,7 @@ import 'package:expense_tracker/bloc/tag/tag_bloc.dart';
 import 'package:expense_tracker/bloc/transaction/transaction_bloc.dart';
 import 'package:expense_tracker/navbar.dart';
 import 'package:expense_tracker/notification.dart';
+import 'package:expense_tracker/screens/login.dart';
 import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -50,12 +51,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(
         brightness: Brightness.light,
-        primaryColor: AppColors.main,
+        primaryColor: AppColors.primary,
         colorScheme: ColorScheme.fromSwatch().copyWith(secondary: AppColors.accent),
       ),
       debugShowCheckedModeBanner: false,
       home: const MyBottomNavigationBar(),
-      // home: LoginPage(),
+      // home: const LoginPage(),
     );
   }
 }

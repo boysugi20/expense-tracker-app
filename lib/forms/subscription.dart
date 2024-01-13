@@ -86,8 +86,8 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                   subscription.name = value!;
                 }),
             FormTextInput(
-                title: 'Amount',
-                labelText: 'Subscription amount',
+                title: 'Monthly Amount',
+                labelText: 'Monthly transaction amount',
                 isRequired: true,
                 initalText: subscription.amount != 0 ? amountDoubleToString(subscription.amount) : '',
                 isKeypad: true,
