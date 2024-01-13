@@ -265,6 +265,8 @@ class _FormDateInputState extends State<FormDateInput> {
             onSaved: widget.onSave,
             controller: _textController,
             decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.base100,
               helperText: widget.helperText,
               hintText: widget.labelText,
               hintStyle: TextStyle(color: AppColors.base300, fontSize: 12),
