@@ -1,16 +1,22 @@
-# expense_tracker
+# ExpenseTracker
 
-A new Flutter project.
+- [About](#about)
+- [Features](#features)
+- [Screenshots](#screenshots)
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+## About
+Expense Tracker is an application designed to simplify the management of your budget. Whether you're tracking daily expenses, monitoring transactions, or configuring personalized settings, Expense Tracker provides a user-friendly interface to streamline your financial management experience.
 
-A few resources to get you started if this is your first Flutter project:
+## Features
+- Dashboard: Get an overview of your financial status at a glance
+- Budget mode: Show a balance based on your custom monthly budget
+- Add Transaction: Easily add a transaction based on category
+- Goal: Set a financial goal you want to achieve
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Screenshots
+![dashboard](https://github.com/boysugi20/expense-tracker/assets/53815726/d5136305-1f97-4af7-8518-5dfab1824c29)
+![transactions](https://github.com/boysugi20/expense-tracker/assets/53815726/b01d808a-68b4-4db6-97b2-83ab80c471ad)
+![add_transaction](https://github.com/boysugi20/expense-tracker/assets/53815726/74dccbe4-1ae8-47b3-9d30-5060378b278f)
+![configuration](https://github.com/boysugi20/expense-tracker/assets/53815726/88a05986-b280-48f2-97aa-113ed5fbd130)
+![settings](https://github.com/boysugi20/expense-tracker/assets/53815726/ebf08417-0548-47ed-88bb-56ba09d7c301)
