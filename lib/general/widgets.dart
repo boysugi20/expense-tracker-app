@@ -54,9 +54,7 @@ class AddButton extends StatelessWidget {
           ? () {
               onPressed!(context);
             }
-          : () {
-              print("Add$text");
-            },
+          : () {},
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -438,8 +436,6 @@ class _FormIconInputState extends State<FormIconInput> {
           RegExp(r'(\w+):\s?(\w+)'),
           (match) => '"${match.group(1)}": "${match.group(2)}"',
         );
-
-    print(formattedString);
 
     return formattedString;
   }
