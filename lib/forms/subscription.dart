@@ -1,13 +1,10 @@
-import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:expense_tracker/bloc/subscription/subscription_bloc.dart';
 import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
 import 'package:expense_tracker/models/subscription.dart';
-import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 
 class SubscriptionForm extends StatefulWidget {
   final Subscription? initialValues;

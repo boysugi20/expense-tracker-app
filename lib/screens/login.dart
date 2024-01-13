@@ -46,7 +46,6 @@ class _LoginForm extends StatefulWidget {
 class _LoginFormState extends State<_LoginForm> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {

@@ -51,6 +51,7 @@ dependencies:
     dotted_border: ^2.0.0+3
     flutter_multi_select_items: ^0.4.2
     flutter_material_color_picker: ^1.2.0
+    equatable: ^2.0.5
 
 dev_dependencies:
     flutter_test:

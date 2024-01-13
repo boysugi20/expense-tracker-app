@@ -3,8 +3,6 @@ import 'package:expense_tracker/bloc/expenseCategory/expenseCategory_bloc.dart';
 import 'package:expense_tracker/bloc/goal/goal_bloc.dart';
 import 'package:expense_tracker/bloc/incomeCategory/incomeCategory_bloc.dart';
 import 'package:expense_tracker/general/widgets.dart';
-import 'package:expense_tracker/database/expenseCategory_dao.dart';
-import 'package:expense_tracker/database/goal_dao.dart';
 import 'package:expense_tracker/models/expenseCategory.dart';
 import 'package:expense_tracker/models/goal.dart';
 import 'package:expense_tracker/models/incomeCategory.dart';

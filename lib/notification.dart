@@ -1,17 +1,12 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
-  static Future initialize(
-      FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  static Future initialize(FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
     flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
         ?.requestPermission();
-    var androidInit =
-        const AndroidInitializationSettings('mipmap/expense_tracker');
-    var initializationSettingsDarwin = const DarwinInitializationSettings();
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
+    var androidInit = const AndroidInitializationSettings('mipmap/expense_tracker');
+    final InitializationSettings initializationSettings = InitializationSettings(
       android: androidInit,
     );
     await flutterLocalNotificationsPlugin.initialize(
@@ -25,8 +20,7 @@ class NotificationService {
       required String body,
       var payload,
       required FlutterLocalNotificationsPlugin fln}) async {
-    AndroidNotificationDetails androidNotificationDetails =
-        const AndroidNotificationDetails(
+    AndroidNotificationDetails androidNotificationDetails = const AndroidNotificationDetails(
       'default_notification_channel_id',
       'Default',
 
