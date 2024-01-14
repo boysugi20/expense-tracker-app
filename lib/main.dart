@@ -72,7 +72,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         brightness: Brightness.light,
         primaryColor: AppColors.primary,
-        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: AppColors.accent),
       ),
       debugShowCheckedModeBanner: false,
       home: const MyBottomNavigationBar(),

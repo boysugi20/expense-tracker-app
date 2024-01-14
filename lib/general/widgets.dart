@@ -538,9 +538,9 @@ class _FormIconInputState extends State<FormIconInput> {
                   overlayColor: MaterialStateProperty.all<Color>(Colors.transparent),
                   elevation: MaterialStateProperty.all<double>(0),
                 ),
-                child: const Text(
+                child: Text(
                   'Choose Icon',
-                  style: TextStyle(fontSize: 11),
+                  style: TextStyle(fontSize: 11, color: AppColors.base100),
                 ),
               )
             ],

@@ -59,7 +59,8 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
                 openBottomModalCategory(context, changeScreen);
               },
               backgroundColor: AppColors.accent,
-              child: const Icon(Icons.add),
+              shape: const CircleBorder(),
+              child: Icon(Icons.add, color: AppColors.base100),
             ),
           ),
         ),

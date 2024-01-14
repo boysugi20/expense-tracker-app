@@ -67,6 +67,8 @@ class _BottomModalCategoryState extends State<BottomModalCategory> with SingleTi
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(width: 2, color: AppColors.accent),
                       color: AppColors.accent),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  indicatorWeight: 2,
                   labelColor: AppColors.base100,
                   unselectedLabelColor: AppColors.base300,
                   tabs: myTabs),

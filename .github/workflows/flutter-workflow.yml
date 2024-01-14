@@ -18,7 +18,7 @@ jobs:
               with:
                   channel: "beta"
             - run: flutter pub get
-            - run: flutter build apk --no-tree-shake-icons
+            - run: flutter build apk --no-tree-shake-icons --release
             - uses: ncipollo/release-action@v1
               with:
                   artifacts: build/app/outputs/apk/release/app-release.apk
