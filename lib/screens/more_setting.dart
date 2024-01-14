@@ -19,7 +19,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:workmanager/workmanager.dart';
 
 class MoreSettingPage extends StatefulWidget {
   const MoreSettingPage({Key? key}) : super(key: key);

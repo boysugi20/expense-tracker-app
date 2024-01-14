@@ -15,6 +15,7 @@ import 'package:workmanager/workmanager.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
+@pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) {
     switch (task) {
@@ -25,7 +26,6 @@ void callbackDispatcher() {
         String endDateString = inputData?['endDate'];
         DateTime startDate = DateTime.parse(startDateString);
         DateTime endDate = DateTime.parse(endDateString);
-
         sendSubscriptionPaymentReminder(name, startDate, endDate, paymentDay);
         break;
     }
