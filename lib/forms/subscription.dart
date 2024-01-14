@@ -3,8 +3,10 @@ import 'package:expense_tracker/general/functions.dart';
 import 'package:expense_tracker/general/widgets.dart';
 import 'package:expense_tracker/forms/template.dart';
 import 'package:expense_tracker/models/subscription.dart';
+import 'package:expense_tracker/styles/color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:workmanager/workmanager.dart';
 
 class SubscriptionForm extends StatefulWidget {
   final Subscription? initialValues;
@@ -20,13 +22,16 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
   final _formKey = GlobalKey<FormState>();
 
   Subscription subscription =
-      Subscription(id: 0, name: '', amount: 0, startDate: DateTime.now(), endDate: DateTime.now());
+      Subscription(id: 0, name: '', amount: 0, startDate: DateTime.now(), endDate: DateTime.now(), paymentDay: 1);
 
   bool datePicked = false;
   List<DateTime?> dateTimeRange = [
     DateTime(DateTime.now().year, DateTime.now().month, 1),
     DateTime(DateTime.now().year, DateTime.now().month + 1, 0)
   ];
+
+  List<int> dayList = List<int>.generate(31, (index) => index + 1);
+  int dayDropdown = 1;
 
   Future<void> insertSubscription() async {
     if (subscription.name.isNotEmpty) {
@@ -47,6 +52,7 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
     super.initState();
     if (widget.initialValues != null) {
       subscription = widget.initialValues!;
+      dayDropdown = subscription.paymentDay;
       dateTimeRange = [subscription.startDate, subscription.endDate];
     }
   }
@@ -110,6 +116,46 @@ class _SubscriptionFormState extends State<SubscriptionForm> {
                 subscription.endDate = dateRange.end;
               },
             ),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: RichText(
+                        text: const TextSpan(text: 'Payment day', style: TextStyle(color: Colors.black, fontSize: 14)),
+                      ),
+                    ),
+                  ],
+                ),
+                CardContainer(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Select Payment Day:'),
+                      DropdownButton<int>(
+                        value: dayDropdown,
+                        icon: const Icon(Icons.arrow_drop_down),
+                        elevation: 16,
+                        style: TextStyle(color: AppColors.primary),
+                        onChanged: (int? value) {
+                          subscription.paymentDay = value!;
+                          setState(() {
+                            dayDropdown = value;
+                          });
+                        },
+                        items: dayList.map<DropdownMenuItem<int>>((int value) {
+                          return DropdownMenuItem<int>(
+                            value: value,
+                            child: Text(value.toString()),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            )
           ],
         ),
       ),

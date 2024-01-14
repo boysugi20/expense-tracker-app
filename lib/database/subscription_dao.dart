@@ -1,6 +1,22 @@
 import 'package:expense_tracker/database/connection.dart';
 import 'package:expense_tracker/models/subscription.dart';
 import 'package:sqflite/sqflite.dart' as sql;
+import 'package:workmanager/workmanager.dart';
+
+void scheduleSubscriptionReminder(uniqueName, Subscription subscription) {
+  Workmanager().cancelByUniqueName(uniqueName);
+  Workmanager().registerPeriodicTask(
+    uniqueName,
+    'subscription_reminder',
+    inputData: <String, dynamic>{
+      'name': subscription.name,
+      'startDate': subscription.startDate.toIso8601String(),
+      'endDate': subscription.endDate.toIso8601String(),
+      'paymentDate': subscription.paymentDay,
+    },
+    frequency: const Duration(hours: 6),
+  );
+}
 
 // Data Access Object
 class SubscriptionDAO {
@@ -9,7 +25,12 @@ class SubscriptionDAO {
     final db = await DatabaseHelper.initializeDB();
 
     final data = subscription.toMap();
+    data.remove('id');
+
     final id = await db.insert('Subscriptions', data, conflictAlgorithm: sql.ConflictAlgorithm.replace);
+
+    final uniqueName = 'subscription_$id';
+    scheduleSubscriptionReminder(uniqueName, subscription);
 
     return id;
   }
@@ -30,10 +51,15 @@ class SubscriptionDAO {
       'amount': subscription.amount,
       'startDate': subscription.startDate.toIso8601String(),
       'endDate': subscription.endDate.toIso8601String(),
-      'createdAt': DateTime.now().toIso8601String()
+      'createdAt': DateTime.now().toIso8601String(),
+      'paymentDay': subscription.paymentDay,
     };
 
     final result = await db.update('Subscriptions', data, where: "id = ?", whereArgs: [subscription.id]);
+
+    final uniqueName = 'subscription_${subscription.id}';
+    scheduleSubscriptionReminder(uniqueName, subscription);
+
     return result;
   }
 

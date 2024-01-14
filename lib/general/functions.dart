@@ -1,4 +1,6 @@
+import 'package:expense_tracker/main.dart';
 import 'package:expense_tracker/models/transaction.dart';
+import 'package:expense_tracker/notification.dart';
 import 'package:expense_tracker/screens/modal_category.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -215,4 +217,38 @@ String dateToString(DateTime dateTime) {
   String dateString = dateFormat.format(dateTime);
 
   return dateString;
+}
+
+Future<void> markNotificationAsSent(String reminderId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setBool(reminderId, true);
+}
+
+Future<bool> hasNotificationBeenSent(String reminderId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.containsKey(reminderId) && prefs.getBool(reminderId) == true;
+}
+
+void sendSubscriptionPaymentReminder(String name, DateTime startDate, DateTime endDate, int paymentDay) async {
+  DateTime currentDate = DateTime.now();
+
+  if (currentDate.isAfter(startDate) && currentDate.isBefore(endDate)) {
+    DateTime currentPaymentDate = DateTime(currentDate.year, currentDate.month, paymentDay);
+    DateTime threeDaysBeforePayment = currentPaymentDate.subtract(const Duration(days: 3));
+
+    if (currentDate.isAtSameMomentAs(threeDaysBeforePayment) || currentDate.isAfter(threeDaysBeforePayment)) {
+      int remainingDays = currentPaymentDate.difference(currentDate).inDays;
+
+      String title = 'Payment Reminder';
+      String body = 'Your $name payment is due in $remainingDays days. Don\'t forget!';
+      if (remainingDays == 0) {
+        body = 'Your $name payment is due today! Don\'t forget!';
+      }
+      NotificationService.showNotification(
+        title: title,
+        body: body,
+        fln: flutterLocalNotificationsPlugin,
+      );
+    }
+  }
 }

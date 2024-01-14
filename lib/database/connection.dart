@@ -84,6 +84,7 @@ class DatabaseHelper {
         amount REAL,
         startDate DATETIME,
         endDate DATETIME,
+        paymentDay INTEGER,
         createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
 

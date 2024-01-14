@@ -23,9 +23,7 @@ class NotificationService {
     AndroidNotificationDetails androidNotificationDetails = const AndroidNotificationDetails(
       'default_notification_channel_id',
       'Default',
-
       playSound: true,
-      // sound: RawResourceAndroidNotificationSound('notification'),
       importance: Importance.max,
       priority: Priority.high,
       styleInformation: BigTextStyleInformation(''),
@@ -33,6 +31,10 @@ class NotificationService {
 
     var not = NotificationDetails(android: androidNotificationDetails);
 
-    await fln.show(0, title, body, not);
+    // Generate a unique ID based on the current timestamp
+    int id = DateTime.now().millisecondsSinceEpoch.hashCode;
+
+    await fln.show(id, title, body, not);
+    await Future.delayed(const Duration(seconds: 1));
   }
 }

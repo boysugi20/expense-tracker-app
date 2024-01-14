@@ -491,6 +491,13 @@ class SubscriptionCard extends StatelessWidget {
                   'Rp ${amountDoubleToString(subscription.amount)}',
                   style: TextStyle(color: AppColors.base100),
                 ),
+                Container(
+                  height: 8,
+                ),
+                Text(
+                  'Payment day: ${subscription.paymentDay.toString()}',
+                  style: TextStyle(color: AppColors.base100, fontSize: 11),
+                ),
               ],
             ),
           ],
